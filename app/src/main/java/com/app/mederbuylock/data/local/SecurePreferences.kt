@@ -48,8 +48,8 @@ class SecurePreferences @Inject constructor(
 
     companion object {
         const val PREFS_NAME = "mederpay_secure_prefs"
-        private const val KEY_DEVICE_TOKEN = "device_token"
-        private const val KEY_IMEI_CACHE = "imei_cache"
-        private const val KEY_IS_LOCKED = "is_locked"
+        const val KEY_DEVICE_TOKEN = "device_token"
+        const val KEY_IMEI_CACHE = "imei_cache"
+        const val KEY_IS_LOCKED = "is_locked"
     }
 }

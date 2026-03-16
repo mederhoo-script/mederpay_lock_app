@@ -30,8 +30,12 @@ object DeviceUtils {
 
                 if (hasPermission) {
                     val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-                    @Suppress("DEPRECATION")
-                    tm.imei ?: getAndroidId(context)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        tm.getImei(0) ?: getAndroidId(context)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        tm.deviceId ?: getAndroidId(context)
+                    }
                 } else {
                     getAndroidId(context)
                 }

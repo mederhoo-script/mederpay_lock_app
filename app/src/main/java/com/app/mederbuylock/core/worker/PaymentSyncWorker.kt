@@ -7,6 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.app.mederbuylock.MainActivity
 import com.app.mederbuylock.core.utils.Result as AppResult
+import com.app.mederbuylock.data.local.SecurePreferences
 import com.app.mederbuylock.domain.model.PaymentStatus
 import com.app.mederbuylock.domain.usecase.CheckPaymentStatusUseCase
 import com.app.mederbuylock.domain.usecase.LockDeviceUseCase
@@ -28,9 +29,9 @@ class PaymentSyncWorker @AssistedInject constructor(
         Timber.d("PaymentSyncWorker: starting")
 
         val prefs = applicationContext.getSharedPreferences(
-            "mederpay_secure_prefs", Context.MODE_PRIVATE,
+            SecurePreferences.PREFS_NAME, Context.MODE_PRIVATE,
         )
-        val imei = prefs.getString("imei_cache", null)
+        val imei = prefs.getString(SecurePreferences.KEY_IMEI_CACHE, null)
 
         if (imei.isNullOrBlank()) {
             Timber.w("PaymentSyncWorker: no IMEI cached — retrying later")
