@@ -6,7 +6,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.app.mederbuylock.MainActivity
-import com.app.mederbuylock.core.utils.Result
+import com.app.mederbuylock.core.utils.Result as AppResult
 import com.app.mederbuylock.domain.model.PaymentStatus
 import com.app.mederbuylock.domain.usecase.CheckPaymentStatusUseCase
 import com.app.mederbuylock.domain.usecase.LockDeviceUseCase
@@ -38,15 +38,15 @@ class PaymentSyncWorker @AssistedInject constructor(
         }
 
         return when (val result = checkPaymentStatusUseCase(imei)) {
-            is com.app.mederbuylock.core.utils.Result.Success -> {
+            is AppResult.Success -> {
                 handleStatus(result.data)
                 Result.success()
             }
-            is com.app.mederbuylock.core.utils.Result.Error -> {
+            is AppResult.Error -> {
                 Timber.e("PaymentSyncWorker error: ${result.message}")
                 Result.retry()
             }
-            is com.app.mederbuylock.core.utils.Result.Loading -> Result.retry()
+            is AppResult.Loading -> Result.retry()
         }
     }
 
