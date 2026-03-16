@@ -27,7 +27,7 @@ class BootReceiver : BroadcastReceiver() {
             SecurePreferences.PREFS_NAME,
             Context.MODE_PRIVATE,
         )
-        val isLocked = prefs.getBoolean("is_locked", false)
+        val isLocked = prefs.getBoolean(SecurePreferences.KEY_IS_LOCKED, false)
 
         if (isLocked) {
             Timber.d("Device is locked — launching MainActivity")

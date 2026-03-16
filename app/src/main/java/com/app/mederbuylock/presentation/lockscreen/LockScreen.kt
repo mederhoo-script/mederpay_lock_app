@@ -40,14 +40,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-
-private const val SUPPORT_PHONE = "+996700000000"
+import com.app.mederbuylock.R
 
 @Composable
 fun LockScreen(
@@ -55,13 +55,14 @@ fun LockScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val supportPhone = stringResource(R.string.support_phone)
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
                 LockScreenEvent.CallSupport -> {
                     context.startActivity(
-                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:$SUPPORT_PHONE"))
+                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:$supportPhone"))
                     )
                 }
                 LockScreenEvent.EmergencyCall -> {
