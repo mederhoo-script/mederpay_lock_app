@@ -1,5 +1,7 @@
 package com.app.mederbuylock.data.repository
 
+import android.content.Context
+import com.app.mederbuylock.core.utils.DeviceUtils
 import com.app.mederbuylock.core.utils.Result
 import com.app.mederbuylock.data.local.SecurePreferences
 import com.app.mederbuylock.data.local.dao.DeviceDao
@@ -7,10 +9,12 @@ import com.app.mederbuylock.data.local.entity.DeviceInfoEntity
 import com.app.mederbuylock.data.remote.ApiService
 import com.app.mederbuylock.domain.model.DeviceInfo
 import com.app.mederbuylock.domain.repository.DeviceRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import javax.inject.Inject
 
 class DeviceRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val apiService: ApiService,
     private val deviceDao: DeviceDao,
     private val securePreferences: SecurePreferences,
@@ -25,7 +29,7 @@ class DeviceRepositoryImpl @Inject constructor(
                 val dto = requireNotNull(response.body()) { "Response body was null" }
                 val deviceInfo = DeviceInfo(
                     imei = dto.imei,
-                    androidId = securePreferences.cachedImei.orEmpty(),
+                    androidId = DeviceUtils.getAndroidId(context),
                     deviceToken = token,
                     isLocked = dto.isLocked,
                     daysOverdue = dto.daysOverdue,
