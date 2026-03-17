@@ -19,10 +19,10 @@ sealed class PaymentStatus {
     companion object {
         fun fromString(status: String, daysOverdue: Int = 0, daysRemaining: Int = 0): PaymentStatus =
             when (status.uppercase()) {
-                "ACTIVE" -> Active
-                "LOCKED" -> Locked
-                "OVERDUE" -> Overdue(daysOverdue)
-                "GRACE_PERIOD" -> GracePeriod(daysRemaining)
+                "ACTIVE", "COMPLETED" -> Active
+                "LOCKED", "LOCK"      -> Locked
+                "OVERDUE", "DEFAULTED" -> Overdue(daysOverdue)
+                "GRACE_PERIOD", "GRACE" -> GracePeriod(daysRemaining)
                 else -> Active
             }
     }
