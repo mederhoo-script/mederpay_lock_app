@@ -5,17 +5,13 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
-  Smartphone,
-  Users,
   ShoppingBag,
-  CreditCard,
-  UserPlus,
-  Settings,
+  FileText,
+  UserCircle2,
   LogOut,
   Menu,
   X,
   ChevronRight,
-  FileText,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
@@ -27,14 +23,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', href: '/agent/dashboard', icon: LayoutDashboard },
-  { label: 'Phones', href: '/agent/phones', icon: Smartphone },
-  { label: 'Buyers', href: '/agent/buyers', icon: Users },
-  { label: 'Sales', href: '/agent/sales', icon: ShoppingBag },
-  { label: 'Payments', href: '/agent/payments', icon: CreditCard },
-  { label: 'Sub-Agents', href: '/agent/sub-agents', icon: UserPlus },
-  { label: 'Logs', href: '/agent/logs', icon: FileText },
-  { label: 'Settings', href: '/agent/settings', icon: Settings },
+  { label: 'Dashboard', href: '/subagent/dashboard', icon: LayoutDashboard },
+  { label: 'Sales', href: '/subagent/sales', icon: ShoppingBag },
+  { label: 'Logs', href: '/subagent/logs', icon: FileText },
 ]
 
 function SidebarContent({
@@ -51,10 +42,13 @@ function SidebarContent({
       {/* Brand */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#0070F3] flex items-center justify-center">
-            <Smartphone className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
+            <UserCircle2 className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-white text-sm">MederBuy</span>
+          <div>
+            <p className="font-bold text-white text-sm leading-none">MederBuy</p>
+            <p className="text-[10px] text-white/40 mt-0.5 uppercase tracking-wider">Sub-Agent</p>
+          </div>
         </div>
         {onClose && (
           <button
@@ -79,7 +73,7 @@ function SidebarContent({
               onClick={onClose}
               className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-[#0070F3]/15 text-[#0070F3]'
+                  ? 'bg-emerald-600/15 text-emerald-400'
                   : 'text-white/60 hover:bg-white/5 hover:text-white'
               }`}
             >
@@ -105,7 +99,7 @@ function SidebarContent({
   )
 }
 
-export default function AgentLayout({ children }: { children: React.ReactNode }) {
+export default function SubagentLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -131,7 +125,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
         />
       )}
 
-      {/* Sidebar — desktop always visible, mobile slide-in */}
+      {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-60 shrink-0 border-r border-white/10 bg-card transition-transform duration-200 lg:static lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -155,7 +149,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
           >
             <Menu className="w-5 h-5" />
           </button>
-          <span className="font-semibold text-white text-sm">MederBuy — Agent</span>
+          <span className="font-semibold text-white text-sm">MederBuy — Sub-Agent</span>
         </header>
 
         {/* Page content */}
