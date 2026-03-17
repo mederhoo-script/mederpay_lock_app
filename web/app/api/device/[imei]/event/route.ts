@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
+import { isValidDeviceId } from '@/lib/utils'
 
 const ALLOWED_EVENT_TYPES = [
   'DEVICE_REGISTERED',
@@ -33,8 +34,8 @@ export async function POST(
 
   const { imei } = await params
 
-  if (!/^\d{15}$/.test(imei)) {
-    return NextResponse.json({ error: 'Invalid IMEI format' }, { status: 400 })
+  if (!isValidDeviceId(imei)) {
+    return NextResponse.json({ error: 'Invalid device identifier format' }, { status: 400 })
   }
 
   let body: EventBody

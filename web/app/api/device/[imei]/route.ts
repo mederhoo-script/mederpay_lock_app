@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
+import { isValidDeviceId } from '@/lib/utils'
 
 interface BuyerRow {
   full_name: string
@@ -59,8 +60,8 @@ export async function GET(
 
   const { imei } = await params
 
-  if (!/^\d{15}$/.test(imei)) {
-    return NextResponse.json({ error: 'Invalid IMEI format' }, { status: 400 })
+  if (!isValidDeviceId(imei)) {
+    return NextResponse.json({ error: 'Invalid device identifier format' }, { status: 400 })
   }
 
   const supabase = createServiceClient()

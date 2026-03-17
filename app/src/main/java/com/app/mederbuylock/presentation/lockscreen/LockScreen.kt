@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -178,6 +179,54 @@ fun LockScreen(
                                 "Payment due: ${device.paymentDueDate}",
                                 color = Color(0xFF90A4AE),
                             )
+                        }
+
+                        // Virtual account / payment info
+                        if (!device.accountNumber.isNullOrBlank() || device.balance > 0) {
+                            androidx.compose.material3.HorizontalDivider(
+                                color = Color.White.copy(alpha = 0.1f),
+                            )
+                            if (!device.accountNumber.isNullOrBlank()) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.CreditCard,
+                                        contentDescription = null,
+                                        tint = Color(0xFF4FC3F7),
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Column {
+                                        Text(
+                                            "Pay to Account",
+                                            color = Color(0xFF90A4AE),
+                                            fontSize = 11.sp,
+                                        )
+                                        Text(
+                                            device.accountNumber,
+                                            color = Color(0xFF4FC3F7),
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 15.sp,
+                                        )
+                                    }
+                                }
+                            }
+                            if (device.balance > 0) {
+                                val balanceFormatted = "₦${"%,.0f".format(device.balance / 100.0)}"
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.Warning,
+                                        contentDescription = null,
+                                        tint = Color(0xFFEF5350),
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        "Outstanding: $balanceFormatted",
+                                        color = Color(0xFFEF5350),
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            }
                         }
                     }
                 }

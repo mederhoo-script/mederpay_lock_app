@@ -5,9 +5,12 @@ import android.content.Intent
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.app.mederbuylock.BuildConfig
 import com.app.mederbuylock.MainActivity
 import com.app.mederbuylock.core.utils.Result as AppResult
 import com.app.mederbuylock.data.local.SecurePreferences
+import com.app.mederbuylock.data.remote.ApiService
+import com.app.mederbuylock.data.remote.dto.DeviceEventRequest
 import com.app.mederbuylock.domain.model.PaymentStatus
 import com.app.mederbuylock.domain.usecase.CheckPaymentStatusUseCase
 import com.app.mederbuylock.domain.usecase.LockDeviceUseCase
@@ -24,6 +27,7 @@ class PaymentSyncWorker @AssistedInject constructor(
     private val lockDeviceUseCase: LockDeviceUseCase,
     private val unlockDeviceUseCase: UnlockDeviceUseCase,
     private val securePreferences: SecurePreferences,
+    private val apiService: ApiService,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -38,28 +42,42 @@ class PaymentSyncWorker @AssistedInject constructor(
 
         return when (val result = checkPaymentStatusUseCase(imei)) {
             is AppResult.Success -> {
-                handleStatus(result.data)
+                handleStatus(imei, result.data)
                 Result.success()
             }
             is AppResult.Error -> {
                 Timber.e("PaymentSyncWorker error: ${result.message}")
+                postEvent(imei, "SYNC_FAIL", result.message)
                 Result.retry()
             }
             is AppResult.Loading -> Result.retry()
         }
     }
 
-    private suspend fun handleStatus(status: PaymentStatus) {
+    private suspend fun handleStatus(imei: String, status: PaymentStatus) {
         when (status) {
             is PaymentStatus.Locked, is PaymentStatus.Overdue -> {
                 Timber.w("PaymentSyncWorker: device should be locked ($status)")
                 lockDeviceUseCase()
+                postEvent(imei, "LOCK_ENFORCED", "Automatic lock by PaymentSyncWorker: $status")
                 launchLockScreen()
             }
             is PaymentStatus.Active, is PaymentStatus.GracePeriod -> {
                 Timber.d("PaymentSyncWorker: payment OK ($status)")
                 unlockDeviceUseCase()
             }
+        }
+    }
+
+    private suspend fun postEvent(imei: String, eventType: String, details: String?) {
+        try {
+            apiService.postDeviceEvent(
+                imei,
+                BuildConfig.DEVICE_API_SECRET,
+                DeviceEventRequest(eventType = eventType, details = details),
+            )
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to post $eventType event (non-fatal)")
         }
     }
 

@@ -159,6 +159,30 @@ fun HomeScreen(
                                 )
                             }
                         }
+
+                        // Payment account card (shown when a virtual account is available)
+                        if (!device.accountNumber.isNullOrBlank() || device.balance > 0 || !device.paymentUrl.isNullOrBlank()) {
+                            InfoCard(containerColor = Color(0xFF1B2A1B)) {
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text(
+                                        "Payment Info",
+                                        color = Color(0xFF81C784),
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 15.sp,
+                                    )
+                                    if (!device.accountNumber.isNullOrBlank()) {
+                                        DetailRow("Account Number", device.accountNumber)
+                                    }
+                                    if (device.balance > 0) {
+                                        val balanceFormatted = "₦${"%,.0f".format(device.balance / 100.0)}"
+                                        DetailRow("Outstanding Balance", balanceFormatted)
+                                    }
+                                    if (!device.paymentUrl.isNullOrBlank()) {
+                                        DetailRow("Pay via", device.paymentUrl)
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     uiState.error?.let { err ->
