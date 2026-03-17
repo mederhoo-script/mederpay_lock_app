@@ -104,7 +104,7 @@ export default function SubAgentsPage() {
           </p>
         </div>
         <a
-          href="/sub-agents/new"
+          href="/agent/sub-agents/new"
           className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
         >
           <UserPlus className="w-4 h-4" />
@@ -167,7 +167,7 @@ export default function SubAgentsPage() {
                 Clear search
               </button>
             ) : (
-              <a href="/sub-agents/new" className="text-xs text-[#0070F3] hover:underline">
+              <a href="/agent/sub-agents/new" className="text-xs text-[#0070F3] hover:underline">
                 Add your first sub-agent
               </a>
             )}
@@ -202,7 +202,7 @@ export default function SubAgentsPage() {
                     <td className="px-4 py-3 text-white/40 text-xs">{formatDate(sa.created_at)}</td>
                     <td className="px-4 py-3 text-right">
                       <a
-                        href={`/sub-agents/${sa.id}`}
+                        href={`/agent/sub-agents/${sa.id}`}
                         className="inline-flex items-center gap-1 text-xs text-[#0070F3] hover:text-[#0070F3]/80 transition-colors"
                       >
                         View <ChevronRight className="w-3.5 h-3.5" />

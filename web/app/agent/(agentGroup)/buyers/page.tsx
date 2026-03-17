@@ -108,7 +108,7 @@ export default function BuyersPage() {
           </p>
         </div>
         <a
-          href="/buyers/new"
+          href="/agent/buyers/new"
           className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -216,7 +216,7 @@ export default function BuyersPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <a
-                        href={`/buyers/${buyer.id}`}
+                        href={`/agent/buyers/${buyer.id}`}
                         className="inline-flex items-center gap-1 text-xs text-[#0070F3] hover:text-[#0070F3]/80 transition-colors"
                       >
                         View <ChevronRight className="w-3.5 h-3.5" />

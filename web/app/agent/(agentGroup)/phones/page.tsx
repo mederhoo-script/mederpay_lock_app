@@ -122,7 +122,7 @@ export default function PhonesPage() {
           </p>
         </div>
         <a
-          href="/phones/new"
+          href="/agent/phones/new"
           className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -233,7 +233,7 @@ export default function PhonesPage() {
                     <td className="px-4 py-3 text-white font-medium">{formatCurrency(phone.selling_price)}</td>
                     <td className="px-4 py-3 text-right">
                       <a
-                        href={`/phones/${phone.id}`}
+                        href={`/agent/phones/${phone.id}`}
                         className="inline-flex items-center gap-1 text-xs text-[#0070F3] hover:text-[#0070F3]/80 transition-colors"
                       >
                         View <ChevronRight className="w-3.5 h-3.5" />

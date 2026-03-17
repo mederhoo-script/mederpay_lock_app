@@ -226,7 +226,7 @@ export default function PhoneDetailPage() {
                 )}
 
                 <a
-                  href={`/phones/${phone.id}/edit`}
+                  href={`/agent/phones/${phone.id}/edit`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-colors"
                 >
                   <Edit2 className="w-3.5 h-3.5" /> Edit
@@ -283,7 +283,7 @@ export default function PhoneDetailPage() {
                   <p className="text-xs text-white/40 mt-1">{phone.sale.buyer.address}</p>
                 </div>
                 <a
-                  href={`/buyers/${phone.sale.buyer.id}`}
+                  href={`/agent/buyers/${phone.sale.buyer.id}`}
                   className="ml-auto text-xs text-[#0070F3] hover:underline whitespace-nowrap"
                 >
                   View buyer
@@ -330,7 +330,7 @@ export default function PhoneDetailPage() {
 
               <div className="flex gap-2 pt-2">
                 <a
-                  href={`/sales/${phone.sale.id}`}
+                  href={`/agent/sales/${phone.sale.id}`}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0070F3]/15 text-[#0070F3] text-sm font-medium hover:bg-[#0070F3]/25 transition-colors"
                 >
                   <CreditCard className="w-4 h-4" /> View Sale
@@ -341,7 +341,7 @@ export default function PhoneDetailPage() {
             <div className="rounded-xl border border-dashed border-white/10 p-8 text-center">
               <p className="text-sm text-white/40">This phone has not been sold yet.</p>
               <a
-                href={`/sales/new?phone=${phone.id}`}
+                href={`/agent/sales/new?phone=${phone.id}`}
                 className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[#0070F3] text-white text-sm font-medium rounded-lg hover:bg-[#0070F3]/90 transition-colors"
               >
                 Sell this Phone
