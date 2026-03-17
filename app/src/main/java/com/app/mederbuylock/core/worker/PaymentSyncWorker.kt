@@ -23,15 +23,13 @@ class PaymentSyncWorker @AssistedInject constructor(
     private val checkPaymentStatusUseCase: CheckPaymentStatusUseCase,
     private val lockDeviceUseCase: LockDeviceUseCase,
     private val unlockDeviceUseCase: UnlockDeviceUseCase,
+    private val securePreferences: SecurePreferences,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         Timber.d("PaymentSyncWorker: starting")
 
-        val prefs = applicationContext.getSharedPreferences(
-            SecurePreferences.PREFS_NAME, Context.MODE_PRIVATE,
-        )
-        val imei = prefs.getString(SecurePreferences.KEY_IMEI_CACHE, null)
+        val imei = securePreferences.cachedImei
 
         if (imei.isNullOrBlank()) {
             Timber.w("PaymentSyncWorker: no IMEI cached — retrying later")

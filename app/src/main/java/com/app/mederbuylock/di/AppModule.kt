@@ -3,6 +3,7 @@ package com.app.mederbuylock.di
 import android.app.admin.DevicePolicyManager
 import android.content.Context
 import androidx.room.Room
+import com.app.mederbuylock.BuildConfig
 import com.app.mederbuylock.core.security.AppCertificatePinner
 import com.app.mederbuylock.data.local.dao.DeviceDao
 import com.app.mederbuylock.data.local.db.AppDatabase
@@ -38,7 +39,8 @@ object AppModule {
     @Singleton
     fun provideOkHttpClient(certificatePinner: AppCertificatePinner): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+                    else HttpLoggingInterceptor.Level.NONE
         }
         return OkHttpClient.Builder()
             .addInterceptor(logging)
