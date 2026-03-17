@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/fees/calculate",
+      "schedule": "0 0 * * 0"
+    }
+  ]
+}
