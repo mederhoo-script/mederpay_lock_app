@@ -150,7 +150,7 @@ export default function SalesPage() {
           </p>
         </div>
         <a
-          href="/sales/new"
+          href="/agent/sales/new"
           className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
         >
           <CreditCard className="w-4 h-4" />
@@ -291,14 +291,14 @@ export default function SalesPage() {
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <a
-                            href={`/sales/${sale.id}/edit`}
+                            href={`/agent/sales/${sale.id}/edit`}
                             className="inline-flex items-center gap-1 text-xs text-white/50 hover:text-white transition-colors"
                             title="Edit"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </a>
                           <a
-                            href={`/sales/${sale.id}`}
+                            href={`/agent/sales/${sale.id}`}
                             className="inline-flex items-center gap-1 text-xs text-[#0070F3] hover:text-[#0070F3]/80 transition-colors whitespace-nowrap"
                           >
                             View
