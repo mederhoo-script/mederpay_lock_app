@@ -1,5 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+
+// ─── PATCH Validation ─────────────────────────────────────────────────────────
+
+const UpdatePhoneSchema = z.object({
+  brand: z.string().min(1, 'Brand is required').optional(),
+  model: z.string().min(1, 'Model is required').optional(),
+  storage: z.string().optional(),
+  color: z.string().optional(),
+  cost_price: z.number().positive('Cost price must be positive').optional(),
+  selling_price: z.number().positive('Selling price must be positive').optional(),
+  down_payment: z.number().min(0, 'Down payment cannot be negative').optional(),
+  payment_weeks: z.number().int().positive('Payment weeks must be a positive integer').optional(),
+})
 
 interface PhoneRow {
   id: string
@@ -103,6 +117,89 @@ export async function GET(
 
   return NextResponse.json({ ...phone, sale })
 }
+
+// ─── PATCH ────────────────────────────────────────────────────────────────────
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { id } = await params
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
+  const parsed = UpdatePhoneSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
+      { status: 422 },
+    )
+  }
+
+  // Only available phones can be edited
+  const { data: existing, error: fetchError } = await supabase
+    .from('phones')
+    .select('id, status')
+    .eq('id', id)
+    .single()
+
+  if (fetchError || !existing) {
+    return NextResponse.json({ error: 'Phone not found' }, { status: 404 })
+  }
+
+  if ((existing as { status: string }).status !== 'available') {
+    return NextResponse.json(
+      { error: 'Only available phones can be edited' },
+      { status: 409 },
+    )
+  }
+
+  const updates: Record<string, unknown> = {}
+  if (parsed.data.brand !== undefined) updates.brand = parsed.data.brand
+  if (parsed.data.model !== undefined) updates.model = parsed.data.model
+  if (parsed.data.storage !== undefined) updates.storage = parsed.data.storage || null
+  if (parsed.data.color !== undefined) updates.color = parsed.data.color || null
+  if (parsed.data.cost_price !== undefined) updates.cost_price = parsed.data.cost_price
+  if (parsed.data.selling_price !== undefined) updates.selling_price = parsed.data.selling_price
+  if (parsed.data.down_payment !== undefined) updates.down_payment = parsed.data.down_payment
+  if (parsed.data.payment_weeks !== undefined) updates.payment_weeks = parsed.data.payment_weeks
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from('phones')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (updateError) {
+    console.error('Failed to update phone:', updateError)
+    return NextResponse.json({ error: 'Failed to update phone' }, { status: 500 })
+  }
+
+  return NextResponse.json(updated)
+}
+
+// ─── DELETE ───────────────────────────────────────────────────────────────────
 
 export async function DELETE(
   _request: NextRequest,
