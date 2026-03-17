@@ -35,7 +35,7 @@ export const RegisterBuyerSchema = z.object({
   address: z.string().min(5, 'Address is required'),
   bvn: z.string().length(11, 'BVN must be 11 digits').optional().or(z.literal('')),
   nin: z.string().length(11, 'NIN must be 11 digits').optional().or(z.literal('')),
-  phone_id: z.string().uuid('Please select a phone'),
+  phone_id: z.string().uuid('Please select a phone').optional().or(z.literal('')),
 })
 
 export const SellPhoneSchema = z.object({
