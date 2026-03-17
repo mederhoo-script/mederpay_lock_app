@@ -20,6 +20,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Shared secret used to authenticate Android device requests against the MederPay server.
+        // Override at build time via: -PANDROID_DEVICE_API_SECRET=your_secret
+        buildConfigField(
+            "String",
+            "DEVICE_API_SECRET",
+            "\"${project.findProperty("ANDROID_DEVICE_API_SECRET") ?: "change-me-before-release"}\"",
+        )
     }
 
     buildTypes {

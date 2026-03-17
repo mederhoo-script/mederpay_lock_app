@@ -7,7 +7,7 @@ import com.app.mederbuylock.data.local.entity.DeviceInfoEntity
 
 @Database(
     entities = [DeviceInfoEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {

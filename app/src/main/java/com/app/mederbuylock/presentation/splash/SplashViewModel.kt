@@ -55,11 +55,6 @@ class SplashViewModel @Inject constructor(
         val isRooted = rootDetector.isRooted(context)
         _uiState.update { it.copy(isRooted = isRooted) }
 
-        // Ensure a device token exists
-        if (securePreferences.deviceToken.isNullOrBlank()) {
-            securePreferences.deviceToken = DeviceUtils.generateDeviceToken()
-        }
-
         val imei = DeviceUtils.getImei(context)
         securePreferences.cachedImei = imei
 

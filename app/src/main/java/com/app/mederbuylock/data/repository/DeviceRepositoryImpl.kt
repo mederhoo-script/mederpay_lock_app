@@ -1,6 +1,7 @@
 package com.app.mederbuylock.data.repository
 
 import android.content.Context
+import com.app.mederbuylock.BuildConfig
 import com.app.mederbuylock.core.utils.DeviceUtils
 import com.app.mederbuylock.core.utils.Result
 import com.app.mederbuylock.data.local.SecurePreferences
@@ -22,20 +23,22 @@ class DeviceRepositoryImpl @Inject constructor(
 
     override suspend fun getDeviceInfo(imei: String): Result<DeviceInfo> {
         return try {
-            val token = securePreferences.deviceToken.orEmpty()
-            val response = apiService.getDeviceInfo(imei, token)
+            val response = apiService.getDeviceInfo(imei, BuildConfig.DEVICE_API_SECRET)
 
             if (response.isSuccessful) {
                 val dto = requireNotNull(response.body()) { "Response body was null" }
                 val deviceInfo = DeviceInfo(
-                    imei = dto.imei,
+                    imei = imei,
                     androidId = DeviceUtils.getAndroidId(context),
-                    deviceToken = token,
                     isLocked = dto.isLocked,
                     daysOverdue = dto.daysOverdue,
-                    paymentDueDate = dto.paymentDueDate,
-                    userName = dto.userName,
-                    phoneNumber = dto.phoneNumber,
+                    paymentDueDate = dto.paymentDueDate ?: "",
+                    userName = dto.userName ?: "",
+                    phoneNumber = dto.phoneNumber ?: dto.supportPhone ?: "",
+                    paymentStatus = dto.paymentStatus,
+                    accountNumber = dto.accountNumber,
+                    balance = dto.balance,
+                    paymentUrl = dto.paymentUrl,
                 )
                 saveDeviceInfo(deviceInfo)
                 Result.Success(deviceInfo)
@@ -66,22 +69,28 @@ class DeviceRepositoryImpl @Inject constructor(
     private fun DeviceInfoEntity.toDomain() = DeviceInfo(
         imei = imei,
         androidId = androidId,
-        deviceToken = deviceToken,
         isLocked = isLocked,
         daysOverdue = daysOverdue,
         paymentDueDate = paymentDueDate,
         userName = userName,
         phoneNumber = phoneNumber,
+        paymentStatus = paymentStatus,
+        accountNumber = accountNumber,
+        balance = balance,
+        paymentUrl = paymentUrl,
     )
 
     private fun DeviceInfo.toEntity() = DeviceInfoEntity(
         imei = imei,
         androidId = androidId,
-        deviceToken = deviceToken,
         isLocked = isLocked,
         daysOverdue = daysOverdue,
         paymentDueDate = paymentDueDate,
         userName = userName,
         phoneNumber = phoneNumber,
+        paymentStatus = paymentStatus,
+        accountNumber = accountNumber,
+        balance = balance,
+        paymentUrl = paymentUrl,
     )
 }
