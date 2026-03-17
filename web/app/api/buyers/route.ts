@@ -131,7 +131,6 @@ export async function POST(request: NextRequest) {
       bvn: bvn || null,
       nin: nin || null,
       agent_id: user.id,
-      added_by: user.id,
     })
     .select()
     .single()
