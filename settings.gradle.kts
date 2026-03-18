@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "MederBuyLock"
-include(":app")
+include(":android")
