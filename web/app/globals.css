@@ -48,48 +48,56 @@
 
 @layer base {
 	:root {
-		--background: 206 72% 7%;
+		/* Brand: Deep Navy + Royal Blue + Gold */
+		--background: 228 47% 7%;
 		--foreground: 210 40% 98%;
-		--card: 210 55% 10%;
+		--card: 225 45% 11%;
 		--card-foreground: 210 40% 96%;
-		--popover: 210 55% 9%;
+		--popover: 225 45% 10%;
 		--popover-foreground: 210 40% 96%;
-		--primary: 204 100% 50%;
-		--primary-foreground: 208 100% 10%;
-		--secondary: 209 34% 17%;
+		--primary: 221 83% 53%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 225 40% 16%;
 		--secondary-foreground: 210 40% 96%;
-		--muted: 209 32% 14%;
-		--muted-foreground: 214 18% 70%;
-		--accent: 190 90% 55%;
-		--accent-foreground: 198 100% 10%;
+		--muted: 225 35% 13%;
+		--muted-foreground: 215 20% 65%;
+		--accent: 38 92% 50%;
+		--accent-foreground: 30 100% 10%;
 		--destructive: 0 78% 55%;
 		--destructive-foreground: 210 40% 98%;
-		--border: 214 25% 22%;
-		--input: 214 26% 20%;
-		--ring: 199 95% 55%;
+		--border: 225 30% 20%;
+		--input: 225 35% 15%;
+		--ring: 221 83% 53%;
 		--radius: 0.85rem;
+		/* Gold token */
+		--gold: 38 92% 50%;
+		--gold-light: 43 96% 56%;
+		--gold-pale: 44 100% 91%;
 	}
 
 	.dark {
-		--background: 206 72% 7%;
+		--background: 228 47% 7%;
 		--foreground: 210 40% 98%;
-		--card: 210 55% 10%;
+		--card: 225 45% 11%;
 		--card-foreground: 210 40% 96%;
-		--popover: 210 55% 9%;
+		--popover: 225 45% 10%;
 		--popover-foreground: 210 40% 96%;
-		--primary: 204 100% 50%;
-		--primary-foreground: 208 100% 10%;
-		--secondary: 209 34% 17%;
+		--primary: 221 83% 53%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 225 40% 16%;
 		--secondary-foreground: 210 40% 96%;
-		--muted: 209 32% 14%;
-		--muted-foreground: 214 18% 70%;
-		--accent: 190 90% 55%;
-		--accent-foreground: 198 100% 10%;
+		--muted: 225 35% 13%;
+		--muted-foreground: 215 20% 65%;
+		--accent: 38 92% 50%;
+		--accent-foreground: 30 100% 10%;
 		--destructive: 0 78% 55%;
 		--destructive-foreground: 210 40% 98%;
-		--border: 214 25% 22%;
-		--input: 214 26% 20%;
-		--ring: 199 95% 55%;
+		--border: 225 30% 20%;
+		--input: 225 35% 15%;
+		--ring: 221 83% 53%;
+		--gold: 38 92% 50%;
+		--gold-light: 43 96% 56%;
+		--gold-pale: 44 100% 91%;
 	}
 
 	* {
@@ -105,9 +113,9 @@
 		background-color: hsl(var(--background));
 		color: hsl(var(--foreground));
 		background-image:
-			radial-gradient(circle at 12% -8%, hsl(var(--accent) / 0.12), transparent 36%),
-			radial-gradient(circle at 88% 4%, hsl(var(--primary) / 0.14), transparent 32%),
-			radial-gradient(circle at 50% 100%, hsl(var(--secondary) / 0.3), transparent 60%),
+			radial-gradient(circle at 10% -5%, hsl(var(--primary) / 0.15), transparent 38%),
+			radial-gradient(circle at 90% 5%, hsl(var(--gold) / 0.12), transparent 30%),
+			radial-gradient(circle at 50% 100%, hsl(var(--secondary) / 0.35), transparent 55%),
 			linear-gradient(180deg, hsl(var(--background) / 0.97), hsl(var(--background)) 50%);
 		text-rendering: optimizeLegibility;
 		font-feature-settings: 'cv01' 1, 'cv02' 1, 'cv04' 1;
