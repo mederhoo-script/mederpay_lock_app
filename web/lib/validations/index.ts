@@ -8,6 +8,7 @@ export const LoginSchema = z.object({
 export const RegisterAgentSchema = z.object({
   full_name: z.string().min(2, 'Full name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
+  username: z.string().min(3, 'Username must be at least 3 characters').max(30, 'Username must be 30 characters or fewer').regex(/^[a-z0-9_]+$/, 'Username may only contain lowercase letters, numbers, and underscores'),
   phone: z.string().min(10, 'Invalid phone number').max(15),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirm_password: z.string(),
