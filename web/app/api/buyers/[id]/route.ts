@@ -25,7 +25,7 @@ interface SaleRow {
   weeks_paid: number
   total_weeks: number
   next_due_date: string | null
-  created_at: string
+  sale_date: string
   phones: Array<{ brand: string; model: string; imei: string }> | null
 }
 
@@ -72,10 +72,10 @@ export async function GET(
   const { data: salesData } = await supabase
     .from('phone_sales')
     .select(
-      'id, status, selling_price, total_paid, outstanding_balance, weeks_paid, total_weeks, next_due_date, created_at, phones(brand, model, imei)',
+      'id, status, selling_price, total_paid, outstanding_balance, weeks_paid, total_weeks, next_due_date, sale_date, phones(brand, model, imei)',
     )
     .eq('buyer_id', id)
-    .order('created_at', { ascending: false })
+    .order('sale_date', { ascending: false })
 
   const sales = (salesData ?? []).map((s) => {
     const row = s as unknown as SaleRow
@@ -89,7 +89,7 @@ export async function GET(
       weeks_paid: row.weeks_paid,
       total_weeks: row.total_weeks,
       next_due_date: row.next_due_date,
-      created_at: row.created_at,
+      created_at: row.sale_date,
       phone: phone ?? null,
     }
   })

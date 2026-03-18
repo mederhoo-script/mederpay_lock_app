@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { formatNaira } from '@/lib/utils'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Superadmin Dashboard | MederBuy' }
 
 export default async function SuperadminDashboardPage() {

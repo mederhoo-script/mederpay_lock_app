@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { formatNaira } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
 export const metadata = { title: 'All Phones | MederBuy Admin' }
 
 interface PhoneRow {

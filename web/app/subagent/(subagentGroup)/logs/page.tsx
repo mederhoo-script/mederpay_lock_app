@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { formatDistanceToNow } from 'date-fns'
 
+export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Device Logs | MederBuy Sub-Agent' }
 
 const EVENT_COLORS: Record<string, string> = {

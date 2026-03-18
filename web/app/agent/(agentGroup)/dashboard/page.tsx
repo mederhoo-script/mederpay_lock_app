@@ -85,7 +85,7 @@ export default async function AgentDashboardPage() {
       .from('phone_sales')
       .select('id, status, created_at, buyers(full_name), phones(brand, model)')
       .eq('agent_id', user.id)
-      .order('created_at', { ascending: false })
+      .order('sale_date', { ascending: false })
       .limit(5),
     supabase
       .from('payments')

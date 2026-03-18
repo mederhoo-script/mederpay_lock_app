@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AgentsTable } from './agents-table'
 
+export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Agents | MederBuy Admin' }
 
 export default async function SuperadminAgentsPage() {

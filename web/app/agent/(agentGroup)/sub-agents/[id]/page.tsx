@@ -29,7 +29,6 @@ interface SaleRow {
   selling_price: number
   outstanding_balance: number
   next_due_date: string | null
-  created_at: string
   buyers: { full_name: string; phone: string } | { full_name: string; phone: string }[] | null
   phones: { brand: string; model: string } | { brand: string; model: string }[] | null
 }
@@ -72,10 +71,10 @@ export default async function SubAgentDetailPage({
   const { data: sales } = await supabase
     .from('phone_sales')
     .select(
-      'id, status, selling_price, outstanding_balance, next_due_date, created_at, buyers(full_name, phone), phones(brand, model)',
+      'id, status, selling_price, outstanding_balance, next_due_date, buyers(full_name, phone), phones(brand, model)',
     )
     .eq('sold_by', profile.id)
-    .order('created_at', { ascending: false })
+    .order('sale_date', { ascending: false })
     .limit(50)
 
   const totalSales   = sales?.length ?? 0

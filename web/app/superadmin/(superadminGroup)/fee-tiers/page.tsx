@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { FeeTiersTable } from './fee-tiers-table'
 import { formatNaira } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Fee Tiers | MederBuy Admin' }
 
 export default async function SuperadminFeeTiersPage() {
