@@ -77,6 +77,51 @@ export default function LandingPage() {
     },
   ]
 
+  const testimonials = [
+    {
+      name: 'Adebayo Okafor',
+      role: 'Senior Agent, Lagos',
+      initials: 'AO',
+      avatarBg: 'bg-gradient-to-br from-[#F97316] to-[#FB923C]',
+      quote: 'MederBuy cut my overdue accounts by 60% in the first month. The automatic lock feature is an absolute game-changer for my business.',
+    },
+    {
+      name: 'Ngozi Eze',
+      role: 'Phone Finance Agent, Enugu',
+      initials: 'NE',
+      avatarBg: 'bg-gradient-to-br from-[#0EA5E9] to-[#22D3EE]',
+      quote: 'Before MederBuy I spent 3 hours a day chasing payments manually. Now I get notified when money hits and devices lock automatically. It pays for itself.',
+    },
+    {
+      name: 'Emeka Nwosu',
+      role: 'Sub-Agent Network Manager, Abuja',
+      initials: 'EN',
+      avatarBg: 'bg-gradient-to-br from-[#22C55E] to-[#4ADE80]',
+      quote: "Managing 12 sub-agents and 800+ buyers used to be chaotic. With MederBuy's dashboard I have full visibility and my team performs better across the board.",
+    },
+    {
+      name: 'Fatima Bello',
+      role: 'Phones & Accessories Dealer, Kano',
+      initials: 'FB',
+      avatarBg: 'bg-gradient-to-br from-[#EC4899] to-[#F9A8D4]',
+      quote: 'The payment reconciliation is seamless. Bank transfers match to buyers automatically, and I can see exactly who owes what in real time.',
+    },
+    {
+      name: 'Chukwudi Ibe',
+      role: 'Agent, Port Harcourt',
+      initials: 'CI',
+      avatarBg: 'bg-gradient-to-br from-[#6366F1] to-[#A5B4FC]',
+      quote: 'I was skeptical at first but after one week the results spoke for themselves. Collections are up, disputes are down, and my buyers take their payments seriously now.',
+    },
+    {
+      name: 'Blessing Akinlabi',
+      role: 'Fleet Agent, Ibadan',
+      initials: 'BA',
+      avatarBg: 'bg-gradient-to-br from-[#F59E0B] to-[#FDE68A]',
+      quote: 'Setup took under 30 minutes. The Monnify integration worked first try and the platform has been reliable every single day since we launched.',
+    },
+  ]
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#06121A] text-white">
       {/* Background glows */}
@@ -287,6 +332,47 @@ export default function LandingPage() {
                 <h3 className="text-base font-bold text-white">{s.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/55">{s.desc}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-12 text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#93C5FD]">What Agents Say</p>
+            <h2 className="mt-2 text-3xl font-black text-white sm:text-4xl">Trusted by Top Agents</h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/55">
+              Real feedback from agents running active phone financing operations across Nigeria.
+            </p>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {testimonials.map((t) => (
+              <article
+                key={t.name}
+                className="flex flex-col gap-4 rounded-2xl border border-white/8 bg-gradient-to-b from-white/[0.05] to-transparent p-6 transition duration-200 hover:border-white/20 hover:bg-white/[0.07]"
+              >
+                {/* Stars */}
+                <div className="flex gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <svg key={i} className="h-3.5 w-3.5 text-[#FBBF24]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="flex-1 text-sm leading-relaxed text-white/70 italic">&ldquo;{t.quote}&rdquo;</p>
+                <div className="flex items-center gap-3 border-t border-white/8 pt-4">
+                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-black text-white ${t.avatarBg}`}>
+                    {t.initials}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{t.name}</p>
+                    <p className="text-xs text-white/45">{t.role}</p>
+                  </div>
+                </div>
+              </article>
             ))}
           </div>
         </div>
