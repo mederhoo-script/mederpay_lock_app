@@ -1,10 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { MonnifyGateway } from '@/lib/payments/monnify'
+import { PaystackGateway } from '@/lib/payments/paystack'
+import { FlutterwaveGateway } from '@/lib/payments/flutterwave'
+import type { PaymentGateway } from '@/lib/payments/index'
 
 interface CreateVirtualAccountBody {
   sale_id: string
   buyer_id: string
   agent_id?: string
+}
+
+type AgentSettingsRow = {
+  active_gateway: string | null
+  monnify_api_key_encrypted: string | null
+  monnify_secret_key_encrypted: string | null
+  monnify_contract_code: string | null
+  paystack_secret_key_encrypted: string | null
+  flutterwave_secret_key_encrypted: string | null
+}
+
+function buildGateway(settings: AgentSettingsRow): PaymentGateway | null {
+  const gateway = settings.active_gateway
+  if (gateway === 'monnify' && settings.monnify_api_key_encrypted && settings.monnify_secret_key_encrypted && settings.monnify_contract_code) {
+    return new MonnifyGateway({
+      apiKey: settings.monnify_api_key_encrypted,
+      secretKey: settings.monnify_secret_key_encrypted,
+      contractCode: settings.monnify_contract_code,
+      baseUrl: process.env.MONNIFY_BASE_URL || 'https://api.monnify.com',
+    })
+  }
+  if (gateway === 'paystack' && settings.paystack_secret_key_encrypted) {
+    return new PaystackGateway(settings.paystack_secret_key_encrypted)
+  }
+  if (gateway === 'flutterwave' && settings.flutterwave_secret_key_encrypted) {
+    return new FlutterwaveGateway(settings.flutterwave_secret_key_encrypted)
+  }
+  return null
 }
 
 export async function POST(request: NextRequest) {
@@ -71,11 +103,6 @@ export async function POST(request: NextRequest) {
 
   const reference = `SALE-${sale_id}-${Date.now()}`
 
-  // Dynamically create the virtual account via the active gateway
-  // (Real gateway calls are made from lib/payments/; here we record the result)
-  // In production, call the gateway adapter — for now return a structured response
-  // so the frontend can store what the gateway returned.
-
   // Check if a VA already exists for this sale
   const { data: existingVA } = await supabase
     .from('virtual_accounts')
@@ -87,18 +114,41 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ virtual_account: existingVA })
   }
 
-  // Insert a placeholder — in the real flow the gateway adapter populates
-  // account_number and bank_name from the API response before inserting.
+  const typedSettings = agentSettings as AgentSettingsRow
+  const gatewayClient = buildGateway(typedSettings)
+
+  let accountNumber = ''
+  let accountName = (buyer as { full_name: string }).full_name
+  let bankName = ''
+  let bankCode = ''
+
+  if (gatewayClient) {
+    try {
+      const typedBuyer = buyer as { full_name: string; bvn_encrypted: string | null; nin_encrypted: string | null }
+      const result = await gatewayClient.createVirtualAccount({
+        accountName: typedBuyer.full_name,
+        bvn: typedBuyer.bvn_encrypted ?? undefined,
+        nin: typedBuyer.nin_encrypted ?? undefined,
+        reference,
+        amount: (sale as { selling_price: number }).selling_price,
+      })
+      ;({ accountNumber, accountName, bankName, bankCode } = result)
+    } catch (err) {
+      console.error('Gateway createVirtualAccount error:', err)
+      // Continue with empty fields so the record is still created; ops can retry
+    }
+  }
+
   const { data: va, error: vaError } = await supabase
     .from('virtual_accounts')
     .insert({
       owner_type: 'buyer',
       owner_id: buyer_id,
       sale_id,
-      account_number: '',
-      account_name: (buyer as { full_name: string }).full_name,
-      bank_name: '',
-      bank_code: '',
+      account_number: accountNumber,
+      account_name: accountName,
+      bank_name: bankName,
+      bank_code: bankCode,
       gateway: activeGateway,
       reference,
       is_active: true,
@@ -111,10 +161,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to create virtual account' }, { status: 500 })
   }
 
-  // Update phone_sale with the VA reference so webhooks can match it
+  // Update phone_sale with the VA reference and account info so webhooks can match it
   await supabase
     .from('phone_sales')
-    .update({ virtual_account_reference: reference })
+    .update({
+      virtual_account_reference: reference,
+      virtual_account_number: accountNumber || null,
+      virtual_account_bank: bankName || null,
+    })
     .eq('id', sale_id)
 
   return NextResponse.json({ virtual_account: va }, { status: 201 })
