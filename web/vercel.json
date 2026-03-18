@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/fees/calculate",
+      "schedule": "0 0 * * 0"
+    },
+    {
+      "path": "/api/phones/lock-overdue",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}
