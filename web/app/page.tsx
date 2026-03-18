@@ -135,7 +135,7 @@ export default function LandingPage() {
                 <p className="mt-3 text-sm leading-relaxed text-white/70">{feature.description}</p>
               </article>
             ))}
-          </h2>
+          </div>
         </div>
       </section>
 
