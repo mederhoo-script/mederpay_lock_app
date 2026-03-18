@@ -66,12 +66,12 @@ export async function POST(request: NextRequest) {
   // Fetch agent's Paystack secret to verify signature
   const { data: agentSettings } = await supabase
     .from('agent_settings')
-    .select('paystack_secret_key')
+    .select('paystack_secret_key_encrypted')
     .eq('agent_id', (saleData as SaleRow).agent_id)
     .maybeSingle()
 
-  if (agentSettings?.paystack_secret_key) {
-    const secret = agentSettings.paystack_secret_key as string
+  if (agentSettings?.paystack_secret_key_encrypted) {
+    const secret = agentSettings.paystack_secret_key_encrypted as string
     const computed = crypto.createHmac('sha512', secret).update(rawBody).digest('hex')
     const valid =
       computed.length === signature.length &&

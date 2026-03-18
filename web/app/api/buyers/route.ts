@@ -128,8 +128,8 @@ export async function POST(request: NextRequest) {
       phone,
       email: email || null,
       address,
-      bvn: bvn || null,
-      nin: nin || null,
+      bvn_encrypted: bvn || null,
+      nin_encrypted: nin || null,
       agent_id: user.id,
     })
     .select()
