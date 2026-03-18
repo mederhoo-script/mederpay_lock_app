@@ -14,7 +14,6 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronRight,
   FileText,
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -49,17 +48,20 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       {/* Brand */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#0070F3] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0EA5E9] to-[#22D3EE] flex items-center justify-center shadow-[0_2px_10px_rgba(14,165,233,0.35)]">
             <Smartphone className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-white text-sm">MederBuy</span>
+          <div>
+            <span className="font-extrabold text-white text-sm tracking-tight">MederBuy</span>
+            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-white/35 -mt-0.5">Agent Portal</p>
+          </div>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-white/40 hover:text-white/80 transition-colors lg:hidden"
+            className="text-white/35 hover:text-white/75 transition-colors lg:hidden rounded-lg p-1 hover:bg-white/8"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
@@ -77,27 +79,27 @@ function SidebarContent({
               key={item.href}
               href={item.href}
               onClick={onClose}
-              className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-[#0070F3]/15 text-[#0070F3]'
-                  : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  ? 'bg-[#0EA5E9]/12 text-[#67E8F9] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
+                  : 'text-white/55 hover:bg-white/[0.05] hover:text-white'
               }`}
             >
-              <Icon className="w-4 h-4 shrink-0" />
+              <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-[#67E8F9]' : 'text-white/40 group-hover:text-white/70'}`} />
               <span className="flex-1">{item.label}</span>
-              {isActive && <ChevronRight className="w-3.5 h-3.5 opacity-60" />}
+              {isActive && <div className="w-1 h-1 rounded-full bg-[#67E8F9]" />}
             </Link>
           )
         })}
       </nav>
 
       {/* Sign Out */}
-      <div className="px-3 py-4 border-t border-white/10">
+      <div className="px-3 py-4 border-t border-white/8">
         <button
           onClick={onSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white transition-colors"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/45 hover:bg-white/[0.05] hover:text-white/80 transition-all group"
         >
-          <LogOut className="w-4 h-4 shrink-0" />
+          <LogOut className="w-4 h-4 shrink-0 text-white/30 group-hover:text-white/60 transition-colors" />
           Sign out
         </button>
       </div>
@@ -125,7 +127,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/70 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
         />
@@ -133,7 +135,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
 
       {/* Sidebar — desktop always visible, mobile slide-in */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-60 shrink-0 border-r border-white/10 bg-card transition-transform duration-200 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-60 shrink-0 border-r border-white/8 bg-[#071520] transition-transform duration-200 lg:static lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -147,15 +149,20 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
       {/* Main content area */}
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         {/* Top bar — mobile only */}
-        <header className="flex items-center gap-4 border-b border-white/10 bg-card px-4 py-3 lg:hidden">
+        <header className="flex items-center gap-4 border-b border-white/8 bg-[#071520]/90 backdrop-blur-sm px-4 py-3 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="text-white/60 hover:text-white transition-colors"
+            className="text-white/50 hover:text-white transition-colors rounded-lg p-1 hover:bg-white/8"
             aria-label="Open sidebar"
           >
             <Menu className="w-5 h-5" />
           </button>
-          <span className="font-semibold text-white text-sm">MederBuy — Agent</span>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#0EA5E9] to-[#22D3EE] flex items-center justify-center">
+              <Smartphone className="w-3.5 h-3.5 text-white" />
+            </div>
+            <span className="font-bold text-white text-sm">MederBuy</span>
+          </div>
         </header>
 
         {/* Page content */}

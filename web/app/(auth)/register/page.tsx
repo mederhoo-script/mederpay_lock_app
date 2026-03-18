@@ -48,21 +48,27 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-[#06121A] px-4 py-12">
+      {/* Background decoration */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute -top-32 right-1/4 h-72 w-72 rounded-full bg-[#22C55E]/10 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[#0EA5E9]/10 blur-3xl" />
+      </div>
+
+      <div className="w-full max-w-md animate-fade-in-up">
         {/* Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#0070F3] mb-4">
+          <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0EA5E9] to-[#22D3EE] shadow-[0_4px_20px_rgba(14,165,233,0.4)]">
             <User className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Create Agent Account</h1>
+          <h1 className="text-2xl font-black text-white">Create Agent Account</h1>
           <p className="text-sm text-white/50 mt-1">
             Register to start managing phone financing
           </p>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-8">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-sm p-8">
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
             {/* Full Name */}
             <div className="space-y-1.5">
@@ -77,7 +83,7 @@ export default function RegisterPage() {
                   autoComplete="name"
                   {...register('full_name')}
                   placeholder="John Doe"
-                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:border-[#0070F3] focus:outline-none focus:ring-1 focus:ring-[#0070F3] transition-colors"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:border-[#0EA5E9]/60 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-colors"
                 />
               </div>
               {errors.full_name && (
@@ -98,7 +104,7 @@ export default function RegisterPage() {
                   autoComplete="email"
                   {...register('email')}
                   placeholder="you@example.com"
-                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:border-[#0070F3] focus:outline-none focus:ring-1 focus:ring-[#0070F3] transition-colors"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:border-[#0EA5E9]/60 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-colors"
                 />
               </div>
               {errors.email && (
@@ -119,7 +125,7 @@ export default function RegisterPage() {
                   autoComplete="tel"
                   {...register('phone')}
                   placeholder="08012345678"
-                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:border-[#0070F3] focus:outline-none focus:ring-1 focus:ring-[#0070F3] transition-colors"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:border-[#0EA5E9]/60 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-colors"
                 />
               </div>
               {errors.phone && (
@@ -140,7 +146,7 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   {...register('password')}
                   placeholder="Min. 8 characters"
-                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pl-10 pr-10 text-sm text-white placeholder:text-white/25 focus:border-[#0070F3] focus:outline-none focus:ring-1 focus:ring-[#0070F3] transition-colors"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pl-10 pr-10 text-sm text-white placeholder:text-white/25 focus:border-[#0EA5E9]/60 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-colors"
                 />
                 <button
                   type="button"
@@ -169,7 +175,7 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   {...register('confirm_password')}
                   placeholder="Repeat your password"
-                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pl-10 pr-10 text-sm text-white placeholder:text-white/25 focus:border-[#0070F3] focus:outline-none focus:ring-1 focus:ring-[#0070F3] transition-colors"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2.5 pl-10 pr-10 text-sm text-white placeholder:text-white/25 focus:border-[#0EA5E9]/60 focus:outline-none focus:ring-1 focus:ring-[#0EA5E9]/40 transition-colors"
                 />
                 <button
                   type="button"
@@ -186,7 +192,7 @@ export default function RegisterPage() {
             </div>
 
             {/* Disclaimer */}
-            <p className="text-xs text-white/35 leading-relaxed">
+            <p className="text-xs text-white/35 leading-relaxed rounded-lg border border-white/8 bg-white/[0.02] px-3 py-2.5">
               Your account will be reviewed by our team before activation. You will be notified once approved.
             </p>
 
@@ -194,7 +200,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#0070F3] py-2.5 text-sm font-semibold text-white hover:bg-[#0070F3]/90 focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:ring-offset-2 focus:ring-offset-background disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg bg-[#0EA5E9] py-2.5 text-sm font-semibold text-white shadow-[0_2px_12px_rgba(14,165,233,0.35)] transition hover:bg-[#0EA5E9]/90 hover:shadow-[0_4px_20px_rgba(14,165,233,0.45)] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]/50 focus:ring-offset-2 focus:ring-offset-[#06121A] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>
@@ -202,7 +208,7 @@ export default function RegisterPage() {
                   Creating account…
                 </>
               ) : (
-                'Create account'
+                'Create Account'
               )}
             </button>
           </form>
@@ -211,7 +217,7 @@ export default function RegisterPage() {
             Already have an account?{' '}
             <Link
               href="/login"
-              className="text-[#F5A623] hover:text-[#F5A623]/80 font-medium transition-colors"
+              className="font-medium text-[#67E8F9] transition-colors hover:text-[#67E8F9]/80"
             >
               Sign in
             </Link>
