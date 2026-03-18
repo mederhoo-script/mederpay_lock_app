@@ -52,6 +52,22 @@ export default async function AgentDashboardPage() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
   const today = now.toISOString().split('T')[0]
 
+  // Build last-8-weeks buckets for the revenue trend chart
+  const weekBuckets: { label: string; start: string; end: string }[] = []
+  for (let i = 7; i >= 0; i--) {
+    const weekEnd   = new Date(now)
+    weekEnd.setDate(now.getDate() - i * 7)
+    const weekStart = new Date(weekEnd)
+    weekStart.setDate(weekEnd.getDate() - 6)
+    weekBuckets.push({
+      label:
+        weekStart.toLocaleDateString('en-NG', { month: 'short', day: 'numeric' }),
+      start: weekStart.toISOString().split('T')[0],
+      end:   weekEnd.toISOString().split('T')[0] + 'T23:59:59',
+    })
+  }
+  const trendStart = weekBuckets[0].start
+
   const [
     { count: totalPhones },
     { count: activeBuyers },
@@ -59,6 +75,7 @@ export default async function AgentDashboardPage() {
     { count: overdueCount },
     { data: recentSales },
     { data: recentPayments },
+    { data: trendPayments },
   ] = await Promise.all([
     supabase
       .from('phones')
@@ -93,7 +110,25 @@ export default async function AgentDashboardPage() {
       .eq('agent_id', user.id)
       .order('paid_at', { ascending: false })
       .limit(5),
+    supabase
+      .from('payments')
+      .select('amount, paid_at')
+      .eq('agent_id', user.id)
+      .eq('status', 'success')
+      .gte('paid_at', trendStart),
   ])
+
+  // Aggregate payments into weekly buckets
+  const weeklyTotals: number[] = weekBuckets.map(({ start, end }) => {
+    return (trendPayments ?? [])
+      .filter((p) => {
+        const paidAt = (p as { paid_at: string | null }).paid_at
+        if (!paidAt) return false
+        return paidAt >= start && paidAt <= end
+      })
+      .reduce((s, p) => s + ((p as { amount: number }).amount), 0)
+  })
+  const maxWeekly = Math.max(...weeklyTotals, 1) // avoid division by 0
 
   const totalCollected =
     (thisMonthPayments ?? []).reduce((sum, p) => sum + ((p as { amount: number }).amount), 0)
@@ -189,17 +224,33 @@ export default async function AgentDashboardPage() {
 
       {/* Revenue trend + Recent activity */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Revenue trend placeholder */}
+        {/* Revenue trend bar chart */}
         <div className="lg:col-span-3 rounded-xl border border-white/10 bg-white/5 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="font-semibold text-white">Revenue Trend</h2>
-              <p className="text-xs text-white/40 mt-0.5">Weekly collections</p>
+              <p className="text-xs text-white/40 mt-0.5">Weekly collections (last 8 weeks)</p>
             </div>
             <TrendingUp className="w-4 h-4 text-[#0070F3]" />
           </div>
-          <div className="h-40 flex items-center justify-center rounded-lg bg-white/5 border border-dashed border-white/10">
-            <p className="text-sm text-white/30">Chart coming soon</p>
+          <div className="flex items-end justify-between gap-1.5 h-40">
+            {weeklyTotals.map((total, i) => {
+              const heightPct = Math.round((total / maxWeekly) * 100)
+              return (
+                <div key={weekBuckets[i].label} className="flex-1 flex flex-col items-center justify-end gap-1.5 group relative">
+                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-white/70 bg-[#111] border border-white/10 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                    {formatNaira(total)}
+                  </div>
+                  <div
+                    className="w-full rounded-t bg-[#0070F3]/60 hover:bg-[#0070F3] transition-colors min-h-[4px]"
+                    style={{ height: `${Math.max(heightPct, 2)}%` }}
+                  />
+                  <span className="text-[9px] text-white/35 truncate w-full text-center">
+                    {weekBuckets[i].label}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         </div>
 
