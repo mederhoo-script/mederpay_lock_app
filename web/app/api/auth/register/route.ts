@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { full_name, email, phone, password } = parsed.data
+  const { full_name, email, username, phone, password } = parsed.data
 
   const supabase = createServiceClient()
 
@@ -33,12 +33,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Email already registered' }, { status: 409 })
   }
 
-  // Create the Supabase auth user with role metadata
+  // Confirm username is not already taken
+  const { data: existingUsername } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('username', username)
+    .maybeSingle()
+
+  if (existingUsername) {
+    return NextResponse.json({ error: 'Username already taken' }, { status: 409 })
+  }
+
+  // Create the Supabase auth user with role metadata.
+  // This also fires the handle_new_user trigger (migration 002) which creates
+  // an initial profiles row. The upsert below then applies the full data.
   const { data: authData, error: authError } = await supabase.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
-    user_metadata: { full_name, phone, role: 'agent' },
+    user_metadata: { full_name, phone, username, role: 'agent' },
   })
 
   if (authError || !authData.user) {
@@ -49,15 +62,20 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Create the profile entry with pending status
-  const { error: profileError } = await supabase.from('profiles').insert({
-    id: authData.user.id,
-    full_name,
-    email,
-    phone,
-    role: 'agent',
-    status: 'pending',
-  })
+  // Upsert the profile so this insert wins whether or not the handle_new_user
+  // trigger already created a stub row. username is now persisted here.
+  const { error: profileError } = await supabase.from('profiles').upsert(
+    {
+      id: authData.user.id,
+      full_name,
+      email,
+      username,
+      phone,
+      role: 'agent',
+      status: 'pending',
+    },
+    { onConflict: 'id' },
+  )
 
   if (profileError) {
     console.error('Profile creation failed:', profileError)
