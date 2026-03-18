@@ -1,3 +1,157 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+	:root {
+		--background: 206 72% 7%;
+		--foreground: 210 40% 98%;
+		--card: 210 55% 10%;
+		--card-foreground: 210 40% 96%;
+		--popover: 210 55% 9%;
+		--popover-foreground: 210 40% 96%;
+		--primary: 204 100% 50%;
+		--primary-foreground: 208 100% 10%;
+		--secondary: 209 34% 17%;
+		--secondary-foreground: 210 40% 96%;
+		--muted: 209 32% 14%;
+		--muted-foreground: 214 18% 70%;
+		--accent: 190 90% 55%;
+		--accent-foreground: 198 100% 10%;
+		--destructive: 0 78% 55%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 214 25% 22%;
+		--input: 214 26% 20%;
+		--ring: 199 95% 55%;
+		--radius: 0.85rem;
+	}
+
+	.dark {
+		--background: 206 72% 7%;
+		--foreground: 210 40% 98%;
+		--card: 210 55% 10%;
+		--card-foreground: 210 40% 96%;
+		--popover: 210 55% 9%;
+		--popover-foreground: 210 40% 96%;
+		--primary: 204 100% 50%;
+		--primary-foreground: 208 100% 10%;
+		--secondary: 209 34% 17%;
+		--secondary-foreground: 210 40% 96%;
+		--muted: 209 32% 14%;
+		--muted-foreground: 214 18% 70%;
+		--accent: 190 90% 55%;
+		--accent-foreground: 198 100% 10%;
+		--destructive: 0 78% 55%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 214 25% 22%;
+		--input: 214 26% 20%;
+		--ring: 199 95% 55%;
+	}
+
+	* {
+		border-color: hsl(var(--border));
+	}
+
+	html,
+	body {
+		min-height: 100%;
+	}
+
+	body {
+		background-color: hsl(var(--background));
+		color: hsl(var(--foreground));
+		background-image:
+			radial-gradient(circle at 12% -8%, hsl(var(--accent) / 0.15), transparent 38%),
+			radial-gradient(circle at 88% 4%, hsl(var(--primary) / 0.18), transparent 34%),
+			linear-gradient(180deg, hsl(var(--background) / 0.96), hsl(var(--background)) 45%);
+		text-rendering: optimizeLegibility;
+		font-feature-settings: 'cv01' 1, 'cv02' 1, 'cv04' 1;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: hsl(var(--foreground));
+		letter-spacing: -0.015em;
+	}
+
+	p,
+	li,
+	label,
+	span {
+		color: hsl(var(--foreground) / 0.92);
+	}
+
+	a {
+		color: hsl(var(--foreground));
+	}
+
+	::selection {
+		background: hsl(var(--primary) / 0.3);
+		color: hsl(var(--foreground));
+	}
+
+	input,
+	textarea,
+	select,
+	button {
+		font: inherit;
+	}
+
+	input,
+	textarea,
+	select {
+		background-color: hsl(var(--input));
+		color: hsl(var(--foreground));
+	}
+
+	input::placeholder,
+	textarea::placeholder {
+		color: hsl(var(--muted-foreground));
+	}
+
+	input:focus-visible,
+	textarea:focus-visible,
+	select:focus-visible,
+	button:focus-visible,
+	a:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px hsl(var(--ring)), 0 0 0 4px hsl(var(--background));
+	}
+
+	::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: hsl(var(--secondary) / 0.6);
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: hsl(var(--border));
+		border-radius: 9999px;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background: hsl(var(--muted-foreground) / 0.75);
+	}
+}
+
+@layer components {
+	.surface-panel {
+		border: 1px solid hsl(var(--border) / 0.8);
+		border-radius: 1rem;
+		background: hsl(var(--card) / 0.7);
+		backdrop-filter: blur(12px);
+	}
+
+	.text-subtle {
+		color: hsl(var(--muted-foreground));
+	}
+}
