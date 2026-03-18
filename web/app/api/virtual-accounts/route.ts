@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   // Fetch the agent's active gateway settings
   const { data: agentSettings, error: settingsError } = await supabase
     .from('agent_settings')
-    .select('active_gateway, monnify_api_key, monnify_secret_key, monnify_contract_code, paystack_secret_key, flutterwave_secret_key')
+    .select('active_gateway, monnify_api_key_encrypted, monnify_secret_key_encrypted, monnify_contract_code, paystack_secret_key_encrypted, flutterwave_secret_key_encrypted')
     .eq('agent_id', (sale as { agent_id: string }).agent_id)
     .maybeSingle()
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
   // Fetch the buyer to get their name for the virtual account
   const { data: buyer } = await supabase
     .from('buyers')
-    .select('full_name, bvn, nin')
+    .select('full_name, bvn_encrypted, nin_encrypted')
     .eq('id', buyer_id)
     .maybeSingle()
 

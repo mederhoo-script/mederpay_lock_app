@@ -10,8 +10,8 @@ interface BuyerRow {
   phone: string
   email: string | null
   address: string
-  bvn: string | null
-  nin: string | null
+  bvn_encrypted: string | null
+  nin_encrypted: string | null
   agent_id: string
   created_at: string
 }
@@ -94,7 +94,18 @@ export async function GET(
     }
   })
 
-  return NextResponse.json({ ...buyer, sales })
+  return NextResponse.json({
+    id: buyer.id,
+    full_name: buyer.full_name,
+    phone: buyer.phone,
+    email: buyer.email,
+    address: buyer.address,
+    bvn: buyer.bvn_encrypted,
+    nin: buyer.nin_encrypted,
+    agent_id: buyer.agent_id,
+    created_at: buyer.created_at,
+    sales,
+  })
 }
 
 // ─── PATCH ────────────────────────────────────────────────────────────────────

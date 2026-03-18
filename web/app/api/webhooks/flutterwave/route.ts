@@ -65,12 +65,12 @@ export async function POST(request: NextRequest) {
   // Verify HMAC against agent's Flutterwave secret key
   const { data: agentSettings } = await supabase
     .from('agent_settings')
-    .select('flutterwave_secret_key')
+    .select('flutterwave_secret_key_encrypted')
     .eq('agent_id', (saleData as SaleRow).agent_id)
     .maybeSingle()
 
-  if (agentSettings?.flutterwave_secret_key) {
-    const secret = agentSettings.flutterwave_secret_key as string
+  if (agentSettings?.flutterwave_secret_key_encrypted) {
+    const secret = agentSettings.flutterwave_secret_key_encrypted as string
     const valid = verifyFlutterwaveSignature(rawBody, signature, secret)
     if (!valid) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
