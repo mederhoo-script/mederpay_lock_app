@@ -199,23 +199,27 @@ export default async function AgentDashboardPage() {
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
-      <div>
+      <div className="animate-fade-in-up">
         <h1 className="text-2xl font-bold text-white">Dashboard</h1>
         <p className="text-sm text-white/50 mt-1">Overview of your phone financing operations</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <div key={stat.label} className="rounded-xl border border-white/10 bg-white/5 p-5 flex flex-col gap-4">
+        {stats.map((stat, i) => (
+          <div
+            key={stat.label}
+            className={`stat-card p-5 flex flex-col gap-4 animate-fade-in-up`}
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/50">{stat.label}</span>
-              <div className={`w-9 h-9 rounded-lg ${stat.iconBg} flex items-center justify-center`}>
-                <stat.Icon className={`w-5 h-5 ${stat.iconColor}`} />
+              <span className="text-xs font-semibold uppercase tracking-wider text-white/45">{stat.label}</span>
+              <div className={`w-9 h-9 rounded-xl ${stat.iconBg} flex items-center justify-center shrink-0`}>
+                <stat.Icon className={`w-4.5 h-4.5 ${stat.iconColor}`} />
               </div>
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stat.value}</p>
+              <p className="text-2xl font-black tabular-nums text-white">{stat.value}</p>
               <p className="text-xs text-white/40 mt-0.5">{stat.sub}</p>
             </div>
           </div>
@@ -223,29 +227,32 @@ export default async function AgentDashboardPage() {
       </div>
 
       {/* Revenue trend + Recent activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Revenue trend bar chart */}
-        <div className="lg:col-span-3 rounded-xl border border-white/10 bg-white/5 p-6">
+        <div className="lg:col-span-3 rounded-xl border border-white/10 bg-white/[0.04] p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="font-semibold text-white">Revenue Trend</h2>
-              <p className="text-xs text-white/40 mt-0.5">Weekly collections (last 8 weeks)</p>
+              <p className="text-xs text-white/40 mt-0.5">Weekly collections — last 8 weeks</p>
             </div>
-            <TrendingUp className="w-4 h-4 text-[#0070F3]" />
+            <div className="flex items-center gap-1.5 rounded-full bg-[#0070F3]/15 px-2.5 py-1">
+              <TrendingUp className="w-3.5 h-3.5 text-[#0070F3]" />
+              <span className="text-xs font-semibold text-[#0070F3]">Live</span>
+            </div>
           </div>
-          <div className="flex items-end justify-between gap-1.5 h-40">
+          <div className="flex items-end justify-between gap-2 h-40 px-1">
             {weeklyTotals.map((total, i) => {
               const heightPct = Math.round((total / maxWeekly) * 100)
               return (
                 <div key={weekBuckets[i].label} className="flex-1 flex flex-col items-center justify-end gap-1.5 group relative">
-                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-white/70 bg-[#111] border border-white/10 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                  <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-white/80 bg-[#0D1F2D] border border-white/15 px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none shadow-lg">
                     {formatNaira(total)}
                   </div>
                   <div
-                    className="w-full rounded-t bg-[#0070F3]/60 hover:bg-[#0070F3] transition-colors min-h-[4px]"
-                    style={{ height: `${Math.max(heightPct, 2)}%` }}
+                    className="w-full rounded-t-md bg-gradient-to-t from-[#0070F3]/50 to-[#22D3EE]/70 hover:from-[#0070F3]/70 hover:to-[#22D3EE] transition-colors min-h-[4px]"
+                    style={{ height: `${Math.max(heightPct, 3)}%` }}
                   />
-                  <span className="text-[9px] text-white/35 truncate w-full text-center">
+                  <span className="text-[9px] text-white/30 truncate w-full text-center">
                     {weekBuckets[i].label}
                   </span>
                 </div>
@@ -255,17 +262,24 @@ export default async function AgentDashboardPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="lg:col-span-2 rounded-xl border border-white/10 bg-white/5 p-6">
+        <div className="lg:col-span-2 rounded-xl border border-white/10 bg-white/[0.04] p-6">
           <h2 className="font-semibold text-white mb-5">Recent Activity</h2>
           {activity.length === 0 ? (
-            <p className="text-sm text-white/30 text-center py-8">No activity yet</p>
+            <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+              <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-white/20" />
+              </div>
+              <p className="text-sm text-white/30">No activity yet</p>
+            </div>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-3.5">
               {activity.map((item) => {
                 const { icon: StatusIcon, color } = statusConfig[item.status]
                 return (
-                  <li key={item.id} className="flex items-start gap-3">
-                    <StatusIcon className={`w-4 h-4 shrink-0 mt-0.5 ${color}`} />
+                  <li key={item.id} className="flex items-start gap-3 rounded-lg p-2 -mx-2 transition hover:bg-white/[0.03]">
+                    <div className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/5`}>
+                      <StatusIcon className={`w-3.5 h-3.5 ${color}`} />
+                    </div>
                     <div className="min-w-0">
                       <p className="text-sm text-white/80 leading-snug">{item.label}</p>
                       <p className="text-xs text-white/35 mt-0.5">{item.time}</p>
@@ -283,20 +297,20 @@ export default async function AgentDashboardPage() {
         <h2 className="font-semibold text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: 'Add Phone',    href: '/agent/phones/new',  Icon: Smartphone,  color: 'text-[#0070F3]',   bg: 'bg-[#0070F3]/10 hover:bg-[#0070F3]/20'    },
-            { label: 'New Sale',     href: '/agent/sales/new',   Icon: TrendingUp,  color: 'text-emerald-400', bg: 'bg-emerald-400/10 hover:bg-emerald-400/20' },
-            { label: 'Add Buyer',    href: '/agent/buyers/new',  Icon: Users,       color: 'text-[#F5A623]',   bg: 'bg-[#F5A623]/10 hover:bg-[#F5A623]/20'    },
-            { label: 'Payments',     href: '/agent/payments',    Icon: CreditCard,  color: 'text-purple-400',  bg: 'bg-purple-400/10 hover:bg-purple-400/20'   },
-          ].map(({ label, href, Icon, color, bg }) => (
+            { label: 'Add Phone',    href: '/agent/phones/new',  Icon: Smartphone,  color: 'text-[#0070F3]',   bg: 'bg-[#0070F3]/10',   hoverBg: 'hover:bg-[#0070F3]/18', border: 'border-[#0070F3]/20' },
+            { label: 'New Sale',     href: '/agent/sales/new',   Icon: TrendingUp,  color: 'text-emerald-400', bg: 'bg-emerald-400/10', hoverBg: 'hover:bg-emerald-400/18', border: 'border-emerald-400/20' },
+            { label: 'Add Buyer',    href: '/agent/buyers/new',  Icon: Users,       color: 'text-[#F5A623]',   bg: 'bg-[#F5A623]/10',   hoverBg: 'hover:bg-[#F5A623]/18', border: 'border-[#F5A623]/20' },
+            { label: 'Payments',     href: '/agent/payments',    Icon: CreditCard,  color: 'text-purple-400',  bg: 'bg-purple-400/10',  hoverBg: 'hover:bg-purple-400/18', border: 'border-purple-400/20' },
+          ].map(({ label, href, Icon, color, bg, hoverBg, border }) => (
             <a
               key={label}
               href={href}
-              className={`flex flex-col items-center gap-2 rounded-xl border border-white/10 p-4 ${bg} transition-colors`}
+              className={`flex flex-col items-center gap-3 rounded-xl border ${border} p-5 ${hoverBg} transition-colors`}
             >
-              <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center">
+              <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center`}>
                 <Icon className={`w-5 h-5 ${color}`} />
               </div>
-              <span className="text-xs font-medium text-white/70">{label}</span>
+              <span className="text-xs font-semibold text-white/70">{label}</span>
             </a>
           ))}
         </div>
