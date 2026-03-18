@@ -1,3 +1,144 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+	:root {
+		--background: 206 72% 7%;
+		--foreground: 210 40% 98%;
+		--card: 210 55% 10%;
+		--card-foreground: 210 40% 96%;
+		--popover: 210 55% 9%;
+		--popover-foreground: 210 40% 96%;
+		--primary: 204 100% 50%;
+		--primary-foreground: 208 100% 10%;
+		--secondary: 209 34% 17%;
+		--secondary-foreground: 210 40% 96%;
+		--muted: 209 32% 14%;
+		--muted-foreground: 214 18% 70%;
+		--accent: 190 90% 55%;
+		--accent-foreground: 198 100% 10%;
+		--destructive: 0 78% 55%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 214 25% 22%;
+		--input: 214 26% 20%;
+		--ring: 199 95% 55%;
+		--radius: 0.85rem;
+	}
+
+	.dark {
+		--background: 206 72% 7%;
+		--foreground: 210 40% 98%;
+		--card: 210 55% 10%;
+		--card-foreground: 210 40% 96%;
+		--popover: 210 55% 9%;
+		--popover-foreground: 210 40% 96%;
+		--primary: 204 100% 50%;
+		--primary-foreground: 208 100% 10%;
+		--secondary: 209 34% 17%;
+		--secondary-foreground: 210 40% 96%;
+		--muted: 209 32% 14%;
+		--muted-foreground: 214 18% 70%;
+		--accent: 190 90% 55%;
+		--accent-foreground: 198 100% 10%;
+		--destructive: 0 78% 55%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 214 25% 22%;
+		--input: 214 26% 20%;
+		--ring: 199 95% 55%;
+	}
+
+	* {
+		@apply border-border;
+	}
+
+	html,
+	body {
+		min-height: 100%;
+	}
+
+	body {
+		@apply bg-background text-foreground antialiased;
+		background-image:
+			radial-gradient(circle at 12% -8%, hsl(var(--accent) / 0.15), transparent 38%),
+			radial-gradient(circle at 88% 4%, hsl(var(--primary) / 0.18), transparent 34%),
+			linear-gradient(180deg, hsl(var(--background) / 0.96), hsl(var(--background)) 45%);
+		text-rendering: optimizeLegibility;
+		font-feature-settings: 'cv01' 1, 'cv02' 1, 'cv04' 1;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@apply text-foreground;
+		letter-spacing: -0.015em;
+	}
+
+	p,
+	li,
+	label,
+	span {
+		color: hsl(var(--foreground) / 0.92);
+	}
+
+	a {
+		color: hsl(var(--foreground));
+	}
+
+	::selection {
+		background: hsl(var(--primary) / 0.3);
+		color: hsl(var(--foreground));
+	}
+
+	input,
+	textarea,
+	select,
+	button {
+		font: inherit;
+	}
+
+	input,
+	textarea,
+	select {
+		@apply bg-input text-foreground placeholder:text-muted-foreground;
+	}
+
+	input:focus-visible,
+	textarea:focus-visible,
+	select:focus-visible,
+	button:focus-visible,
+	a:focus-visible {
+		@apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+	}
+
+	::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: hsl(var(--secondary) / 0.6);
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: hsl(var(--border));
+		border-radius: 9999px;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background: hsl(var(--muted-foreground) / 0.75);
+	}
+}
+
+@layer components {
+	.surface-panel {
+		@apply rounded-2xl border border-white/10 bg-card/70 backdrop-blur;
+	}
+
+	.text-subtle {
+		@apply text-muted-foreground;
+	}
+}
