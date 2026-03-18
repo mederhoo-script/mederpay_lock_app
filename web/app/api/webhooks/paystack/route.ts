@@ -19,6 +19,7 @@ interface SaleRow {
   id: string
   buyer_id: string
   agent_id: string
+  phone_id: string
   outstanding_balance: number
   weeks_paid: number
   total_paid: number
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
   // Verify HMAC against agent's Paystack secret key
   const { data: saleData } = await supabase
     .from('phone_sales')
-    .select('id, buyer_id, agent_id, outstanding_balance, weeks_paid, total_paid')
+    .select('id, buyer_id, agent_id, phone_id, outstanding_balance, weeks_paid, total_paid, phones(imei)')
     .eq('virtual_account_reference', reference)
     .maybeSingle()
 
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const sale = saleData as SaleRow
+  const sale = saleData as SaleRow & { phones: { imei: string } | Array<{ imei: string }> | null }
 
   // Deduplicate
   const { data: duplicate } = await supabase
@@ -125,6 +126,31 @@ export async function POST(request: NextRequest) {
       ...(isComplete ? { status: 'completed' } : {}),
     })
     .eq('id', sale.id)
+
+  // Auto-unlock phone when loan is fully repaid
+  if (isComplete) {
+    await supabase
+      .from('phones')
+      .update({ status: 'unlocked' })
+      .eq('id', sale.phone_id)
+
+    const phoneImei = !sale.phones
+      ? null
+      : Array.isArray(sale.phones)
+        ? (sale.phones[0]?.imei ?? null)
+        : sale.phones.imei
+
+    if (phoneImei) {
+      const { error: logError } = await supabase.from('phone_logs').insert({
+        phone_id: sale.phone_id,
+        imei: phoneImei,
+        event_type: 'UNLOCK',
+        details: 'Auto-unlocked: loan fully repaid via Paystack',
+        timestamp: new Date().toISOString(),
+      })
+      if (logError) console.error('Failed to log Paystack unlock event:', logError)
+    }
+  }
 
   return NextResponse.json({ success: true })
 }

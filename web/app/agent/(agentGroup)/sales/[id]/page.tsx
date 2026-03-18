@@ -452,7 +452,7 @@ export default function SaleDetailPage() {
           </div>
 
           {/* Virtual account */}
-          {sale.virtual_account_number && (
+          {(sale.virtual_account_number || sale.payment_url) && (
             <div className="rounded-xl border border-white/10 bg-white/5 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-[#0070F3]/15 flex items-center justify-center">
@@ -460,11 +460,25 @@ export default function SaleDetailPage() {
                 </div>
                 <h2 className="font-semibold text-white">Virtual Account</h2>
               </div>
-              <DetailRow label="Account Number" value={
-                <span className="font-mono text-lg tracking-widest">{sale.virtual_account_number}</span>
-              } />
+              {sale.virtual_account_number && (
+                <DetailRow label="Account Number" value={
+                  <span className="font-mono text-lg tracking-widest">{sale.virtual_account_number}</span>
+                } />
+              )}
               {sale.virtual_account_bank && (
                 <DetailRow label="Bank" value={sale.virtual_account_bank} />
+              )}
+              {sale.payment_url && (
+                <DetailRow label="Payment Link" value={
+                  <a
+                    href={sale.payment_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#0070F3] hover:underline break-all"
+                  >
+                    {sale.payment_url}
+                  </a>
+                } />
               )}
             </div>
           )}

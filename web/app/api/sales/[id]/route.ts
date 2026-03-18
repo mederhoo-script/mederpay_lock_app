@@ -156,10 +156,10 @@ export async function PATCH(
     )
   }
 
-  // Fetch current sale
+  // Fetch current sale (include phone imei for unlock log)
   const { data: current, error: fetchError } = await supabase
     .from('phone_sales')
-    .select('id, status, total_paid, outstanding_balance, weeks_paid, phone_id, weekly_payment')
+    .select('id, status, total_paid, outstanding_balance, weeks_paid, phone_id, weekly_payment, phones(imei)')
     .eq('id', id)
     .single()
 
@@ -175,7 +175,14 @@ export async function PATCH(
     weeks_paid: number
     phone_id: string
     weekly_payment: number
+    phones: { imei: string } | Array<{ imei: string }> | null
   }
+
+  const phoneImei = !sale.phones
+    ? null
+    : Array.isArray(sale.phones)
+      ? (sale.phones[0]?.imei ?? null)
+      : sale.phones.imei
 
   let saleUpdates: Record<string, unknown> = {}
   let newStatus = sale.status
@@ -220,10 +227,22 @@ export async function PATCH(
   let phoneStatus: string | null = null
   if (newStatus === 'lock') phoneStatus = 'locked'
   else if (newStatus === 'active' || newStatus === 'grace') phoneStatus = 'sold'
-  else if (newStatus === 'completed') phoneStatus = 'returned'
+  else if (newStatus === 'completed') phoneStatus = 'unlocked'
 
   if (phoneStatus) {
     await supabase.from('phones').update({ status: phoneStatus }).eq('id', sale.phone_id)
+
+    // Log auto-unlock event when loan is fully paid
+    if (phoneStatus === 'unlocked' && phoneImei) {
+      const { error: logError } = await supabase.from('phone_logs').insert({
+        phone_id: sale.phone_id,
+        imei: phoneImei,
+        event_type: 'UNLOCK',
+        details: 'Auto-unlocked: loan fully repaid',
+        timestamp: new Date().toISOString(),
+      })
+      if (logError) console.error('Failed to log unlock event:', logError)
+    }
   }
 
   return NextResponse.json(updatedSale)

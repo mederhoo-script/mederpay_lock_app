@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   // Confirm the sale exists and belongs to this agent (RLS enforces ownership)
   const { data: sale, error: saleError } = await supabase
     .from('phone_sales')
-    .select('id, status, buyer_id, agent_id, outstanding_balance, weeks_paid, total_paid')
+    .select('id, status, buyer_id, agent_id, phone_id, outstanding_balance, weeks_paid, total_paid, phones(imei)')
     .eq('id', sale_id)
     .single()
 
@@ -53,9 +53,11 @@ export async function POST(request: NextRequest) {
     status: string
     buyer_id: string
     agent_id: string
+    phone_id: string
     outstanding_balance: number
     weeks_paid: number
     total_paid: number
+    phones: { imei: string } | Array<{ imei: string }> | null
   }
 
   // Return early if the payment was already recorded successfully
@@ -124,6 +126,31 @@ export async function POST(request: NextRequest) {
       ...(isComplete ? { status: 'completed' } : {}),
     })
     .eq('id', sale_id)
+
+  // Auto-unlock phone when loan is fully repaid
+  if (isComplete) {
+    await serviceClient
+      .from('phones')
+      .update({ status: 'unlocked' })
+      .eq('id', typedSale.phone_id)
+
+    const phoneImei = !typedSale.phones
+      ? null
+      : Array.isArray(typedSale.phones)
+        ? (typedSale.phones[0]?.imei ?? null)
+        : typedSale.phones.imei
+
+    if (phoneImei) {
+      const { error: logError } = await serviceClient.from('phone_logs').insert({
+        phone_id: typedSale.phone_id,
+        imei: phoneImei,
+        event_type: 'UNLOCK',
+        details: 'Auto-unlocked: loan fully repaid',
+        timestamp: new Date().toISOString(),
+      })
+      if (logError) console.error('Failed to log unlock event:', logError)
+    }
+  }
 
   return NextResponse.json({ payment, status: verification.status })
 }

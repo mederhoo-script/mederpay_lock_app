@@ -23,6 +23,7 @@ interface SaleRow {
   id: string
   buyer_id: string
   agent_id: string
+  phone_id: string
   outstanding_balance: number
   weekly_payment: number
   weeks_paid: number
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
 
   const { data: saleData, error: saleError } = await supabase
     .from('phone_sales')
-    .select('id, buyer_id, agent_id, outstanding_balance, weekly_payment, weeks_paid, total_paid')
+    .select('id, buyer_id, agent_id, phone_id, outstanding_balance, weekly_payment, weeks_paid, total_paid, phones(imei)')
     .eq('virtual_account_reference', saleReference)
     .maybeSingle()
 
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true })
   }
 
-  const sale = saleData as unknown as SaleRow
+  const sale = saleData as unknown as SaleRow & { phones: { imei: string } | Array<{ imei: string }> | null }
 
   // Avoid duplicate payment records for the same gateway reference
   const { data: duplicate } = await supabase
@@ -136,6 +137,31 @@ export async function POST(request: NextRequest) {
       ...(isComplete ? { status: 'completed' } : {}),
     })
     .eq('id', sale.id)
+
+  // Auto-unlock phone when loan is fully repaid
+  if (isComplete) {
+    await supabase
+      .from('phones')
+      .update({ status: 'unlocked' })
+      .eq('id', sale.phone_id)
+
+    const phoneImei = !sale.phones
+      ? null
+      : Array.isArray(sale.phones)
+        ? (sale.phones[0]?.imei ?? null)
+        : sale.phones.imei
+
+    if (phoneImei) {
+      const { error: logError } = await supabase.from('phone_logs').insert({
+        phone_id: sale.phone_id,
+        imei: phoneImei,
+        event_type: 'UNLOCK',
+        details: 'Auto-unlocked: loan fully repaid via Monnify',
+        timestamp: new Date().toISOString(),
+      })
+      if (logError) console.error('Failed to log Monnify unlock event:', logError)
+    }
+  }
 
   return NextResponse.json({ success: true })
 }
