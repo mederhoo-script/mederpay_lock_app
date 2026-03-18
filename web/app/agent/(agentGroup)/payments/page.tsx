@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { formatNaira } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 
+export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Payments | MederBuy' }
 
 interface PaymentRow {

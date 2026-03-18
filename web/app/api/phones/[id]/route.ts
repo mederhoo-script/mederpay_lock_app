@@ -87,7 +87,7 @@ export async function GET(
     )
     .eq('phone_id', id)
     .not('status', 'in', '("completed","defaulted")')
-    .order('created_at', { ascending: false })
+    .order('sale_date', { ascending: false })
     .limit(1)
     .maybeSingle()
 

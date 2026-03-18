@@ -18,7 +18,7 @@ interface SaleRow {
   virtual_account_number: string | null
   virtual_account_bank: string | null
   payment_url: string | null
-  created_at: string
+  sale_date: string
   phones: Array<{
     id: string
     imei: string
@@ -80,7 +80,7 @@ export async function GET(
     .select(
       `id, status, selling_price, down_payment, weekly_payment, total_weeks,
        total_paid, outstanding_balance, weeks_paid, next_due_date,
-       virtual_account_number, virtual_account_bank, payment_url, created_at,
+       virtual_account_number, virtual_account_bank, payment_url, sale_date,
        phones(id, imei, brand, model, color, storage),
        buyers(id, full_name, phone, email, address),
        payments(id, amount, status, gateway, paid_at, created_at)`,
@@ -111,7 +111,7 @@ export async function GET(
     virtual_account_number: s.virtual_account_number,
     virtual_account_bank: s.virtual_account_bank,
     payment_url: s.payment_url,
-    created_at: s.created_at,
+    created_at: s.sale_date,
     buyer: buyer ?? null,
     phone: phone ?? null,
     payments: payments.sort(

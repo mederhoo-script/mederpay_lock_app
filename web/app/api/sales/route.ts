@@ -42,27 +42,59 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('phone_sales')
     .select(
-      `*,
-       phones (imei, brand, model),
-       buyers (full_name, phone),
-       payments (amount, status, paid_at)`,
+      `id, status, selling_price, total_weeks, total_paid, outstanding_balance,
+       weeks_paid, next_due_date, sale_date,
+       phones (id, imei, brand, model),
+       buyers (id, full_name, phone)`,
       { count: 'exact' },
     )
-    .order('created_at', { ascending: false })
+    .order('sale_date', { ascending: false })
     .range(offset, offset + limit - 1)
 
   if (status) {
     query = query.eq('status', status)
   }
 
-  const { data: sales, error, count } = await query
+  const { data: salesData, error, count } = await query
 
   if (error) {
     console.error('Failed to fetch sales:', error)
     return NextResponse.json({ error: 'Failed to fetch sales' }, { status: 500 })
   }
 
-  return NextResponse.json({ sales, total: count ?? 0, page, limit })
+  type RawSale = {
+    id: string
+    status: string
+    selling_price: number
+    total_weeks: number
+    total_paid: number
+    outstanding_balance: number
+    weeks_paid: number
+    next_due_date: string | null
+    sale_date: string
+    phones: { id: string; imei: string; brand: string; model: string } | { id: string; imei: string; brand: string; model: string }[] | null
+    buyers: { id: string; full_name: string; phone: string } | { id: string; full_name: string; phone: string }[] | null
+  }
+
+  const sales = ((salesData ?? []) as unknown as RawSale[]).map((s) => {
+    const phone = Array.isArray(s.phones) ? s.phones[0] : s.phones
+    const buyer = Array.isArray(s.buyers) ? s.buyers[0] : s.buyers
+    return {
+      id: s.id,
+      status: s.status,
+      total_amount: s.selling_price,
+      total_paid: s.total_paid,
+      outstanding_balance: s.outstanding_balance,
+      weeks_paid: s.weeks_paid,
+      payment_weeks: s.total_weeks,
+      due_date: s.next_due_date ?? '',
+      created_at: s.sale_date,
+      buyer: buyer ?? null,
+      phone: phone ?? null,
+    }
+  })
+
+  return NextResponse.json({ sales, count: count ?? 0, page, limit })
 }
 
 export async function POST(request: NextRequest) {
