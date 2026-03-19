@@ -56,7 +56,7 @@ export default function RegisterPage() {
       return
     }
 
-    toast.success('Account created! Your account is pending approval.')
+    toast.success('Account created! Please sign in to continue.')
     router.push('/login')
   }
 
@@ -299,15 +299,15 @@ export default function RegisterPage() {
               display: 'flex',
               alignItems: 'flex-start',
               gap: 10,
-              background: 'rgba(217,119,6,0.07)',
-              border: '1px solid rgba(245,158,11,0.2)',
+              background: 'rgba(16,185,129,0.07)',
+              border: '1px solid rgba(16,185,129,0.2)',
               borderRadius: 10,
               padding: '12px 14px',
               marginBottom: 20,
             }}>
-              <CheckCircle size={15} color="#FCD34D" style={{ marginTop: 1, flexShrink: 0 }} />
+              <CheckCircle size={15} color="#34D399" style={{ marginTop: 1, flexShrink: 0 }} />
               <p style={{ fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-                Your account will be reviewed by our team before activation. You&apos;ll be notified once approved.
+                Your account will be active immediately after registration. You can sign in right away.
               </p>
             </div>
 
