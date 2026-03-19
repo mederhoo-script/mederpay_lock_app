@@ -54,15 +54,15 @@ export default async function SuperadminDashboardPage() {
       label: 'Active Agents',
       value: activeAgents ?? 0,
       Icon: Users,
-      iconColor: 'text-[#67E8F9]',
-      iconBg: 'bg-[#0EA5E9]/12',
+      iconColor: 'text-[#2563EB]',
+      iconBg: 'bg-[#2563EB]/12',
     },
     {
       label: 'Pending Approval',
       value: pendingAgents ?? 0,
       Icon: Clock,
-      iconColor: 'text-[#FDBA74]',
-      iconBg: 'bg-[#F97316]/12',
+      iconColor: 'text-[#F59E0B]',
+      iconBg: 'bg-[#F59E0B]/12',
     },
     {
       label: 'Total Phones',
@@ -75,8 +75,8 @@ export default async function SuperadminDashboardPage() {
       label: 'Total Sales',
       value: totalSales ?? 0,
       Icon: ShoppingBag,
-      iconColor: 'text-[#86EFAC]',
-      iconBg: 'bg-[#22C55E]/12',
+      iconColor: 'text-[#F59E0B]',
+      iconBg: 'bg-[#F59E0B]/12',
     },
   ]
 
@@ -147,7 +147,7 @@ export default async function SuperadminDashboardPage() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-sm font-medium text-white/70 hover:bg-white/[0.08] hover:border-white/20 hover:text-white transition-colors group"
+              className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0D1432] px-4 py-3.5 text-sm font-medium text-white/70 hover:bg-[#0D1432]/80 hover:border-[#F59E0B]/30 hover:text-white transition-colors group"
             >
               <span>{item.label}</span>
               <ChevronRight className="h-3.5 w-3.5 text-white/25 group-hover:text-white/60 transition-colors" />

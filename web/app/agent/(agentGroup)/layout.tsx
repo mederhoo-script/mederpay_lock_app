@@ -50,7 +50,7 @@ function SidebarContent({
       {/* Brand */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0EA5E9] to-[#22D3EE] flex items-center justify-center shadow-[0_2px_10px_rgba(14,165,233,0.35)]">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#1D4ED8] to-[#2563EB] flex items-center justify-center shadow-[0_2px_10px_rgba(37,99,235,0.35)]">
             <Smartphone className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -81,13 +81,13 @@ function SidebarContent({
               onClick={onClose}
               className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-[#0EA5E9]/12 text-[#67E8F9] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
+                  ? 'bg-[#F59E0B]/12 text-[#F59E0B] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
                   : 'text-white/55 hover:bg-white/[0.05] hover:text-white'
               }`}
             >
-              <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-[#67E8F9]' : 'text-white/40 group-hover:text-white/70'}`} />
+              <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-[#F59E0B]' : 'text-white/40 group-hover:text-white/70'}`} />
               <span className="flex-1">{item.label}</span>
-              {isActive && <div className="w-1 h-1 rounded-full bg-[#67E8F9]" />}
+              {isActive && <div className="w-1 h-1 rounded-full bg-[#F59E0B]" />}
             </Link>
           )
         })}
@@ -135,7 +135,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
 
       {/* Sidebar — desktop always visible, mobile slide-in */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-60 shrink-0 border-r border-white/8 bg-[#071520] transition-transform duration-200 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-60 shrink-0 border-r border-white/8 bg-[#080E20] transition-transform duration-200 lg:static lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -149,7 +149,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
       {/* Main content area */}
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         {/* Top bar — mobile only */}
-        <header className="flex items-center gap-4 border-b border-white/8 bg-[#071520]/90 backdrop-blur-sm px-4 py-3 lg:hidden">
+        <header className="flex items-center gap-4 border-b border-white/8 bg-[#080E20]/90 backdrop-blur-sm px-4 py-3 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
             className="text-white/50 hover:text-white transition-colors rounded-lg p-1 hover:bg-white/8"
@@ -158,7 +158,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#0EA5E9] to-[#22D3EE] flex items-center justify-center">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#1D4ED8] to-[#2563EB] flex items-center justify-center">
               <Smartphone className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="font-bold text-white text-sm">MederBuy</span>
