@@ -2,6 +2,9 @@
 -- MederBuy — Complete Supabase Schema
 -- Run this entire file in the Supabase SQL Editor to set up a fresh database.
 -- All monetary values are stored in kobo (1 NGN = 100 kobo).
+--
+-- IDEMPOTENT: safe to re-run on a blank project.  All tables and custom types
+-- are dropped first (CASCADE) so no stale objects can block re-creation.
 -- ============================================================================
 
 -- ============================================================================
@@ -12,67 +15,92 @@ create extension if not exists pgcrypto;
 
 
 -- ============================================================================
--- 1. CUSTOM TYPES (ENUMS)
+-- 1. TEAR-DOWN (drop in reverse-dependency order so FK constraints don't block)
 -- ============================================================================
 
-do $$ begin
-  create type user_role   as enum ('agent', 'subagent', 'superadmin');
-exception when duplicate_object then null; end $$;
+-- triggers that reference auth.users are dropped implicitly when we drop the
+-- function, but we drop them explicitly first to be safe
+drop trigger if exists on_auth_user_created on auth.users;
 
-do $$ begin
-  create type user_status as enum ('active', 'pending', 'suspended');
-exception when duplicate_object then null; end $$;
+-- application tables
+drop table if exists public.weekly_fees        cascade;
+drop table if exists public.fee_tiers          cascade;
+drop table if exists public.phone_logs         cascade;
+drop table if exists public.agent_settings     cascade;
+drop table if exists public.virtual_accounts   cascade;
+drop table if exists public.payments           cascade;
+drop table if exists public.phone_sales        cascade;
+drop table if exists public.buyers             cascade;
+drop table if exists public.phones             cascade;
+drop table if exists public.profiles           cascade;
 
-do $$ begin
-  create type phone_status as enum ('available', 'sold', 'locked', 'unlocked', 'returned');
-exception when duplicate_object then null; end $$;
+-- custom enum types (CASCADE removes any residual column dependencies)
+drop type if exists device_event_type  cascade;
+drop type if exists weekly_fee_status  cascade;
+drop type if exists gateway_name       cascade;
+drop type if exists payment_status     cascade;
+drop type if exists sale_status        cascade;
+drop type if exists phone_status       cascade;
+drop type if exists user_status        cascade;
+drop type if exists user_role          cascade;
 
-do $$ begin
-  create type sale_status  as enum ('active', 'grace', 'lock', 'completed', 'defaulted');
-exception when duplicate_object then null; end $$;
-
-do $$ begin
-  create type payment_status  as enum ('success', 'failed', 'pending');
-exception when duplicate_object then null; end $$;
-
-do $$ begin
-  create type gateway_name    as enum ('monnify', 'paystack', 'flutterwave', 'interswitch');
-exception when duplicate_object then null; end $$;
-
-do $$ begin
-  create type weekly_fee_status as enum ('pending', 'paid', 'overdue');
-exception when duplicate_object then null; end $$;
-
-do $$ begin
-  create type device_event_type as enum (
-    'DEVICE_REGISTERED',
-    'STATUS_CHECK',
-    'STATUS_CHANGE',
-    'LOCK_ENFORCED',
-    'UNLOCK',
-    'ROOT_DETECTED',
-    'BOOT',
-    'SYNC_FAIL',
-    'PAYMENT_RECEIVED'
-  );
-exception when duplicate_object then null; end $$;
+-- helper functions
+drop function if exists public.recalculate_weekly_fees(date)  cascade;
+drop function if exists public.get_fee_for_price(bigint)      cascade;
+drop function if exists public.current_user_parent_agent_id() cascade;
+drop function if exists public.current_user_role()            cascade;
+drop function if exists public.handle_new_user()              cascade;
+drop function if exists public.set_updated_at()               cascade;
 
 
 -- ============================================================================
--- 2. TABLES
+-- 2. CUSTOM TYPES (ENUMS)
+--    Created outside DO blocks so they are immediately visible to subsequent
+--    CREATE TABLE statements within the same SQL batch.
 -- ============================================================================
 
--- ── 2.1  profiles ────────────────────────────────────────────────────────────
+create type user_role as enum ('agent', 'subagent', 'superadmin');
+
+create type user_status as enum ('active', 'pending', 'suspended');
+
+create type phone_status as enum ('available', 'sold', 'locked', 'unlocked', 'returned');
+
+create type sale_status as enum ('active', 'grace', 'lock', 'completed', 'defaulted');
+
+create type payment_status as enum ('success', 'failed', 'pending');
+
+create type gateway_name as enum ('monnify', 'paystack', 'flutterwave', 'interswitch');
+
+create type weekly_fee_status as enum ('pending', 'paid', 'overdue');
+
+create type device_event_type as enum (
+  'DEVICE_REGISTERED',
+  'STATUS_CHECK',
+  'STATUS_CHANGE',
+  'LOCK_ENFORCED',
+  'UNLOCK',
+  'ROOT_DETECTED',
+  'BOOT',
+  'SYNC_FAIL',
+  'PAYMENT_RECEIVED'
+);
+
+
+-- ============================================================================
+-- 3. TABLES
+-- ============================================================================
+
+-- ── 3.1  profiles ────────────────────────────────────────────────────────────
 -- One row per Supabase auth user.  Created by the handle_new_user trigger and
 -- then upserted by the registration API with the full data.
-create table if not exists public.profiles (
+create table public.profiles (
   id               uuid          primary key references auth.users(id) on delete cascade,
   full_name        text          not null default '',
   email            text          not null unique,
   username         text          unique,
   phone            text,
-  role             user_role     not null default 'agent',
-  status           user_status   not null default 'pending',
+  role             user_role     not null default 'agent'::user_role,
+  status           user_status   not null default 'pending'::user_status,
   parent_agent_id  uuid          references public.profiles(id) on delete set null,
   created_at       timestamptz   not null default now(),
   updated_at       timestamptz   not null default now()
@@ -82,8 +110,8 @@ comment on table public.profiles is
   'User accounts for agents, sub-agents, and superadmins.  Mirrors auth.users.';
 
 
--- ── 2.2  phones ──────────────────────────────────────────────────────────────
-create table if not exists public.phones (
+-- ── 3.2  phones ──────────────────────────────────────────────────────────────
+create table public.phones (
   id              uuid          primary key default uuid_generate_v4(),
   imei            varchar(20)   not null unique,
   brand           text          not null,
@@ -95,7 +123,7 @@ create table if not exists public.phones (
   down_payment    bigint        not null default 0 check (down_payment >= 0),
   weekly_payment  bigint        not null check (weekly_payment >= 0),
   payment_weeks   int           not null check (payment_weeks > 0),
-  status          phone_status  not null default 'available',
+  status          phone_status  not null default 'available'::phone_status,
   agent_id        uuid          not null references public.profiles(id) on delete restrict,
   registered_by   uuid          not null references public.profiles(id) on delete restrict,
   created_at      timestamptz   not null default now(),
@@ -106,8 +134,8 @@ comment on table public.phones is
   'Phone inventory.  All prices in kobo.  weekly_payment = ceil((selling_price - down_payment) / payment_weeks).';
 
 
--- ── 2.3  buyers ──────────────────────────────────────────────────────────────
-create table if not exists public.buyers (
+-- ── 3.3  buyers ──────────────────────────────────────────────────────────────
+create table public.buyers (
   id               uuid        primary key default uuid_generate_v4(),
   full_name        text        not null,
   phone            text        not null,
@@ -125,8 +153,8 @@ comment on table public.buyers is
   'Customer records.  BVN/NIN stored as-is; encrypt at the application layer before inserting.';
 
 
--- ── 2.4  phone_sales ─────────────────────────────────────────────────────────
-create table if not exists public.phone_sales (
+-- ── 3.4  phone_sales ─────────────────────────────────────────────────────────
+create table public.phone_sales (
   id                         uuid        primary key default uuid_generate_v4(),
   phone_id                   uuid        not null references public.phones(id) on delete restrict,
   buyer_id                   uuid        not null references public.buyers(id) on delete restrict,
@@ -144,7 +172,7 @@ create table if not exists public.phone_sales (
   virtual_account_number     text,
   virtual_account_bank       text,
   payment_url                text,
-  status                     sale_status not null default 'active',
+  status                     sale_status not null default 'active'::sale_status,
   sale_date                  timestamptz not null default now(),
   created_at                 timestamptz not null default now(),
   updated_at                 timestamptz not null default now()
@@ -154,8 +182,8 @@ comment on table public.phone_sales is
   'Phone financing contracts.  outstanding_balance starts at (selling_price - down_payment) and decreases with each payment.';
 
 
--- ── 2.5  payments ────────────────────────────────────────────────────────────
-create table if not exists public.payments (
+-- ── 3.5  payments ────────────────────────────────────────────────────────────
+create table public.payments (
   id                uuid           primary key default uuid_generate_v4(),
   sale_id           uuid           not null references public.phone_sales(id) on delete restrict,
   buyer_id          uuid           not null references public.buyers(id) on delete restrict,
@@ -163,7 +191,7 @@ create table if not exists public.payments (
   amount            bigint         not null check (amount > 0),
   gateway           gateway_name   not null,
   gateway_reference text           not null unique,
-  status            payment_status not null default 'pending',
+  status            payment_status not null default 'pending'::payment_status,
   paid_at           timestamptz,
   created_at        timestamptz    not null default now()
 );
@@ -172,8 +200,8 @@ comment on table public.payments is
   'Payment records from all gateways.  gateway_reference is unique to prevent double-posting.';
 
 
--- ── 2.6  virtual_accounts ────────────────────────────────────────────────────
-create table if not exists public.virtual_accounts (
+-- ── 3.6  virtual_accounts ────────────────────────────────────────────────────
+create table public.virtual_accounts (
   id             uuid        primary key default uuid_generate_v4(),
   owner_type     text        not null default 'buyer',
   owner_id       uuid        not null,
@@ -193,8 +221,8 @@ comment on table public.virtual_accounts is
   'Virtual bank accounts created per sale through the agent''s active payment gateway.';
 
 
--- ── 2.7  agent_settings ──────────────────────────────────────────────────────
-create table if not exists public.agent_settings (
+-- ── 3.7  agent_settings ──────────────────────────────────────────────────────
+create table public.agent_settings (
   agent_id                         uuid        primary key references public.profiles(id) on delete cascade,
   active_gateway                   text        not null default 'monnify',
   monnify_api_key_encrypted        text,
@@ -213,8 +241,8 @@ comment on table public.agent_settings is
   'Per-agent payment gateway credentials and custom payment URL.';
 
 
--- ── 2.8  phone_logs ──────────────────────────────────────────────────────────
-create table if not exists public.phone_logs (
+-- ── 3.8  phone_logs ──────────────────────────────────────────────────────────
+create table public.phone_logs (
   id          uuid               primary key default uuid_generate_v4(),
   phone_id    uuid               references public.phones(id) on delete set null,
   imei        varchar(20)        not null,
@@ -230,8 +258,8 @@ comment on table public.phone_logs is
   'Append-only audit log for device events from the Android lock app and server-side actions.';
 
 
--- ── 2.9  fee_tiers ───────────────────────────────────────────────────────────
-create table if not exists public.fee_tiers (
+-- ── 3.9  fee_tiers ───────────────────────────────────────────────────────────
+create table public.fee_tiers (
   id          uuid        primary key default uuid_generate_v4(),
   label       text        not null,
   min_price   bigint      not null check (min_price >= 0),
@@ -245,15 +273,15 @@ comment on table public.fee_tiers is
   'Platform fee tiers applied weekly per phone sold.  min/max/fee_amount are in kobo.  NULL max_price = unlimited.';
 
 
--- ── 2.10  weekly_fees ────────────────────────────────────────────────────────
-create table if not exists public.weekly_fees (
+-- ── 3.10  weekly_fees ────────────────────────────────────────────────────────
+create table public.weekly_fees (
   id          uuid               primary key default uuid_generate_v4(),
   agent_id    uuid               not null references public.profiles(id) on delete cascade,
   week_start  date               not null,
   week_end    date               not null,
   phones_sold int                not null default 0 check (phones_sold >= 0),
   total_fee   bigint             not null default 0 check (total_fee >= 0),
-  status      weekly_fee_status  not null default 'pending',
+  status      weekly_fee_status  not null default 'pending'::weekly_fee_status,
   created_at  timestamptz        not null default now(),
   updated_at  timestamptz        not null default now(),
   unique (agent_id, week_start)
@@ -264,7 +292,7 @@ comment on table public.weekly_fees is
 
 
 -- ============================================================================
--- 3. INDEXES
+-- 4. INDEXES
 -- ============================================================================
 
 -- profiles
@@ -314,7 +342,7 @@ create index if not exists idx_weekly_fees_week_start on public.weekly_fees(week
 
 
 -- ============================================================================
--- 4. HELPER FUNCTION — updated_at auto-stamp
+-- 5. HELPER FUNCTION — updated_at auto-stamp
 -- ============================================================================
 
 create or replace function public.set_updated_at()
@@ -325,27 +353,27 @@ begin
 end;
 $$;
 
--- Attach to every table that has updated_at
-do $$ declare
-  tbl text;
-begin
-  foreach tbl in array array[
-    'profiles','phones','buyers','phone_sales',
-    'virtual_accounts','agent_settings','fee_tiers','weekly_fees'
-  ] loop
-    execute format(
-      'create trigger set_updated_at
-       before update on public.%I
-       for each row execute function public.set_updated_at()',
-      tbl
-    );
-  end loop;
-exception when others then null;  -- ignore "trigger already exists"
-end $$;
+-- Attach to every table that has updated_at (triggers were already dropped in section 1)
+create trigger set_updated_at before update on public.profiles
+  for each row execute function public.set_updated_at();
+create trigger set_updated_at before update on public.phones
+  for each row execute function public.set_updated_at();
+create trigger set_updated_at before update on public.buyers
+  for each row execute function public.set_updated_at();
+create trigger set_updated_at before update on public.phone_sales
+  for each row execute function public.set_updated_at();
+create trigger set_updated_at before update on public.virtual_accounts
+  for each row execute function public.set_updated_at();
+create trigger set_updated_at before update on public.agent_settings
+  for each row execute function public.set_updated_at();
+create trigger set_updated_at before update on public.fee_tiers
+  for each row execute function public.set_updated_at();
+create trigger set_updated_at before update on public.weekly_fees
+  for each row execute function public.set_updated_at();
 
 
 -- ============================================================================
--- 5. TRIGGER — handle_new_user
+-- 6. TRIGGER — handle_new_user
 --    Automatically creates a stub profiles row when a new auth user signs up.
 --    The registration API then upserts the full data on top.
 -- ============================================================================
@@ -360,22 +388,22 @@ begin
     coalesce(new.email, ''),
     new.raw_user_meta_data->>'username',
     new.raw_user_meta_data->>'phone',
-    coalesce((new.raw_user_meta_data->>'role')::user_role, 'agent'),
-    'pending'
+    coalesce((new.raw_user_meta_data->>'role')::user_role, 'agent'::user_role),
+    'pending'::user_status
   )
   on conflict (id) do nothing;
   return new;
 end;
 $$;
 
-drop trigger if exists on_auth_user_created on auth.users;
+-- on_auth_user_created was already dropped in section 1
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
 
 -- ============================================================================
--- 6. ROW-LEVEL SECURITY (RLS)
+-- 7. ROW-LEVEL SECURITY (RLS)
 -- ============================================================================
 
 -- Enable RLS on every table
@@ -404,7 +432,7 @@ returns uuid language sql stable security definer as $$
 $$;
 
 
--- ── 6.1  profiles ────────────────────────────────────────────────────────────
+-- ── 7.1  profiles ────────────────────────────────────────────────────────────
 -- Superadmin: full access
 drop policy if exists "superadmin_profiles_all"  on public.profiles;
 create policy "superadmin_profiles_all" on public.profiles
@@ -436,7 +464,7 @@ create policy "subagent_profiles_update" on public.profiles
   with check (auth.uid() = id);
 
 
--- ── 6.2  phones ──────────────────────────────────────────────────────────────
+-- ── 7.2  phones ──────────────────────────────────────────────────────────────
 drop policy if exists "superadmin_phones_all" on public.phones;
 create policy "superadmin_phones_all" on public.phones
   for all using (public.current_user_role() = 'superadmin');
@@ -455,7 +483,7 @@ create policy "subagent_phones_select" on public.phones
   );
 
 
--- ── 6.3  buyers ──────────────────────────────────────────────────────────────
+-- ── 7.3  buyers ──────────────────────────────────────────────────────────────
 drop policy if exists "superadmin_buyers_all" on public.buyers;
 create policy "superadmin_buyers_all" on public.buyers
   for all using (public.current_user_role() = 'superadmin');
@@ -473,7 +501,7 @@ create policy "subagent_buyers_select" on public.buyers
   );
 
 
--- ── 6.4  phone_sales ─────────────────────────────────────────────────────────
+-- ── 7.4  phone_sales ─────────────────────────────────────────────────────────
 drop policy if exists "superadmin_sales_all" on public.phone_sales;
 create policy "superadmin_sales_all" on public.phone_sales
   for all using (public.current_user_role() = 'superadmin');
@@ -497,7 +525,7 @@ create policy "subagent_sales_insert" on public.phone_sales
   );
 
 
--- ── 6.5  payments ────────────────────────────────────────────────────────────
+-- ── 7.5  payments ────────────────────────────────────────────────────────────
 drop policy if exists "superadmin_payments_all" on public.payments;
 create policy "superadmin_payments_all" on public.payments
   for all using (public.current_user_role() = 'superadmin');
@@ -518,7 +546,7 @@ create policy "subagent_payments_select" on public.payments
 -- Service-role writes bypass RLS; no insert policy needed for webhooks / verify API.
 
 
--- ── 6.6  virtual_accounts ────────────────────────────────────────────────────
+-- ── 7.6  virtual_accounts ────────────────────────────────────────────────────
 drop policy if exists "superadmin_va_all" on public.virtual_accounts;
 create policy "superadmin_va_all" on public.virtual_accounts
   for all using (public.current_user_role() = 'superadmin');
@@ -539,7 +567,7 @@ create policy "subagent_va_select" on public.virtual_accounts
   );
 
 
--- ── 6.7  agent_settings ──────────────────────────────────────────────────────
+-- ── 7.7  agent_settings ──────────────────────────────────────────────────────
 drop policy if exists "superadmin_settings_all" on public.agent_settings;
 create policy "superadmin_settings_all" on public.agent_settings
   for all using (public.current_user_role() = 'superadmin');
@@ -550,7 +578,7 @@ create policy "agent_settings_own" on public.agent_settings
   with check (agent_id = auth.uid());
 
 
--- ── 6.8  phone_logs ──────────────────────────────────────────────────────────
+-- ── 7.8  phone_logs ──────────────────────────────────────────────────────────
 -- Only superadmin and the owning agent can read logs for their phones.
 -- Inserts are done via service-role (webhooks, cron) and the device API.
 drop policy if exists "superadmin_logs_all" on public.phone_logs;
@@ -564,7 +592,7 @@ create policy "agent_logs_select" on public.phone_logs
   );
 
 
--- ── 6.9  fee_tiers ───────────────────────────────────────────────────────────
+-- ── 7.9  fee_tiers ───────────────────────────────────────────────────────────
 -- Superadmin manages; everyone else reads (needed for fee calculation display).
 drop policy if exists "superadmin_fee_tiers_all" on public.fee_tiers;
 create policy "superadmin_fee_tiers_all" on public.fee_tiers
@@ -575,7 +603,7 @@ create policy "authenticated_fee_tiers_select" on public.fee_tiers
   for select using (auth.role() = 'authenticated');
 
 
--- ── 6.10  weekly_fees ────────────────────────────────────────────────────────
+-- ── 7.10  weekly_fees ────────────────────────────────────────────────────────
 drop policy if exists "superadmin_weekly_fees_all" on public.weekly_fees;
 create policy "superadmin_weekly_fees_all" on public.weekly_fees
   for all using (public.current_user_role() = 'superadmin');
@@ -586,7 +614,7 @@ create policy "agent_weekly_fees_select" on public.weekly_fees
 
 
 -- ============================================================================
--- 7. SEED DATA — default fee tiers
+-- 8. SEED DATA — default fee tiers
 --    (kobo values: ₦50,000 = 5,000,000 kobo)
 -- ============================================================================
 
@@ -600,10 +628,10 @@ on conflict do nothing;
 
 
 -- ============================================================================
--- 8. UTILITY FUNCTIONS
+-- 9. UTILITY FUNCTIONS
 -- ============================================================================
 
--- 8.1  Calculate the weekly fee tier for a given selling_price (in kobo)
+-- 9.1  Calculate the weekly fee tier for a given selling_price (in kobo)
 create or replace function public.get_fee_for_price(p_price bigint)
 returns bigint language sql stable security definer as $$
   select coalesce(
@@ -620,7 +648,7 @@ returns bigint language sql stable security definer as $$
 $$;
 
 
--- 8.2  Recalculate & upsert weekly_fees for all agents for a given week.
+-- 9.2  Recalculate & upsert weekly_fees for all agents for a given week.
 --      Call with the Monday of the target week, e.g.:
 --        select public.recalculate_weekly_fees('2025-01-06');
 create or replace function public.recalculate_weekly_fees(p_week_start date)
@@ -665,7 +693,7 @@ $$;
 
 
 -- ============================================================================
--- 9. GRANT PUBLIC SCHEMA USAGE TO SERVICE ROLES
+-- 10. GRANT PUBLIC SCHEMA USAGE TO SERVICE ROLES
 --    Supabase anon & authenticated roles need usage on public schema.
 -- ============================================================================
 
