@@ -1,6 +1,23 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Public paths — no auth required
+const PUBLIC_PATHS = ['/login', '/register', '/forgot-password', '/auth']
+
+// Role → home dashboard mapping
+const ROLE_HOME: Record<string, string> = {
+  superadmin: '/superadmin/dashboard',
+  agent: '/agent/dashboard',
+  subagent: '/subagent/dashboard',
+}
+
+// Route prefix → allowed roles (superadmin can go anywhere; agent can go to subagent)
+const ROUTE_ROLES: { prefix: string; roles: string[] }[] = [
+  { prefix: '/superadmin', roles: ['superadmin'] },
+  { prefix: '/agent',      roles: ['superadmin', 'agent'] },
+  { prefix: '/subagent',   roles: ['superadmin', 'agent', 'subagent'] },
+]
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -29,56 +46,51 @@ export async function proxy(request: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
-
   const { pathname } = request.nextUrl
 
-  if (pathname.startsWith('/superadmin')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, status')
-      .eq('id', user.id)
-      .single()
+  // ── 1. Public / landing paths ────────────────────────────────────────────
+  const isPublic = pathname === '/' ||
+    PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
 
-    if (!profile || profile.role !== 'superadmin') {
-      return NextResponse.redirect(new URL('/login', request.url))
+  if (isPublic) {
+    // Authenticated users on login/register/root → send to their dashboard
+    if (user && (pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === '/forgot-password')) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      const home = profile?.role ? (ROLE_HOME[profile.role as string] ?? '/login') : '/login'
+      return NextResponse.redirect(new URL(home, request.url))
     }
+    return supabaseResponse
   }
 
-  if (pathname.startsWith('/agent')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, status')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || profile.role !== 'agent') {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    if (profile.status !== 'active') {
-      return NextResponse.redirect(new URL('/login?error=inactive', request.url))
-    }
+  // ── 2. All other routes require authentication ────────────────────────────
+  if (!user) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('next', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
-  if (pathname.startsWith('/subagent')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
+  // ── 3. Role-based access control ─────────────────────────────────────────
+  const matched = ROUTE_ROLES.find((r) => pathname.startsWith(r.prefix))
+  if (matched) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('role, status')
       .eq('id', user.id)
       .single()
 
-    if (!profile || profile.role !== 'subagent') {
-      return NextResponse.redirect(new URL('/login', request.url))
+    const role = profile?.role as string | undefined
+
+    if (!role || !matched.roles.includes(role)) {
+      const home = role ? (ROLE_HOME[role] ?? '/login') : '/login'
+      return NextResponse.redirect(new URL(home, request.url))
     }
-    if (profile.status !== 'active') {
+
+    // Inactive agents / subagents are blocked
+    if ((role === 'agent' || role === 'subagent') && profile?.status !== 'active') {
       return NextResponse.redirect(new URL('/login?error=inactive', request.url))
     }
   }
@@ -88,6 +100,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
