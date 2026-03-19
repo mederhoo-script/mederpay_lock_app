@@ -220,7 +220,7 @@ export default function LandingPage() {
             {[
               { emoji: '⚡', label: '500+ Agents' },
               { emoji: '📈', label: '₦2.1B Managed' },
-              { emoji: '🛡️', label: 'SOC 2 Ready' },
+              { emoji: '🛡️', label: 'Bank-Grade Security' },
             ].map((b) => (
               <span
                 key={b.label}
