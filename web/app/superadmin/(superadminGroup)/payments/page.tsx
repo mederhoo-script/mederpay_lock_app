@@ -53,7 +53,7 @@ export default async function SuperadminPaymentsPage() {
         <p className="text-sm text-white/50 mt-1">Every payment transaction across the platform</p>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-white/5 p-5 inline-block">
+      <div className="gold-panel p-5 inline-block">
         <p className="text-sm text-white/50">Total Collected (platform-wide)</p>
         <p className="text-3xl font-bold text-emerald-400 mt-1">{formatNaira(totalCollected)}</p>
       </div>

@@ -63,11 +63,11 @@ export default async function AgentPaymentsPage() {
 
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+        <div className="gold-panel p-5">
           <p className="text-sm text-white/50">Total Collected</p>
           <p className="text-2xl font-bold text-emerald-400 mt-1">{formatNaira(totalSuccess)}</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+        <div className="gold-panel p-5">
           <p className="text-sm text-white/50">Total Transactions</p>
           <p className="text-2xl font-bold text-white mt-1">{payments?.length ?? 0}</p>
         </div>

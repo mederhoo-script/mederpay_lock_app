@@ -34,11 +34,11 @@ export default async function SuperadminFeeTiersPage() {
 
       {/* Fee summary */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+        <div className="gold-panel p-5">
           <p className="text-sm text-white/50">Outstanding Fees</p>
           <p className="text-2xl font-bold text-red-400 mt-1">{formatNaira(outstanding)}</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+        <div className="gold-panel p-5">
           <p className="text-sm text-white/50">Fees Collected</p>
           <p className="text-2xl font-bold text-emerald-400 mt-1">{formatNaira(collected)}</p>
         </div>

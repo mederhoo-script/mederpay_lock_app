@@ -25,7 +25,7 @@ export default async function SuperadminSettingsPage() {
       </div>
 
       {/* Owner Monnify config */}
-      <section className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4">
+      <section className="gold-panel p-6 space-y-4">
         <h2 className="text-lg font-semibold text-white">Owner Monnify (Platform Fee Collection)</h2>
         <p className="text-sm text-white/50">
           These credentials are used to generate virtual accounts for agents to pay their weekly platform fees.
@@ -70,7 +70,7 @@ export default async function SuperadminSettingsPage() {
       </section>
 
       {/* Platform info */}
-      <section className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4">
+      <section className="gold-panel p-6 space-y-4">
         <h2 className="text-lg font-semibold text-white">Platform Info</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           <div>
@@ -89,7 +89,7 @@ export default async function SuperadminSettingsPage() {
       </section>
 
       {/* Webhook URLs */}
-      <section className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4">
+      <section className="gold-panel p-6 space-y-4">
         <h2 className="text-lg font-semibold text-white">Webhook Endpoints</h2>
         <p className="text-sm text-white/50">
           Register these URLs in your payment gateway dashboards to receive payment notifications.
