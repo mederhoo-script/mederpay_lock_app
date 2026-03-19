@@ -69,6 +69,11 @@ fastlane/readme.md
 # Version control
 vcs.xml
 
+# Environment variable files
+.env
+.env.*
+!.env.example
+
 # lint
 lint/intermediates/
 lint/generated/
