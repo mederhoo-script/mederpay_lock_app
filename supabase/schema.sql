@@ -34,7 +34,8 @@ drop table if exists public.buyers             cascade;
 drop table if exists public.phones             cascade;
 drop table if exists public.profiles           cascade;
 
--- custom enum types (CASCADE removes any residual column dependencies)
+-- custom enum types — no longer used (replaced with text + CHECK)
+-- kept as no-ops so re-running this file after the old schema is safe
 drop type if exists device_event_type  cascade;
 drop type if exists weekly_fee_status  cascade;
 drop type if exists gateway_name       cascade;
@@ -54,36 +55,9 @@ drop function if exists public.set_updated_at()               cascade;
 
 
 -- ============================================================================
--- 2. CUSTOM TYPES (ENUMS)
---    Created outside DO blocks so they are immediately visible to subsequent
---    CREATE TABLE statements within the same SQL batch.
+-- 2. (Custom ENUM types removed — text + CHECK constraints are used instead.
+--    This avoids Supabase trigger cast failures and is fully equivalent.)
 -- ============================================================================
-
-create type user_role as enum ('agent', 'subagent', 'superadmin');
-
-create type user_status as enum ('active', 'pending', 'suspended');
-
-create type phone_status as enum ('available', 'sold', 'locked', 'unlocked', 'returned');
-
-create type sale_status as enum ('active', 'grace', 'lock', 'completed', 'defaulted');
-
-create type payment_status as enum ('success', 'failed', 'pending');
-
-create type gateway_name as enum ('monnify', 'paystack', 'flutterwave', 'interswitch');
-
-create type weekly_fee_status as enum ('pending', 'paid', 'overdue');
-
-create type device_event_type as enum (
-  'DEVICE_REGISTERED',
-  'STATUS_CHECK',
-  'STATUS_CHANGE',
-  'LOCK_ENFORCED',
-  'UNLOCK',
-  'ROOT_DETECTED',
-  'BOOT',
-  'SYNC_FAIL',
-  'PAYMENT_RECEIVED'
-);
 
 
 -- ============================================================================
@@ -99,8 +73,8 @@ create table public.profiles (
   email            text          not null unique,
   username         text          unique,
   phone            text,
-  role             user_role     not null default 'agent'::user_role,
-  status           user_status   not null default 'pending'::user_status,
+  role             text          not null default 'agent' check (role in ('agent', 'subagent', 'superadmin')),
+  status           text          not null default 'pending' check (status in ('active', 'pending', 'suspended')),
   parent_agent_id  uuid          references public.profiles(id) on delete set null,
   created_at       timestamptz   not null default now(),
   updated_at       timestamptz   not null default now()
@@ -123,7 +97,7 @@ create table public.phones (
   down_payment    bigint        not null default 0 check (down_payment >= 0),
   weekly_payment  bigint        not null check (weekly_payment >= 0),
   payment_weeks   int           not null check (payment_weeks > 0),
-  status          phone_status  not null default 'available'::phone_status,
+  status          text          not null default 'available' check (status in ('available', 'sold', 'locked', 'unlocked', 'returned')),
   agent_id        uuid          not null references public.profiles(id) on delete restrict,
   registered_by   uuid          not null references public.profiles(id) on delete restrict,
   created_at      timestamptz   not null default now(),
@@ -172,7 +146,7 @@ create table public.phone_sales (
   virtual_account_number     text,
   virtual_account_bank       text,
   payment_url                text,
-  status                     sale_status not null default 'active'::sale_status,
+  status                     text        not null default 'active' check (status in ('active', 'grace', 'lock', 'completed', 'defaulted')),
   sale_date                  timestamptz not null default now(),
   created_at                 timestamptz not null default now(),
   updated_at                 timestamptz not null default now()
@@ -189,9 +163,9 @@ create table public.payments (
   buyer_id          uuid           not null references public.buyers(id) on delete restrict,
   agent_id          uuid           not null references public.profiles(id) on delete restrict,
   amount            bigint         not null check (amount > 0),
-  gateway           gateway_name   not null,
+  gateway           text           not null,
   gateway_reference text           not null unique,
-  status            payment_status not null default 'pending'::payment_status,
+  status            text           not null default 'pending' check (status in ('pending', 'success', 'failed')),
   paid_at           timestamptz,
   created_at        timestamptz    not null default now()
 );
@@ -246,7 +220,11 @@ create table public.phone_logs (
   id          uuid               primary key default uuid_generate_v4(),
   phone_id    uuid               references public.phones(id) on delete set null,
   imei        varchar(20)        not null,
-  event_type  device_event_type  not null,
+  event_type  text               not null check (event_type in (
+    'DEVICE_REGISTERED', 'STATUS_CHECK', 'STATUS_CHANGE',
+    'LOCK_ENFORCED', 'UNLOCK', 'ROOT_DETECTED',
+    'BOOT', 'SYNC_FAIL', 'PAYMENT_RECEIVED'
+  )),
   details     text,
   old_status  text,
   new_status  text,
@@ -281,7 +259,7 @@ create table public.weekly_fees (
   week_end    date               not null,
   phones_sold int                not null default 0 check (phones_sold >= 0),
   total_fee   bigint             not null default 0 check (total_fee >= 0),
-  status      weekly_fee_status  not null default 'pending'::weekly_fee_status,
+  status      text               not null default 'pending' check (status in ('pending', 'paid', 'overdue')),
   created_at  timestamptz        not null default now(),
   updated_at  timestamptz        not null default now(),
   unique (agent_id, week_start)
@@ -388,8 +366,8 @@ begin
     coalesce(new.email, ''),
     new.raw_user_meta_data->>'username',
     new.raw_user_meta_data->>'phone',
-    coalesce((new.raw_user_meta_data->>'role')::user_role, 'agent'::user_role),
-    'pending'::user_status
+    coalesce(new.raw_user_meta_data->>'role', 'agent'),
+    'pending'
   )
   on conflict (id) do nothing;
   return new;
@@ -422,7 +400,7 @@ alter table public.weekly_fees     enable row level security;
 -- Helper: get the role of the currently authenticated user
 -- ─────────────────────────────────────────────────────────────────────────────
 create or replace function public.current_user_role()
-returns user_role language sql stable security definer as $$
+returns text language sql stable security definer as $$
   select role from public.profiles where id = auth.uid();
 $$;
 
