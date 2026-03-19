@@ -138,16 +138,16 @@ export default async function AgentDashboardPage() {
       label: 'Total Phones',
       value: String(totalPhones ?? 0),
       sub:   'In inventory',
-      iconColor: 'text-[#0070F3]',
-      iconBg:    'bg-[#0070F3]/15',
+      iconColor: 'text-[#2563EB]',
+      iconBg:    'bg-[#2563EB]/15',
       Icon: Smartphone,
     },
     {
       label: 'Active Buyers',
       value: String(activeBuyers ?? 0),
       sub:   'On repayment plan',
-      iconColor: 'text-[#F5A623]',
-      iconBg:    'bg-[#F5A623]/15',
+      iconColor: 'text-[#F59E0B]',
+      iconBg:    'bg-[#F59E0B]/15',
       Icon: Users,
     },
     {
@@ -229,15 +229,15 @@ export default async function AgentDashboardPage() {
       {/* Revenue trend + Recent activity */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Revenue trend bar chart */}
-        <div className="lg:col-span-3 rounded-xl border border-white/10 bg-white/[0.04] p-6">
+        <div className="lg:col-span-3 gold-panel p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="font-semibold text-white">Revenue Trend</h2>
               <p className="text-xs text-white/40 mt-0.5">Weekly collections — last 8 weeks</p>
             </div>
-            <div className="flex items-center gap-1.5 rounded-full bg-[#0070F3]/15 px-2.5 py-1">
-              <TrendingUp className="w-3.5 h-3.5 text-[#0070F3]" />
-              <span className="text-xs font-semibold text-[#0070F3]">Live</span>
+            <div className="flex items-center gap-1.5 rounded-full bg-[#F59E0B]/15 px-2.5 py-1">
+              <TrendingUp className="w-3.5 h-3.5 text-[#F59E0B]" />
+              <span className="text-xs font-semibold text-[#F59E0B]">Live</span>
             </div>
           </div>
           <div className="flex items-end justify-between gap-2 h-40 px-1">
@@ -245,11 +245,11 @@ export default async function AgentDashboardPage() {
               const heightPct = Math.round((total / maxWeekly) * 100)
               return (
                 <div key={weekBuckets[i].label} className="flex-1 flex flex-col items-center justify-end gap-1.5 group relative">
-                  <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-white/80 bg-[#0D1F2D] border border-white/15 px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none shadow-lg">
+                  <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-white/80 bg-[#0D1432] border border-white/15 px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none shadow-lg">
                     {formatNaira(total)}
                   </div>
                   <div
-                    className="w-full rounded-t-md bg-gradient-to-t from-[#0070F3]/50 to-[#22D3EE]/70 hover:from-[#0070F3]/70 hover:to-[#22D3EE] transition-colors min-h-[4px]"
+                    className="w-full rounded-t-md bg-gradient-to-t from-[#1D4ED8]/50 to-[#F59E0B]/70 hover:from-[#1D4ED8]/70 hover:to-[#F59E0B] transition-colors min-h-[4px]"
                     style={{ height: `${Math.max(heightPct, 3)}%` }}
                   />
                   <span className="text-[9px] text-white/30 truncate w-full text-center">
@@ -262,7 +262,7 @@ export default async function AgentDashboardPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="lg:col-span-2 rounded-xl border border-white/10 bg-white/[0.04] p-6">
+        <div className="lg:col-span-2 gold-panel p-6">
           <h2 className="font-semibold text-white mb-5">Recent Activity</h2>
           {activity.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
@@ -297,10 +297,10 @@ export default async function AgentDashboardPage() {
         <h2 className="font-semibold text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: 'Add Phone',    href: '/agent/phones/new',  Icon: Smartphone,  color: 'text-[#0070F3]',   bg: 'bg-[#0070F3]/10',   hoverBg: 'hover:bg-[#0070F3]/18', border: 'border-[#0070F3]/20' },
-            { label: 'New Sale',     href: '/agent/sales/new',   Icon: TrendingUp,  color: 'text-emerald-400', bg: 'bg-emerald-400/10', hoverBg: 'hover:bg-emerald-400/18', border: 'border-emerald-400/20' },
-            { label: 'Add Buyer',    href: '/agent/buyers/new',  Icon: Users,       color: 'text-[#F5A623]',   bg: 'bg-[#F5A623]/10',   hoverBg: 'hover:bg-[#F5A623]/18', border: 'border-[#F5A623]/20' },
-            { label: 'Payments',     href: '/agent/payments',    Icon: CreditCard,  color: 'text-purple-400',  bg: 'bg-purple-400/10',  hoverBg: 'hover:bg-purple-400/18', border: 'border-purple-400/20' },
+            { label: 'Add Phone',    href: '/agent/phones/new',  Icon: Smartphone,  color: 'text-[#F59E0B]',   bg: 'bg-[#F59E0B]/10',   hoverBg: 'hover:bg-[#F59E0B]/18', border: 'border-[#F59E0B]/20' },
+            { label: 'New Sale',     href: '/agent/sales/new',   Icon: TrendingUp,  color: 'text-[#2563EB]', bg: 'bg-[#2563EB]/10', hoverBg: 'hover:bg-[#2563EB]/18', border: 'border-[#2563EB]/20' },
+            { label: 'Add Buyer',    href: '/agent/buyers/new',  Icon: Users,       color: 'text-[#F59E0B]',   bg: 'bg-[#F59E0B]/10',   hoverBg: 'hover:bg-[#F59E0B]/18', border: 'border-[#F59E0B]/20' },
+            { label: 'Payments',     href: '/agent/payments',    Icon: CreditCard,  color: 'text-[#2563EB]',  bg: 'bg-[#2563EB]/10',  hoverBg: 'hover:bg-[#2563EB]/18', border: 'border-[#2563EB]/20' },
           ].map(({ label, href, Icon, color, bg, hoverBg, border }) => (
             <a
               key={label}

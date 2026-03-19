@@ -81,9 +81,9 @@ function formatDate(iso: string): string {
 
 const STATUS_STYLES: Record<SaleStatus, string> = {
   active: 'bg-emerald-400/15 text-emerald-400',
-  grace: 'bg-[#F5A623]/15 text-[#F5A623]',
+  grace: 'bg-[#F59E0B]/15 text-[#F59E0B]',
   lock: 'bg-red-400/15 text-red-400',
-  completed: 'bg-[#0070F3]/15 text-[#0070F3]',
+  completed: 'bg-[#2563EB]/15 text-[#2563EB]',
   defaulted: 'bg-red-900/30 text-red-300',
 }
 
@@ -237,7 +237,7 @@ export default function SaleDetailPage() {
           <p className="text-sm text-white/60">{error}</p>
           <button
             onClick={() => router.push('/agent/sales')}
-            className="text-xs text-[#0070F3] hover:underline"
+            className="text-xs text-[#2563EB] hover:underline"
           >
             Back to list
           </button>
@@ -245,7 +245,7 @@ export default function SaleDetailPage() {
       ) : sale ? (
         <>
           {/* Status header */}
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+          <div className="gold-panel p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <div className="flex items-center gap-3 mb-1">
@@ -293,17 +293,17 @@ export default function SaleDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Phone card */}
             {sale.phone && (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+              <div className="gold-panel p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-[#0070F3]/15 flex items-center justify-center">
-                      <Smartphone className="w-4 h-4 text-[#0070F3]" />
+                    <div className="w-8 h-8 rounded-lg bg-[#2563EB]/15 flex items-center justify-center">
+                      <Smartphone className="w-4 h-4 text-[#2563EB]" />
                     </div>
                     <h2 className="font-semibold text-white">Phone</h2>
                   </div>
                   <a
                     href={`/agent/phones/${sale.phone.id}`}
-                    className="text-xs text-[#0070F3] hover:underline"
+                    className="text-xs text-[#2563EB] hover:underline"
                   >
                     View →
                   </a>
@@ -317,17 +317,17 @@ export default function SaleDetailPage() {
 
             {/* Buyer card */}
             {sale.buyer && (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+              <div className="gold-panel p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-[#F5A623]/15 flex items-center justify-center">
-                      <User className="w-4 h-4 text-[#F5A623]" />
+                    <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/15 flex items-center justify-center">
+                      <User className="w-4 h-4 text-[#F59E0B]" />
                     </div>
                     <h2 className="font-semibold text-white">Buyer</h2>
                   </div>
                   <a
                     href={`/agent/buyers/${sale.buyer.id}`}
-                    className="text-xs text-[#0070F3] hover:underline"
+                    className="text-xs text-[#2563EB] hover:underline"
                   >
                     View →
                   </a>
@@ -341,7 +341,7 @@ export default function SaleDetailPage() {
           </div>
 
           {/* Payment summary */}
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-5">
+          <div className="gold-panel p-6 space-y-5">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-emerald-400/15 flex items-center justify-center">
                 <DollarSign className="w-4 h-4 text-emerald-400" />
@@ -358,9 +358,9 @@ export default function SaleDetailPage() {
                 <p className="text-xs text-emerald-400/70 mb-1">Total Paid</p>
                 <p className="text-base font-bold text-emerald-400">{formatCurrency(sale.total_paid)}</p>
               </div>
-              <div className="p-3 rounded-lg bg-[#F5A623]/5 border border-[#F5A623]/10">
-                <p className="text-xs text-[#F5A623]/70 mb-1">Outstanding</p>
-                <p className="text-base font-bold text-[#F5A623]">{formatCurrency(sale.outstanding_balance)}</p>
+              <div className="p-3 rounded-lg bg-[#F59E0B]/5 border border-[#F59E0B]/10">
+                <p className="text-xs text-[#F59E0B]/70 mb-1">Outstanding</p>
+                <p className="text-base font-bold text-[#F59E0B]">{formatCurrency(sale.outstanding_balance)}</p>
               </div>
               <div className="p-3 rounded-lg bg-white/5">
                 <p className="text-xs text-white/40 mb-1">Down Payment</p>
@@ -378,7 +378,7 @@ export default function SaleDetailPage() {
               </div>
               <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-[#0070F3] transition-all"
+                  className="h-full rounded-full bg-[#2563EB] transition-all"
                   style={{
                     width: `${sale.payment_weeks > 0 ? Math.min(100, (sale.weeks_paid / sale.payment_weeks) * 100) : 0}%`,
                   }}
@@ -400,7 +400,7 @@ export default function SaleDetailPage() {
                 <select
                   value={pendingStatus}
                   onChange={(e) => setPendingStatus(e.target.value as SaleStatus)}
-                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-[#0070F3]/50"
+                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-[#2563EB]/50"
                 >
                   {STATUS_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value} className="bg-[#0D0D1A]">
@@ -436,7 +436,7 @@ export default function SaleDetailPage() {
                     type="number"
                     value={paymentAmount}
                     onChange={(e) => setPaymentAmount(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-[#0070F3]/50"
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-[#2563EB]/50"
                     placeholder="Enter amount"
                   />
                 </div>
@@ -453,10 +453,10 @@ export default function SaleDetailPage() {
 
           {/* Virtual account */}
           {(sale.virtual_account_number || sale.payment_url) && (
-            <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+            <div className="gold-panel p-6">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-[#0070F3]/15 flex items-center justify-center">
-                  <Building2 className="w-4 h-4 text-[#0070F3]" />
+                <div className="w-8 h-8 rounded-lg bg-[#2563EB]/15 flex items-center justify-center">
+                  <Building2 className="w-4 h-4 text-[#2563EB]" />
                 </div>
                 <h2 className="font-semibold text-white">Virtual Account</h2>
               </div>
@@ -474,7 +474,7 @@ export default function SaleDetailPage() {
                     href={sale.payment_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#0070F3] hover:underline break-all"
+                    className="text-[#2563EB] hover:underline break-all"
                   >
                     {sale.payment_url}
                   </a>
@@ -484,11 +484,11 @@ export default function SaleDetailPage() {
           )}
 
           {/* Payments history */}
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4">
+          <div className="gold-panel p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#F5A623]/15 flex items-center justify-center">
-                  <CreditCard className="w-4 h-4 text-[#F5A623]" />
+                <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/15 flex items-center justify-center">
+                  <CreditCard className="w-4 h-4 text-[#F59E0B]" />
                 </div>
                 <h2 className="font-semibold text-white">Payment History</h2>
               </div>
@@ -528,7 +528,7 @@ export default function SaleDetailPage() {
                             payment.status === 'success'
                               ? 'bg-emerald-400/15 text-emerald-400'
                               : payment.status === 'pending'
-                              ? 'bg-[#F5A623]/15 text-[#F5A623]'
+                              ? 'bg-[#F59E0B]/15 text-[#F59E0B]'
                               : 'bg-red-400/15 text-red-400'
                           }`}>
                             {payment.status}

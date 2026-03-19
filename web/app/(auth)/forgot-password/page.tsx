@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle, Loader2, Mail, Smartphone } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Loader2, Mail, Smartphone } from 'lucide-react'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
@@ -41,80 +41,156 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#06121A] flex items-center justify-center px-4 py-12">
-      {/* Background decoration */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#0EA5E9]/15 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-[#22C55E]/10 blur-3xl" />
-      </div>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(160deg, #0A1628 0%, #060B18 50%, #0A0D1A 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '40px 16px',
+    }}>
 
-      <div className="w-full max-w-md animate-fade-in-up">
-        {/* Brand */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0EA5E9] to-[#22D3EE] shadow-[0_4px_20px_rgba(14,165,233,0.4)]">
-            <Smartphone className="h-7 w-7 text-white" />
+      {/* Card */}
+      <div style={{
+        width: '100%',
+        maxWidth: 440,
+        background: '#0D1432',
+        border: '1px solid rgba(255,255,255,0.09)',
+        borderRadius: 20,
+        overflow: 'hidden',
+        boxShadow: '0 24px 80px rgba(0,0,0,0.55)',
+      }}>
+
+        {/* Gold top bar */}
+        <div style={{ height: 4, background: 'linear-gradient(90deg,#D97706,#F59E0B,#FCD34D)' }} />
+
+        <div style={{ padding: '36px 32px' }}>
+
+          {/* Logo + brand */}
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div style={{
+              width: 52,
+              height: 52,
+              borderRadius: 14,
+              background: 'linear-gradient(135deg,#1D4ED8,#2563EB)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 14px',
+              boxShadow: '0 4px 20px rgba(37,99,235,0.45)',
+            }}>
+              <Smartphone size={24} color="#fff" />
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5, marginBottom: 4 }}>
+              <span style={{ color: '#fff' }}>Meder</span>
+              <span style={{ color: '#F59E0B' }}>Buy</span>
+            </div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)' }}>
+              {submitted ? "Check your inbox" : "Reset your password"}
+            </div>
           </div>
-          <h1 className="text-2xl font-black text-white">Reset your password</h1>
-          <p className="mt-1 text-sm text-white/50">
-            {submitted
-              ? "We've sent you an email"
-              : "Enter your email and we'll send you a reset link"}
-          </p>
-        </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-8 backdrop-blur-sm">
           {submitted ? (
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#22C55E]/15 border border-[#22C55E]/25">
-                <CheckCircle className="h-7 w-7 text-[#86EFAC]" />
+            /* Success state */
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: 56,
+                height: 56,
+                borderRadius: '50%',
+                background: 'rgba(16,185,129,0.1)',
+                border: '1px solid rgba(16,185,129,0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 16px',
+              }}>
+                <CheckCircle2 size={26} color="#34D399" />
               </div>
-              <p className="text-sm text-white/70 leading-relaxed">
+              <p style={{ fontSize: 13, lineHeight: 1.7, color: 'rgba(255,255,255,0.6)', marginBottom: 24 }}>
                 If an account exists for{' '}
-                <span className="font-semibold text-white">{getValues('email')}</span>, we sent a
-                password reset link. Check your inbox and spam folder.
+                <span style={{ fontWeight: 700, color: '#fff' }}>{getValues('email')}</span>,
+                we sent a password reset link. Check your inbox and spam folder.
               </p>
               <Link
                 href="/login"
-                className="mt-6 inline-flex items-center gap-2 rounded-lg border border-white/12 px-5 py-2.5 text-sm font-medium text-white/70 transition hover:border-white/25 hover:text-white"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 10,
+                  padding: '10px 18px',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.7)',
+                  textDecoration: 'none',
+                }}
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft size={14} />
                 Back to sign in
               </Link>
             </div>
           ) : (
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-              <div className="space-y-1.5">
-                <label htmlFor="email" className="block text-sm font-medium text-white/70">
+            /* Form state */
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+
+              {/* Email */}
+              <div style={{ marginBottom: 20 }}>
+                <label htmlFor="email" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }}>
                   Email address
                 </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
+                    <Mail size={15} color="rgba(255,255,255,0.3)" />
+                  </span>
                   <input
                     id="email"
                     type="email"
                     autoComplete="email"
                     placeholder="you@example.com"
                     {...register('email')}
-                    className={`w-full rounded-lg border bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-1 transition-colors ${
-                      errors.email
-                        ? 'border-red-500/60 focus:border-red-500/60 focus:ring-red-500/30'
-                        : 'border-white/10 focus:border-[#0EA5E9]/60 focus:ring-[#0EA5E9]/40'
-                    }`}
+                    style={{
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: errors.email ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: 10,
+                      padding: '12px 14px 12px 40px',
+                      fontSize: 14,
+                      color: '#fff',
+                      outline: 'none',
+                    }}
                   />
                 </div>
-                {errors.email && (
-                  <p className="text-xs text-red-400">{errors.email.message}</p>
-                )}
+                {errors.email && <p style={{ fontSize: 12, color: '#F87171', marginTop: 4 }}>{errors.email.message}</p>}
               </div>
 
+              {/* Submit */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0EA5E9] to-[#22D3EE] py-2.5 text-sm font-semibold text-[#032336] shadow-[0_2px_12px_rgba(14,165,233,0.35)] transition hover:brightness-110 hover:shadow-[0_4px_20px_rgba(14,165,233,0.45)] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]/50 focus:ring-offset-2 focus:ring-offset-[#06121A] disabled:cursor-not-allowed disabled:opacity-60"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  background: isSubmitting ? 'rgba(37,99,235,0.6)' : 'linear-gradient(135deg,#2563EB,#3B82F6)',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '14px 20px',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: '#fff',
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 20px rgba(37,99,235,0.4)',
+                  marginBottom: 20,
+                }}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
                     Sending reset link…
                   </>
                 ) : (
@@ -122,16 +198,25 @@ export default function ForgotPasswordPage() {
                 )}
               </button>
 
-              <p className="text-center text-sm text-white/40">
+              {/* Back to login */}
+              <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
                 Remembered your password?{' '}
-                <Link href="/login" className="font-medium text-[#67E8F9] transition-colors hover:text-[#67E8F9]/80">
+                <Link href="/login" style={{ fontWeight: 700, color: '#93C5FD', textDecoration: 'none' }}>
                   Sign in
                 </Link>
               </p>
+
             </form>
           )}
+
         </div>
       </div>
+
+      {/* Copyright */}
+      <p style={{ marginTop: 28, fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>
+        &copy; 2026 MederBuy. All rights reserved.
+      </p>
+
     </div>
   )
 }

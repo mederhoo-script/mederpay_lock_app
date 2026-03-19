@@ -172,8 +172,8 @@ export default function EditPhonePage() {
 
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#0070F3]/15 flex items-center justify-center">
-          <Smartphone className="w-5 h-5 text-[#0070F3]" />
+        <div className="w-10 h-10 rounded-xl bg-[#2563EB]/15 flex items-center justify-center">
+          <Smartphone className="w-5 h-5 text-[#2563EB]" />
         </div>
         <div>
           <h1 className="text-xl font-bold text-white">Edit Phone</h1>
@@ -182,7 +182,7 @@ export default function EditPhonePage() {
       </div>
 
       {loading ? (
-        <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+        <div className="gold-panel p-6">
           <FormSkeleton />
         </div>
       ) : error ? (
@@ -191,7 +191,7 @@ export default function EditPhonePage() {
           <p className="text-sm text-white/60">{error}</p>
           <button
             onClick={() => router.push('/agent/phones')}
-            className="text-xs text-[#0070F3] hover:underline"
+            className="text-xs text-[#2563EB] hover:underline"
           >
             Back to phones
           </button>
@@ -200,11 +200,11 @@ export default function EditPhonePage() {
         <>
           {/* Warning for non-available phones */}
           {phone.status !== 'available' && (
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-[#F5A623]/10 border border-[#F5A623]/20">
-              <AlertTriangle className="w-5 h-5 text-[#F5A623] shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/20">
+              <AlertTriangle className="w-5 h-5 text-[#F59E0B] shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-[#F5A623]">Phone is not available</p>
-                <p className="text-xs text-[#F5A623]/70 mt-0.5">
+                <p className="text-sm font-medium text-[#F59E0B]">Phone is not available</p>
+                <p className="text-xs text-[#F59E0B]/70 mt-0.5">
                   This phone has status <span className="font-semibold capitalize">{phone.status}</span>.
                   Only available phones can be edited.
                 </p>
@@ -212,7 +212,7 @@ export default function EditPhonePage() {
             </div>
           )}
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+          <div className="gold-panel p-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {/* Brand */}
@@ -223,7 +223,7 @@ export default function EditPhonePage() {
                     onChange={(e) => setField('brand', e.target.value)}
                     disabled={phone.status !== 'available'}
                     placeholder="e.g. Samsung"
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -235,7 +235,7 @@ export default function EditPhonePage() {
                     onChange={(e) => setField('model', e.target.value)}
                     disabled={phone.status !== 'available'}
                     placeholder="e.g. Galaxy A54"
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -247,7 +247,7 @@ export default function EditPhonePage() {
                     onChange={(e) => setField('storage', e.target.value)}
                     disabled={phone.status !== 'available'}
                     placeholder="e.g. 128GB"
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -259,7 +259,7 @@ export default function EditPhonePage() {
                     onChange={(e) => setField('color', e.target.value)}
                     disabled={phone.status !== 'available'}
                     placeholder="e.g. Midnight Black"
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -273,7 +273,7 @@ export default function EditPhonePage() {
                     disabled={phone.status !== 'available'}
                     placeholder="0"
                     min={0}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -287,7 +287,7 @@ export default function EditPhonePage() {
                     disabled={phone.status !== 'available'}
                     placeholder="0"
                     min={0}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -301,7 +301,7 @@ export default function EditPhonePage() {
                     disabled={phone.status !== 'available'}
                     placeholder="0"
                     min={0}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -316,7 +316,7 @@ export default function EditPhonePage() {
                     placeholder="e.g. 12"
                     min={1}
                     step={1}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -335,7 +335,7 @@ export default function EditPhonePage() {
                 <button
                   type="submit"
                   disabled={submitting || phone.status !== 'available'}
-                  className="px-6 py-2.5 rounded-lg bg-[#0070F3] text-white text-sm font-medium hover:bg-[#0070F3]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Saving…' : 'Save Changes'}
                 </button>

@@ -33,9 +33,9 @@ function formatCurrency(amount: number): string {
 
 const STATUS_STYLES: Record<SaleStatus, string> = {
   active: 'bg-emerald-400/15 text-emerald-400',
-  grace: 'bg-[#F5A623]/15 text-[#F5A623]',
+  grace: 'bg-[#F59E0B]/15 text-[#F59E0B]',
   lock: 'bg-red-400/15 text-red-400',
-  completed: 'bg-[#0070F3]/15 text-[#0070F3]',
+  completed: 'bg-[#2563EB]/15 text-[#2563EB]',
   defaulted: 'bg-red-900/30 text-red-300',
 }
 
@@ -187,7 +187,7 @@ export default function EditSalePage() {
           <p className="text-sm text-white/60">{error}</p>
           <button
             onClick={() => router.push('/agent/sales')}
-            className="text-xs text-[#0070F3] hover:underline"
+            className="text-xs text-[#2563EB] hover:underline"
           >
             Back to sales
           </button>
@@ -195,7 +195,7 @@ export default function EditSalePage() {
       ) : sale ? (
         <>
           {/* Current status header */}
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+          <div className="gold-panel p-6">
             <div className="flex items-center gap-3">
               <h1 className="text-xl font-bold text-white">Manage Sale</h1>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_STYLES[sale.status]}`}>
@@ -209,7 +209,7 @@ export default function EditSalePage() {
             {/* Left: actions */}
             <div className="lg:col-span-2 space-y-6">
               {/* Record payment */}
-              <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4">
+              <div className="gold-panel p-6 space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg bg-emerald-400/15 flex items-center justify-center">
                     <DollarSign className="w-4 h-4 text-emerald-400" />
@@ -244,10 +244,10 @@ export default function EditSalePage() {
               </div>
 
               {/* Change status */}
-              <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4">
+              <div className="gold-panel p-6 space-y-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#0070F3]/15 flex items-center justify-center">
-                    <Settings2 className="w-4 h-4 text-[#0070F3]" />
+                  <div className="w-8 h-8 rounded-lg bg-[#2563EB]/15 flex items-center justify-center">
+                    <Settings2 className="w-4 h-4 text-[#2563EB]" />
                   </div>
                   <h2 className="font-semibold text-white">Change Sale Status</h2>
                 </div>
@@ -258,7 +258,7 @@ export default function EditSalePage() {
                     <select
                       value={pendingStatus}
                       onChange={(e) => setPendingStatus(e.target.value as SaleStatus)}
-                      className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-[#0070F3]/50"
+                      className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-[#2563EB]/50"
                     >
                       {STATUS_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value} className="bg-[#0D0D1A]">
@@ -270,16 +270,16 @@ export default function EditSalePage() {
 
                   <div className="p-3 rounded-lg bg-white/5 text-xs text-white/50 space-y-1">
                     <p><span className="text-emerald-400">Active</span> — phone is unlocked, payments ongoing</p>
-                    <p><span className="text-[#F5A623]">Grace</span> — payment overdue, grace period active</p>
+                    <p><span className="text-[#F59E0B]">Grace</span> — payment overdue, grace period active</p>
                     <p><span className="text-red-400">Lock</span> — phone is remotely locked</p>
-                    <p><span className="text-[#0070F3]">Completed</span> — all payments received, phone returned</p>
+                    <p><span className="text-[#2563EB]">Completed</span> — all payments received, phone returned</p>
                     <p><span className="text-red-300">Defaulted</span> — buyer has defaulted on payments</p>
                   </div>
 
                   <button
                     type="submit"
                     disabled={submittingStatus || pendingStatus === sale.status}
-                    className="w-full px-4 py-2.5 rounded-lg bg-[#0070F3]/15 text-[#0070F3] text-sm font-medium hover:bg-[#0070F3]/25 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2.5 rounded-lg bg-[#2563EB]/15 text-[#2563EB] text-sm font-medium hover:bg-[#2563EB]/25 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {submittingStatus ? 'Updating…' : 'Save Status'}
                   </button>
@@ -288,10 +288,10 @@ export default function EditSalePage() {
             </div>
 
             {/* Right: summary sidebar */}
-            <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4 h-fit">
+            <div className="gold-panel p-6 space-y-4 h-fit">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#F5A623]/15 flex items-center justify-center">
-                  <CreditCard className="w-4 h-4 text-[#F5A623]" />
+                <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/15 flex items-center justify-center">
+                  <CreditCard className="w-4 h-4 text-[#F59E0B]" />
                 </div>
                 <h2 className="font-semibold text-white">Summary</h2>
               </div>
@@ -306,8 +306,8 @@ export default function EditSalePage() {
                   <p className="text-base font-bold text-emerald-400">{formatCurrency(sale.total_paid)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#F5A623]/70 mb-0.5">Outstanding</p>
-                  <p className="text-base font-bold text-[#F5A623]">{formatCurrency(sale.outstanding_balance)}</p>
+                  <p className="text-xs text-[#F59E0B]/70 mb-0.5">Outstanding</p>
+                  <p className="text-base font-bold text-[#F59E0B]">{formatCurrency(sale.outstanding_balance)}</p>
                 </div>
                 <div className="pt-3 border-t border-white/10">
                   <div className="flex items-center justify-between mb-1.5">
@@ -318,7 +318,7 @@ export default function EditSalePage() {
                   </div>
                   <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[#0070F3] transition-all"
+                      className="h-full rounded-full bg-[#2563EB] transition-all"
                       style={{
                         width: `${sale.payment_weeks > 0 ? Math.min(100, (sale.weeks_paid / sale.payment_weeks) * 100) : 0}%`,
                       }}

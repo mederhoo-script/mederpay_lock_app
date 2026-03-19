@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       username,
       phone,
       role: 'agent',
-      status: 'pending',
+      status: 'active',
     },
     { onConflict: 'id' },
   )

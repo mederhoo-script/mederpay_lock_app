@@ -54,9 +54,9 @@ const STATUS_TABS: { label: string; value: PhoneStatus | 'all' }[] = [
 
 const STATUS_STYLES: Record<PhoneStatus, string> = {
   available: 'bg-emerald-400/15 text-emerald-400',
-  sold:      'bg-[#0070F3]/15 text-[#0070F3]',
+  sold:      'bg-[#2563EB]/15 text-[#2563EB]',
   locked:    'bg-red-400/15 text-red-400',
-  returned:  'bg-[#F5A623]/15 text-[#F5A623]',
+  returned:  'bg-[#F59E0B]/15 text-[#F59E0B]',
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -123,7 +123,7 @@ export default function PhonesPage() {
         </div>
         <a
           href="/agent/phones/new"
-          className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Phone
@@ -140,7 +140,7 @@ export default function PhonesPage() {
             placeholder="Search IMEI, brand, model…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+            className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
           />
         </div>
 
@@ -152,7 +152,7 @@ export default function PhonesPage() {
               onClick={() => setActiveTab(tab.value)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 activeTab === tab.value
-                  ? 'bg-[#0070F3] text-white'
+                  ? 'bg-[#2563EB] text-white'
                   : 'text-white/50 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -183,7 +183,7 @@ export default function PhonesPage() {
             <p className="text-sm text-white/60">{error}</p>
             <button
               onClick={fetchPhones}
-              className="text-xs text-[#0070F3] hover:underline"
+              className="text-xs text-[#2563EB] hover:underline"
             >
               Try again
             </button>
@@ -195,7 +195,7 @@ export default function PhonesPage() {
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="text-xs text-[#0070F3] hover:underline"
+                className="text-xs text-[#2563EB] hover:underline"
               >
                 Clear search
               </button>
@@ -234,7 +234,7 @@ export default function PhonesPage() {
                     <td className="px-4 py-3 text-right">
                       <a
                         href={`/agent/phones/${phone.id}`}
-                        className="inline-flex items-center gap-1 text-xs text-[#0070F3] hover:text-[#0070F3]/80 transition-colors"
+                        className="inline-flex items-center gap-1 text-xs text-[#2563EB] hover:text-[#2563EB]/80 transition-colors"
                       >
                         View <ChevronRight className="w-3.5 h-3.5" />
                       </a>
