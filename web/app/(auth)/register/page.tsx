@@ -19,7 +19,6 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { createClient } from '@/lib/supabase/client'
 import { RegisterAgentSchema, type RegisterAgentInput } from '@/lib/validations'
 
 export default function RegisterPage() {
@@ -36,23 +35,15 @@ export default function RegisterPage() {
   })
 
   const onSubmit = async (data: RegisterAgentInput) => {
-    const supabase = createClient()
-
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: {
-          full_name: data.full_name,
-          username: data.username,
-          phone: data.phone,
-          role: 'agent',
-        },
-      },
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
     })
 
-    if (error) {
-      toast.error(error.message)
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      toast.error((body as { error?: string }).error ?? 'Registration failed. Please try again.')
       return
     }
 
