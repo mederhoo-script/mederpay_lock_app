@@ -38,44 +38,4 @@ export default async function SubagentDashboardPage() {
     { label: 'Locked Phones', value: lockedSales ?? 0, color: 'text-red-400' },
   ]
 
-  return (
-    <div className="p-6 lg:p-8 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Sub-Agent Dashboard</h1>
-        <p className="text-sm text-white/50 mt-1">
-          Your sales activity overview
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {stats.map((s) => (
-          <div
-            key={s.label}
-            className="stat-card p-5"
-          >
-            <p className="text-sm text-white/50">{s.label}</p>
-            <p className={`text-3xl font-bold mt-2 ${s.color}`}>{s.value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="gold-panel p-6">
-        <h2 className="font-semibold text-white mb-3">Quick Links</h2>
-        <div className="flex flex-wrap gap-3">
-          <a
-            href="/subagent/sales"
-            className="px-4 py-2 rounded-lg bg-[#F59E0B]/15 text-[#F59E0B] text-sm font-medium hover:bg-[#F59E0B]/25 transition-colors"
-          >
-            View My Sales →
-          </a>
-          <a
-            href="/subagent/logs"
-            className="px-4 py-2 rounded-lg bg-[#2563EB]/15 text-[#93C5FD] text-sm font-medium hover:bg-[#2563EB]/25 hover:text-white transition-colors"
-          >
-            Device Logs →
-          </a>
-        </div>
-      </div>
-    </div>
-  )
-}
+  
