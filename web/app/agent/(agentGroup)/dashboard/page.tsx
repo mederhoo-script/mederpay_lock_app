@@ -170,20 +170,24 @@ export default async function AgentDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {(lockedPhones as Array<{
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {(lockedPhones as any[]).map((phone: {
                   id: string
                   imei: string
                   brand: string
                   model: string
-                  phone_sales: Array<{ buyer_id: string; buyers: { full_name: string } | null; sale_date: string | null }> | null
-                }>).map(phone => {
+                  phone_sales: Array<{ buyer_id: string; buyers: { full_name: string }[] | { full_name: string } | null; sale_date: string | null }> | null
+                }) => {
                   const sale = phone.phone_sales?.[0]
-                  const buyer = sale?.buyers
+                  const buyerRaw = sale?.buyers
+                  const buyerName = Array.isArray(buyerRaw)
+                    ? buyerRaw[0]?.full_name
+                    : (buyerRaw as { full_name: string } | null)?.full_name
                   return (
                     <tr key={phone.id}>
                       <td className="font-mono text-xs" style={{ color: 'hsl(var(--foreground))' }}>{phone.imei}</td>
                       <td style={{ color: 'hsl(var(--muted-foreground))' }}>{phone.brand} {phone.model}</td>
-                      <td style={{ color: 'hsl(var(--muted-foreground))' }}>{buyer?.full_name ?? '—'}</td>
+                      <td style={{ color: 'hsl(var(--muted-foreground))' }}>{buyerName ?? '—'}</td>
                       <td>
                         <Link href={`/agent/phones/${phone.id}`} className="btn btn-ghost text-xs px-2 py-1">
                           <Eye className="w-3 h-3" /> View
