@@ -112,11 +112,6 @@
 	body {
 		background-color: hsl(var(--background));
 		color: hsl(var(--foreground));
-		background-image:
-			radial-gradient(circle at 10% -5%, hsl(var(--primary) / 0.15), transparent 38%),
-			radial-gradient(circle at 90% 5%, hsl(var(--gold) / 0.12), transparent 30%),
-			radial-gradient(circle at 50% 100%, hsl(var(--secondary) / 0.35), transparent 55%),
-			linear-gradient(180deg, hsl(var(--background) / 0.97), hsl(var(--background)) 50%);
 		text-rendering: optimizeLegibility;
 		font-feature-settings: 'cv01' 1, 'cv02' 1, 'cv04' 1;
 		-webkit-font-smoothing: antialiased;
