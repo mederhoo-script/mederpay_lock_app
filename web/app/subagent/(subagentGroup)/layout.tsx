@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
+import { ThemeToggle } from '@/app/components/ThemeToggle'
 
 interface NavItem {
   label: string
@@ -49,15 +50,18 @@ function SidebarContent({
             <p className="text-[10px] text-white/40 mt-0.5 uppercase tracking-wider">Sub-Agent</p>
           </div>
         </div>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="text-white/40 hover:text-white/80 transition-colors lg:hidden"
-            aria-label="Close sidebar"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-white/40 hover:text-white/80 transition-colors lg:hidden"
+              aria-label="Close sidebar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
@@ -149,6 +153,9 @@ export default function SubagentLayout({ children }: { children: React.ReactNode
             <Menu className="w-5 h-5" />
           </button>
           <span className="font-semibold text-white text-sm">MederBuy — Sub-Agent</span>
+          <div className="ml-auto">
+            <ThemeToggle />
+          </div>
         </header>
 
         {/* Page content */}

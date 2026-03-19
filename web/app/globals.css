@@ -115,13 +115,17 @@
 	}
 
 	body {
-		background: linear-gradient(160deg, #0A1628 0%, #060B18 50%, #0A0D1A 100%);
-		background-attachment: fixed;
+		background: hsl(var(--background));
 		color: hsl(var(--foreground));
 		text-rendering: optimizeLegibility;
 		font-feature-settings: 'cv01' 1, 'cv02' 1, 'cv04' 1;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
+	}
+
+	.dark body {
+		background: linear-gradient(160deg, #0A1628 0%, #060B18 50%, #0A0D1A 100%);
+		background-attachment: fixed;
 	}
 
 	h1,
@@ -202,16 +206,16 @@
 @layer components {
 	/* ── Glass panel ─────────────────────────────────────────────────────────── */
 	.surface-panel {
-		background: #0D1432;
-		border: 1px solid rgba(255,255,255,0.09);
+		background: hsl(var(--card));
+		border: 1px solid hsl(var(--border));
 		border-radius: 1rem;
 	}
 
 	/* ── Gold-bar panel — matches login/register card style ─────────────────── */
 	.gold-panel {
 		position: relative;
-		background: #0D1432;
-		border: 1px solid rgba(255,255,255,0.09);
+		background: hsl(var(--card));
+		border: 1px solid hsl(var(--border));
 		border-radius: 1rem;
 		overflow: hidden;
 	}

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
+import { ThemeToggle } from '@/app/components/ThemeToggle'
 
 interface NavItem {
   label: string
@@ -58,15 +59,18 @@ function SidebarContent({
             <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-white/35 -mt-0.5">Agent Portal</p>
           </div>
         </div>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="text-white/35 hover:text-white/75 transition-colors lg:hidden rounded-lg p-1 hover:bg-white/8"
-            aria-label="Close sidebar"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-white/35 hover:text-white/75 transition-colors lg:hidden rounded-lg p-1 hover:bg-white/8"
+              aria-label="Close sidebar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
@@ -162,6 +166,9 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
               <Smartphone className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="font-bold text-white text-sm">MederBuy</span>
+          </div>
+          <div className="ml-auto">
+            <ThemeToggle />
           </div>
         </header>
 
