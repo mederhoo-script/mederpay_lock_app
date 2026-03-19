@@ -35,20 +35,24 @@ export default function RegisterPage() {
   })
 
   const onSubmit = async (data: RegisterAgentInput) => {
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
 
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}))
-      toast.error((body as { error?: string }).error ?? 'Registration failed. Please try again.')
-      return
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        toast.error((body as { error?: string }).error ?? 'Registration failed. Please try again.')
+        return
+      }
+
+      toast.success('Account created! Please sign in to continue.')
+      router.push('/login')
+    } catch {
+      toast.error('Network error. Please check your connection and try again.')
     }
-
-    toast.success('Account created! Please sign in to continue.')
-    router.push('/login')
   }
 
   const inputStyle = (hasError: boolean) => ({
