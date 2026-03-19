@@ -4,6 +4,12 @@
 
 /* ── Keyframe animations ─────────────────────────────────────────────────── */
 
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
 @keyframes fade-in-up {
 	from {
 		opacity: 0;
@@ -48,25 +54,25 @@
 
 @layer base {
 	:root {
-		/* Brand: Deep Navy + Royal Blue + Gold */
-		--background: 228 47% 7%;
+		/* Brand: Deep Navy + Royal Blue + Gold — matches login/register template */
+		--background: 228 56% 6%;
 		--foreground: 210 40% 98%;
-		--card: 225 45% 11%;
+		--card: 230 57% 13%;
 		--card-foreground: 210 40% 96%;
-		--popover: 225 45% 10%;
+		--popover: 230 57% 12%;
 		--popover-foreground: 210 40% 96%;
 		--primary: 221 83% 53%;
 		--primary-foreground: 0 0% 100%;
-		--secondary: 225 40% 16%;
+		--secondary: 228 48% 16%;
 		--secondary-foreground: 210 40% 96%;
-		--muted: 225 35% 13%;
+		--muted: 228 45% 13%;
 		--muted-foreground: 215 20% 65%;
 		--accent: 38 92% 50%;
 		--accent-foreground: 30 100% 10%;
 		--destructive: 0 78% 55%;
 		--destructive-foreground: 210 40% 98%;
-		--border: 225 30% 20%;
-		--input: 225 35% 15%;
+		--border: 228 30% 18%;
+		--input: 228 45% 14%;
 		--ring: 221 83% 53%;
 		--radius: 0.85rem;
 		/* Gold token */
@@ -76,24 +82,24 @@
 	}
 
 	.dark {
-		--background: 228 47% 7%;
+		--background: 228 56% 6%;
 		--foreground: 210 40% 98%;
-		--card: 225 45% 11%;
+		--card: 230 57% 13%;
 		--card-foreground: 210 40% 96%;
-		--popover: 225 45% 10%;
+		--popover: 230 57% 12%;
 		--popover-foreground: 210 40% 96%;
 		--primary: 221 83% 53%;
 		--primary-foreground: 0 0% 100%;
-		--secondary: 225 40% 16%;
+		--secondary: 228 48% 16%;
 		--secondary-foreground: 210 40% 96%;
-		--muted: 225 35% 13%;
+		--muted: 228 45% 13%;
 		--muted-foreground: 215 20% 65%;
 		--accent: 38 92% 50%;
 		--accent-foreground: 30 100% 10%;
 		--destructive: 0 78% 55%;
 		--destructive-foreground: 210 40% 98%;
-		--border: 225 30% 20%;
-		--input: 225 35% 15%;
+		--border: 228 30% 18%;
+		--input: 228 45% 14%;
 		--ring: 221 83% 53%;
 		--gold: 38 92% 50%;
 		--gold-light: 43 96% 56%;
@@ -110,7 +116,8 @@
 	}
 
 	body {
-		background-color: hsl(var(--background));
+		background: linear-gradient(160deg, #0A1628 0%, #060B18 50%, #0A0D1A 100%);
+		background-attachment: fixed;
 		color: hsl(var(--foreground));
 		text-rendering: optimizeLegibility;
 		font-feature-settings: 'cv01' 1, 'cv02' 1, 'cv04' 1;
@@ -196,10 +203,29 @@
 @layer components {
 	/* ── Glass panel ─────────────────────────────────────────────────────────── */
 	.surface-panel {
-		border: 1px solid hsl(var(--border) / 0.8);
+		background: #0D1432;
+		border: 1px solid rgba(255,255,255,0.09);
 		border-radius: 1rem;
-		background: hsl(var(--card) / 0.7);
-		backdrop-filter: blur(12px);
+	}
+
+	/* ── Gold-bar panel — matches login/register card style ─────────────────── */
+	.gold-panel {
+		position: relative;
+		background: #0D1432;
+		border: 1px solid rgba(255,255,255,0.09);
+		border-radius: 1rem;
+		overflow: hidden;
+	}
+
+	.gold-panel::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 3px;
+		background: linear-gradient(90deg, #D97706, #F59E0B, #FCD34D);
+		pointer-events: none;
 	}
 
 	/* ── Text helpers ────────────────────────────────────────────────────────── */
@@ -239,12 +265,11 @@
 	.stat-card::before {
 		content: '';
 		position: absolute;
-		inset: 0;
-		background: radial-gradient(
-			circle at top right,
-			hsl(var(--primary) / 0.07),
-			transparent 65%
-		);
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 3px;
+		background: linear-gradient(90deg, #D97706, #F59E0B, #FCD34D);
 		pointer-events: none;
 	}
 
