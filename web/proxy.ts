@@ -48,20 +48,40 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
+  // ── 0. API routes — pass through; each route handles its own auth ─────────
+  // The proxy must NOT redirect API calls to /login: a 307 redirect on a POST
+  // causes fetch to re-POST to the login page, which returns 405 and makes
+  // the client-side error handler show "Registration failed. Please try again."
+  if (pathname.startsWith('/api/')) {
+    return supabaseResponse
+  }
+
   // ── 1. Public / landing paths ────────────────────────────────────────────
   const isPublic = pathname === '/' ||
     PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
 
   if (isPublic) {
-    // Authenticated users on login/register/root → send to their dashboard
+    // Authenticated users on login/register/root → send to their dashboard,
+    // but only when there is a real destination AND the account is active.
+    // Skipping the redirect for missing-profile or inactive users prevents
+    // the ERR_TOO_MANY_REDIRECTS loop where the RBAC block immediately
+    // bounces them back to /login.
     if (user && (pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === '/forgot-password')) {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, status')
         .eq('id', user.id)
         .single()
-      const home = profile?.role ? (ROLE_HOME[profile.role as string] ?? '/login') : '/login'
-      return NextResponse.redirect(new URL(home, request.url))
+      const role = profile?.role as string | undefined
+      // Only redirect when the role maps to a known dashboard.
+      if (role && role in ROLE_HOME) {
+        // For agent/subagent roles, treat any non-active status as inactive
+        // (superadmin has no status restriction).
+        const isInactive = (role === 'agent' || role === 'subagent') && profile?.status !== 'active'
+        if (!isInactive) {
+          return NextResponse.redirect(new URL(ROLE_HOME[role], request.url))
+        }
+      }
     }
     return supabaseResponse
   }
