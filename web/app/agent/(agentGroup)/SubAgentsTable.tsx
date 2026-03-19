@@ -1,18 +1,19 @@
 'use client'
 
 import { useState } from 'react'
+import { format } from 'date-fns'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { format } from 'date-fns'
 import { CheckCircle, Ban, Trash2 } from 'lucide-react'
 
-interface Agent {
+interface SubAgent {
   id: string
   full_name: string
   email: string | null
   phone: string | null
   status: string
   created_at: string
+  phones_sold: number
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -22,8 +23,8 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`badge ${colors[status] ?? 'badge-neutral'}`}>{status}</span>
 }
 
-export default function AgentsTable({ agents: initial }: { agents: Agent[] }) {
-  const [agents, setAgents] = useState(initial)
+export default function SubAgentsTable({ subagents: initial }: { subagents: SubAgent[] }) {
+  const [subagents, setSubagents] = useState(initial)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [processing, setProcessing] = useState<string | null>(null)
 
@@ -31,10 +32,13 @@ export default function AgentsTable({ agents: initial }: { agents: Agent[] }) {
     setProcessing(id)
     try {
       const supabase = createClient()
-      const { error } = await supabase.from('profiles').update({ status: newStatus }).eq('id', id)
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: newStatus })
+        .eq('id', id)
       if (error) { toast.error(error.message); return }
-      setAgents(prev => prev.map(a => a.id === id ? { ...a, status: newStatus } : a))
-      toast.success(`Agent ${newStatus === 'active' ? 'approved' : 'suspended'}.`)
+      setSubagents(prev => prev.map(s => s.id === id ? { ...s, status: newStatus } : s))
+      toast.success(`Sub-agent ${newStatus === 'active' ? 'approved' : 'suspended'}.`)
     } catch {
       toast.error('Action failed.')
     } finally {
@@ -42,20 +46,28 @@ export default function AgentsTable({ agents: initial }: { agents: Agent[] }) {
     }
   }
 
-  const deleteAgent = async (id: string) => {
+  const deleteSubAgent = async (id: string) => {
     setProcessing(id)
     try {
       const supabase = createClient()
       const { error } = await supabase.from('profiles').delete().eq('id', id)
       if (error) { toast.error(error.message); return }
-      setAgents(prev => prev.filter(a => a.id !== id))
-      toast.success('Agent deleted.')
+      setSubagents(prev => prev.filter(s => s.id !== id))
+      toast.success('Sub-agent removed.')
     } catch {
       toast.error('Delete failed.')
     } finally {
       setProcessing(null)
       setConfirmDelete(null)
     }
+  }
+
+  if (subagents.length === 0) {
+    return (
+      <div className="gold-panel p-8 text-center">
+        <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>No sub-agents yet. Invite one to get started.</p>
+      </div>
+    )
   }
 
   return (
@@ -65,23 +77,23 @@ export default function AgentsTable({ agents: initial }: { agents: Agent[] }) {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Name</th>
+                <th>Full Name</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Status</th>
-                <th>Registered</th>
+                <th>Phones Sold</th>
+                <th>Date Added</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {agents.length === 0 ? (
-                <tr><td colSpan={6} className="text-center py-8" style={{ color: 'hsl(var(--muted-foreground))' }}>No agents registered.</td></tr>
-              ) : agents.map(agent => (
+              {subagents.map(agent => (
                 <tr key={agent.id}>
                   <td style={{ color: 'hsl(var(--foreground))' }}>{agent.full_name}</td>
                   <td style={{ color: 'hsl(var(--muted-foreground))' }}>{agent.email ?? '—'}</td>
                   <td style={{ color: 'hsl(var(--muted-foreground))' }}>{agent.phone ?? '—'}</td>
                   <td><StatusBadge status={agent.status} /></td>
+                  <td style={{ color: 'hsl(var(--foreground))' }}>{agent.phones_sold}</td>
                   <td className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>
                     {format(new Date(agent.created_at), 'MMM d, yyyy')}
                   </td>
@@ -124,17 +136,18 @@ export default function AgentsTable({ agents: initial }: { agents: Agent[] }) {
         </div>
       </div>
 
+      {/* Delete Confirmation */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.6)' }}>
           <div className="gold-panel p-6 w-full max-w-sm space-y-4">
-            <h3 className="font-semibold" style={{ color: 'hsl(var(--foreground))' }}>Delete Agent</h3>
+            <h3 className="font-semibold" style={{ color: 'hsl(var(--foreground))' }}>Confirm Delete</h3>
             <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
-              This will permanently delete the agent&apos;s profile. This action cannot be undone.
+              Are you sure you want to remove this sub-agent? This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button onClick={() => setConfirmDelete(null)} className="btn btn-ghost flex-1">Cancel</button>
               <button
-                onClick={() => deleteAgent(confirmDelete)}
+                onClick={() => deleteSubAgent(confirmDelete)}
                 disabled={processing === confirmDelete}
                 className="btn btn-destructive flex-1"
               >
