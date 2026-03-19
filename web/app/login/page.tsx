@@ -72,7 +72,7 @@ export default function LoginPage() {
       } else if (profile.role === 'agent') {
         router.push('/agent/dashboard')
       } else if (profile.role === 'subagent') {
-        router.push('/subagent/sales')
+        router.push('/subagent/dashboard')
       } else {
         router.push('/agent/dashboard')
       }

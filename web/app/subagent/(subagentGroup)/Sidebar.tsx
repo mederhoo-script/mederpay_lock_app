@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
+  LayoutDashboard,
   ShoppingBag,
   Activity,
   Smartphone,
@@ -15,6 +16,7 @@ import {
 import { createClient } from '@/lib/supabase/client'
 
 const NAV_LINKS = [
+  { href: '/subagent/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/subagent/sales', label: 'Sales', icon: ShoppingBag },
   { href: '/subagent/logs', label: 'Logs', icon: Activity },
 ]
