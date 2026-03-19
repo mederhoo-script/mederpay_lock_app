@@ -40,7 +40,7 @@ function formatDate(iso: string): string {
 }
 
 const STATUS_STYLES: Record<SubAgentStatus, string> = {
-  pending:   'bg-[#F5A623]/15 text-[#F5A623]',
+  pending:   'bg-[#F59E0B]/15 text-[#F59E0B]',
   active:    'bg-emerald-400/15 text-emerald-400',
   suspended: 'bg-red-400/15 text-red-400',
 }
@@ -105,7 +105,7 @@ export default function SubAgentsPage() {
         </div>
         <a
           href="/agent/sub-agents/new"
-          className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
         >
           <UserPlus className="w-4 h-4" />
           Add Sub-Agent
@@ -113,9 +113,9 @@ export default function SubAgentsPage() {
       </div>
 
       {/* Note */}
-      <div className="rounded-lg border border-[#F5A623]/20 bg-[#F5A623]/5 px-4 py-3 flex items-start gap-3">
-        <Users className="w-4 h-4 text-[#F5A623] shrink-0 mt-0.5" />
-        <p className="text-sm text-[#F5A623]/80">
+      <div className="rounded-lg border border-[#F59E0B]/20 bg-[#F59E0B]/5 px-4 py-3 flex items-start gap-3">
+        <Users className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" />
+        <p className="text-sm text-[#F59E0B]/80">
           Sub-agents operate under your account and can add buyers and record payments on your behalf.
           They see only the buyers and phones assigned to them.
         </p>
@@ -130,7 +130,7 @@ export default function SubAgentsPage() {
             placeholder="Search name, email, phone…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+            className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
           />
         </div>
         <button
@@ -152,7 +152,7 @@ export default function SubAgentsPage() {
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <AlertCircle className="w-8 h-8 text-red-400" />
             <p className="text-sm text-white/60">{error}</p>
-            <button onClick={fetchSubAgents} className="text-xs text-[#0070F3] hover:underline">
+            <button onClick={fetchSubAgents} className="text-xs text-[#2563EB] hover:underline">
               Try again
             </button>
           </div>
@@ -163,11 +163,11 @@ export default function SubAgentsPage() {
               {search ? 'No matching sub-agents found' : 'You have no sub-agents yet'}
             </p>
             {search ? (
-              <button onClick={() => setSearch('')} className="text-xs text-[#0070F3] hover:underline">
+              <button onClick={() => setSearch('')} className="text-xs text-[#2563EB] hover:underline">
                 Clear search
               </button>
             ) : (
-              <a href="/agent/sub-agents/new" className="text-xs text-[#0070F3] hover:underline">
+              <a href="/agent/sub-agents/new" className="text-xs text-[#2563EB] hover:underline">
                 Add your first sub-agent
               </a>
             )}
@@ -203,7 +203,7 @@ export default function SubAgentsPage() {
                     <td className="px-4 py-3 text-right">
                       <a
                         href={`/agent/sub-agents/${sa.id}`}
-                        className="inline-flex items-center gap-1 text-xs text-[#0070F3] hover:text-[#0070F3]/80 transition-colors"
+                        className="inline-flex items-center gap-1 text-xs text-[#2563EB] hover:text-[#2563EB]/80 transition-colors"
                       >
                         View <ChevronRight className="w-3.5 h-3.5" />
                       </a>

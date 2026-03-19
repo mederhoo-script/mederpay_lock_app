@@ -34,7 +34,7 @@ function Field({
 }
 
 const INPUT_CLASS =
-  'w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]'
+  'w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]'
 
 function NumberField({
   label,
@@ -126,9 +126,9 @@ export default function NewPhonePage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Device Info */}
-        <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-5">
+        <div className="gold-panel p-6 space-y-5">
           <h2 className="font-semibold text-white flex items-center gap-2">
-            <Smartphone className="w-4 h-4 text-[#0070F3]" />
+            <Smartphone className="w-4 h-4 text-[#2563EB]" />
             Device Information
           </h2>
 
@@ -182,7 +182,7 @@ export default function NewPhonePage() {
         </div>
 
         {/* Pricing */}
-        <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-5">
+        <div className="gold-panel p-6 space-y-5">
           <h2 className="font-semibold text-white">Pricing & Payment Plan</h2>
 
           <div className="grid grid-cols-2 gap-4">
@@ -219,9 +219,9 @@ export default function NewPhonePage() {
 
           {/* Computed weekly */}
           {sellingPrice > 0 && (
-            <div className="rounded-lg bg-[#0070F3]/10 border border-[#0070F3]/20 px-4 py-3 flex items-center justify-between">
+            <div className="rounded-lg bg-[#2563EB]/10 border border-[#2563EB]/20 px-4 py-3 flex items-center justify-between">
               <span className="text-sm text-white/60">Computed weekly payment</span>
-              <span className="text-sm font-bold text-[#0070F3]">
+              <span className="text-sm font-bold text-[#2563EB]">
                 ₦{weeklyPayment.toLocaleString('en-NG')}/week × {weeks} weeks
               </span>
             </div>
@@ -239,7 +239,7 @@ export default function NewPhonePage() {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
           >
             <Smartphone className="w-4 h-4" />
             {saving ? 'Adding…' : 'Add Phone'}

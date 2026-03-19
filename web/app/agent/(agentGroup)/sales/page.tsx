@@ -80,9 +80,9 @@ const STATUS_TABS: { label: string; value: SaleStatus | 'all' }[] = [
 
 const STATUS_STYLES: Record<SaleStatus, string> = {
   active:    'bg-emerald-400/15 text-emerald-400',
-  grace:     'bg-[#F5A623]/15 text-[#F5A623]',
+  grace:     'bg-[#F59E0B]/15 text-[#F59E0B]',
   lock:      'bg-red-400/15 text-red-400',
-  completed: 'bg-[#0070F3]/15 text-[#0070F3]',
+  completed: 'bg-[#2563EB]/15 text-[#2563EB]',
   defaulted: 'bg-red-900/30 text-red-300',
 }
 
@@ -151,7 +151,7 @@ export default function SalesPage() {
         </div>
         <a
           href="/agent/sales/new"
-          className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
         >
           <CreditCard className="w-4 h-4" />
           New Sale
@@ -167,7 +167,7 @@ export default function SalesPage() {
             placeholder="Search buyer, IMEI, phone model…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+            className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
           />
         </div>
 
@@ -179,7 +179,7 @@ export default function SalesPage() {
               onClick={() => setActiveTab(tab.value)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 activeTab === tab.value
-                  ? 'bg-[#0070F3] text-white'
+                  ? 'bg-[#2563EB] text-white'
                   : 'text-white/50 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -207,7 +207,7 @@ export default function SalesPage() {
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <AlertCircle className="w-8 h-8 text-red-400" />
             <p className="text-sm text-white/60">{error}</p>
-            <button onClick={fetchSales} className="text-xs text-[#0070F3] hover:underline">
+            <button onClick={fetchSales} className="text-xs text-[#2563EB] hover:underline">
               Try again
             </button>
           </div>
@@ -216,7 +216,7 @@ export default function SalesPage() {
             <CreditCard className="w-10 h-10 text-white/20" />
             <p className="text-sm text-white/50">No sales found</p>
             {search && (
-              <button onClick={() => setSearch('')} className="text-xs text-[#0070F3] hover:underline">
+              <button onClick={() => setSearch('')} className="text-xs text-[#2563EB] hover:underline">
                 Clear search
               </button>
             )}
@@ -263,7 +263,7 @@ export default function SalesPage() {
                       </td>
                       <td className="px-4 py-3 text-white/70">{formatCurrency(sale.total_amount)}</td>
                       <td className="px-4 py-3">
-                        <span className={sale.outstanding_balance > 0 ? 'text-[#F5A623]' : 'text-emerald-400'}>
+                        <span className={sale.outstanding_balance > 0 ? 'text-[#F59E0B]' : 'text-emerald-400'}>
                           {formatCurrency(sale.outstanding_balance)}
                         </span>
                       </td>
@@ -271,7 +271,7 @@ export default function SalesPage() {
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
                             <div
-                              className="h-full rounded-full bg-[#0070F3]"
+                              className="h-full rounded-full bg-[#2563EB]"
                               style={{ width: `${progress}%` }}
                             />
                           </div>
@@ -282,7 +282,7 @@ export default function SalesPage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center gap-1.5 text-xs ${
-                          overdue ? 'text-red-400' : dueSoon ? 'text-[#F5A623]' : 'text-white/50'
+                          overdue ? 'text-red-400' : dueSoon ? 'text-[#F59E0B]' : 'text-white/50'
                         }`}>
                           <Calendar className="w-3 h-3" />
                           {formatDate(sale.due_date)}
@@ -299,7 +299,7 @@ export default function SalesPage() {
                           </a>
                           <a
                             href={`/agent/sales/${sale.id}`}
-                            className="inline-flex items-center gap-1 text-xs text-[#0070F3] hover:text-[#0070F3]/80 transition-colors whitespace-nowrap"
+                            className="inline-flex items-center gap-1 text-xs text-[#2563EB] hover:text-[#2563EB]/80 transition-colors whitespace-nowrap"
                           >
                             View
                           </a>

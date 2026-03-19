@@ -71,9 +71,9 @@ function formatDate(iso: string): string {
 
 const SALE_STATUS_STYLES: Record<SaleStatus, string> = {
   active: 'bg-emerald-400/15 text-emerald-400',
-  grace: 'bg-[#F5A623]/15 text-[#F5A623]',
+  grace: 'bg-[#F59E0B]/15 text-[#F59E0B]',
   lock: 'bg-red-400/15 text-red-400',
-  completed: 'bg-[#0070F3]/15 text-[#0070F3]',
+  completed: 'bg-[#2563EB]/15 text-[#2563EB]',
   defaulted: 'bg-red-900/30 text-red-300',
 }
 
@@ -207,7 +207,7 @@ export default function BuyerDetailPage() {
           <p className="text-sm text-white/60">{error}</p>
           <button
             onClick={() => router.push('/agent/buyers')}
-            className="text-xs text-[#0070F3] hover:underline"
+            className="text-xs text-[#2563EB] hover:underline"
           >
             Back to list
           </button>
@@ -215,11 +215,11 @@ export default function BuyerDetailPage() {
       ) : buyer ? (
         <>
           {/* Header card */}
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+          <div className="gold-panel p-6">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#F5A623]/15 flex items-center justify-center shrink-0">
-                  <User className="w-6 h-6 text-[#F5A623]" />
+                <div className="w-12 h-12 rounded-xl bg-[#F59E0B]/15 flex items-center justify-center shrink-0">
+                  <User className="w-6 h-6 text-[#F59E0B]" />
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-white">{buyer.full_name}</h1>
@@ -258,7 +258,7 @@ export default function BuyerDetailPage() {
                     <input
                       value={form.full_name}
                       onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50"
+                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -266,7 +266,7 @@ export default function BuyerDetailPage() {
                     <input
                       value={form.phone}
                       onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50"
+                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -274,7 +274,7 @@ export default function BuyerDetailPage() {
                     <input
                       value={form.email}
                       onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50"
+                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -282,7 +282,7 @@ export default function BuyerDetailPage() {
                     <input
                       value={form.address}
                       onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#0070F3]/50"
+                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50"
                     />
                   </div>
                 </div>
@@ -291,7 +291,7 @@ export default function BuyerDetailPage() {
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0070F3] text-white text-sm font-medium hover:bg-[#0070F3]/90 transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:brightness-110 transition-colors disabled:opacity-50"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     {saving ? 'Saving…' : 'Save Changes'}
@@ -357,7 +357,7 @@ export default function BuyerDetailPage() {
           </div>
 
           {/* Sales history */}
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4">
+          <div className="gold-panel p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-white">Sales History</h2>
               <span className="text-xs text-white/40">{buyer.sales.length} sale{buyer.sales.length !== 1 ? 's' : ''}</span>
@@ -405,14 +405,14 @@ export default function BuyerDetailPage() {
                           <td className="py-3 pr-4 text-right text-white">
                             {formatCurrency(sale.selling_price)}
                           </td>
-                          <td className="py-3 pr-4 text-right text-[#F5A623]">
+                          <td className="py-3 pr-4 text-right text-[#F59E0B]">
                             {formatCurrency(sale.outstanding_balance)}
                           </td>
                           <td className="py-3 pr-4">
                             <div className="flex items-center gap-2 min-w-[100px]">
                               <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
                                 <div
-                                  className="h-full rounded-full bg-[#0070F3] transition-all"
+                                  className="h-full rounded-full bg-[#2563EB] transition-all"
                                   style={{ width: `${progress}%` }}
                                 />
                               </div>
@@ -427,7 +427,7 @@ export default function BuyerDetailPage() {
                           <td className="py-3">
                             <a
                               href={`/agent/sales/${sale.id}`}
-                              className="text-xs text-[#0070F3] hover:underline whitespace-nowrap"
+                              className="text-xs text-[#2563EB] hover:underline whitespace-nowrap"
                             >
                               View →
                             </a>
