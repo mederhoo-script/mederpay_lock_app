@@ -111,9 +111,9 @@ export default async function SubAgentDetailPage({
       </div>
 
       {/* Contact Info */}
-      <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4">
+      <div className="gold-panel p-6 space-y-4">
         <h2 className="font-semibold text-white flex items-center gap-2">
-          <User className="w-4 h-4 text-[#0070F3]" />
+          <User className="w-4 h-4 text-[#2563EB]" />
           Contact Information
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -136,15 +136,15 @@ export default async function SubAgentDetailPage({
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+        <div className="gold-panel p-5">
           <p className="text-sm text-white/50">Total Sales</p>
           <p className="text-2xl font-bold text-white mt-1">{totalSales}</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+        <div className="gold-panel p-5">
           <p className="text-sm text-white/50">Active Loans</p>
-          <p className="text-2xl font-bold text-[#0070F3] mt-1">{activeSales}</p>
+          <p className="text-2xl font-bold text-[#2563EB] mt-1">{activeSales}</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+        <div className="gold-panel p-5">
           <p className="text-sm text-white/50">Total Revenue</p>
           <p className="text-2xl font-bold text-emerald-400 mt-1">{formatNaira(totalRevenue)}</p>
         </div>
@@ -153,7 +153,7 @@ export default async function SubAgentDetailPage({
       {/* Sales Table */}
       <div className="rounded-xl border border-white/10 overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10 flex items-center gap-2">
-          <ShoppingBag className="w-4 h-4 text-[#0070F3]" />
+          <ShoppingBag className="w-4 h-4 text-[#2563EB]" />
           <h2 className="font-semibold text-white">Sales by this Sub-Agent</h2>
         </div>
         <table className="w-full text-sm">

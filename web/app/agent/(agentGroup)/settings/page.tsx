@@ -50,7 +50,7 @@ function MaskedInput({
           {...props}
           type={show ? 'text' : 'password'}
           placeholder={placeholder}
-          className="w-full pr-10 pl-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+          className="w-full pr-10 pl-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
         />
         <button
           type="button"
@@ -72,9 +72,9 @@ function Section({ title, icon, children }: {
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-5">
+    <div className="gold-panel p-6 space-y-5">
       <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-lg bg-[#0070F3]/15 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/15 flex items-center justify-center">
           {icon}
         </div>
         <h2 className="font-semibold text-white">{title}</h2>
@@ -183,7 +183,7 @@ export default function AgentSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-all shadow-[0_4px_14px_rgba(37,99,235,0.4)] disabled:opacity-60"
           >
             <Save className="w-4 h-4" />
             {saving ? 'Saving…' : 'Save Changes'}
@@ -191,13 +191,13 @@ export default function AgentSettingsPage() {
         </div>
 
         {/* Personal Info */}
-        <Section title="Personal Information" icon={<User className="w-4 h-4 text-[#0070F3]" />}>
+        <Section title="Personal Information" icon={<User className="w-4 h-4 text-[#F59E0B]" />}>
           <Field label="Full Name" error={errors.full_name?.message}>
             <input
               {...register('full_name')}
               type="text"
               placeholder="Your full name"
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
             />
           </Field>
 
@@ -215,7 +215,7 @@ export default function AgentSettingsPage() {
               {...register('phone')}
               type="tel"
               placeholder="e.g. 08012345678"
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
             />
           </Field>
 
@@ -226,7 +226,7 @@ export default function AgentSettingsPage() {
                 {...register('payment_url')}
                 type="url"
                 placeholder="https://pay.yoursite.com"
-                className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+                className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
               />
             </div>
             <p className="text-xs text-white/30 mt-1">
@@ -236,7 +236,7 @@ export default function AgentSettingsPage() {
         </Section>
 
         {/* Identity Verification */}
-        <Section title="Identity Verification" icon={<Shield className="w-4 h-4 text-[#0070F3]" />}>
+        <Section title="Identity Verification" icon={<Shield className="w-4 h-4 text-[#F59E0B]" />}>
           <p className="text-sm text-white/50">
             BVN and NIN are encrypted and stored securely. They are only used for identity verification.
           </p>
@@ -260,7 +260,7 @@ export default function AgentSettingsPage() {
         </Section>
 
         {/* Payment Gateway */}
-        <Section title="Payment Gateway" icon={<CreditCard className="w-4 h-4 text-[#0070F3]" />}>
+        <Section title="Payment Gateway" icon={<CreditCard className="w-4 h-4 text-[#F59E0B]" />}>
           <p className="text-sm text-white/50">
             Configure your payment gateway credentials. The active gateway handles buyer payments.
           </p>
@@ -270,7 +270,7 @@ export default function AgentSettingsPage() {
             <label className="block text-sm text-white/60">Active Gateway</label>
             <select
               {...register('active_gateway')}
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
             >
               {GATEWAY_TABS.map((g) => (
                 <option key={g.key} value={g.key} className="bg-[#121212]">
@@ -310,7 +310,7 @@ export default function AgentSettingsPage() {
                     {...register('monnify_api_key')}
                     type="text"
                     placeholder="MK_TEST_…"
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
                   />
                 </Field>
                 <Field label="Monnify Secret Key">
@@ -318,7 +318,7 @@ export default function AgentSettingsPage() {
                     {...register('monnify_secret_key')}
                     type="password"
                     placeholder="Secret key"
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
                   />
                 </Field>
                 <Field label="Monnify Contract Code">
@@ -326,7 +326,7 @@ export default function AgentSettingsPage() {
                     {...register('monnify_contract_code')}
                     type="text"
                     placeholder="Contract code"
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
                   />
                 </Field>
               </>
@@ -338,7 +338,7 @@ export default function AgentSettingsPage() {
                   {...register('paystack_secret_key')}
                   type="password"
                   placeholder="sk_live_…"
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
                 />
               </Field>
             )}
@@ -349,7 +349,7 @@ export default function AgentSettingsPage() {
                   {...register('flutterwave_secret_key')}
                   type="password"
                   placeholder="FLWSECK_TEST-…"
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
                 />
               </Field>
             )}
@@ -361,7 +361,7 @@ export default function AgentSettingsPage() {
                     {...register('interswitch_client_id')}
                     type="text"
                     placeholder="Client ID"
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
                   />
                 </Field>
                 <Field label="Interswitch Client Secret">
@@ -369,7 +369,7 @@ export default function AgentSettingsPage() {
                     {...register('interswitch_client_secret')}
                     type="password"
                     placeholder="Client secret"
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
                   />
                 </Field>
               </>

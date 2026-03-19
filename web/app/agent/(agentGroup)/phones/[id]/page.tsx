@@ -71,16 +71,16 @@ function formatDate(iso: string): string {
 
 const PHONE_STATUS_STYLES: Record<PhoneStatus, string> = {
   available: 'bg-emerald-400/15 text-emerald-400',
-  sold:      'bg-[#0070F3]/15 text-[#0070F3]',
+  sold:      'bg-[#2563EB]/15 text-[#2563EB]',
   locked:    'bg-red-400/15 text-red-400',
-  returned:  'bg-[#F5A623]/15 text-[#F5A623]',
+  returned:  'bg-[#F59E0B]/15 text-[#F59E0B]',
 }
 
 const SALE_STATUS_STYLES: Record<SaleStatus, string> = {
   active:    'bg-emerald-400/15 text-emerald-400',
-  grace:     'bg-[#F5A623]/15 text-[#F5A623]',
+  grace:     'bg-[#F59E0B]/15 text-[#F59E0B]',
   lock:      'bg-red-400/15 text-red-400',
-  completed: 'bg-[#0070F3]/15 text-[#0070F3]',
+  completed: 'bg-[#2563EB]/15 text-[#2563EB]',
   defaulted: 'bg-red-900/30 text-red-300',
 }
 
@@ -180,18 +180,18 @@ export default function PhoneDetailPage() {
         <div className="flex flex-col items-center gap-3 py-20 text-center">
           <AlertCircle className="w-8 h-8 text-red-400" />
           <p className="text-sm text-white/60">{error}</p>
-          <button onClick={() => router.push('/phones')} className="text-xs text-[#0070F3] hover:underline">
+          <button onClick={() => router.push('/phones')} className="text-xs text-[#2563EB] hover:underline">
             Back to list
           </button>
         </div>
       ) : phone ? (
         <>
           {/* Header card */}
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+          <div className="gold-panel p-6">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#0070F3]/15 flex items-center justify-center shrink-0">
-                  <Smartphone className="w-6 h-6 text-[#0070F3]" />
+                <div className="w-12 h-12 rounded-xl bg-[#2563EB]/15 flex items-center justify-center shrink-0">
+                  <Smartphone className="w-6 h-6 text-[#2563EB]" />
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-white">
@@ -261,7 +261,7 @@ export default function PhoneDetailPage() {
 
           {/* Sale info */}
           {phone.sale ? (
-            <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-5">
+            <div className="gold-panel p-6 space-y-5">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-white">Sale Information</h2>
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${SALE_STATUS_STYLES[phone.sale.status]}`}>
@@ -271,8 +271,8 @@ export default function PhoneDetailPage() {
 
               {/* Buyer */}
               <div className="flex items-start gap-3 p-4 rounded-lg bg-white/5">
-                <div className="w-9 h-9 rounded-lg bg-[#F5A623]/15 flex items-center justify-center shrink-0">
-                  <User className="w-5 h-5 text-[#F5A623]" />
+                <div className="w-9 h-9 rounded-lg bg-[#F59E0B]/15 flex items-center justify-center shrink-0">
+                  <User className="w-5 h-5 text-[#F59E0B]" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">{phone.sale.buyer.full_name}</p>
@@ -284,7 +284,7 @@ export default function PhoneDetailPage() {
                 </div>
                 <a
                   href={`/agent/buyers/${phone.sale.buyer.id}`}
-                  className="ml-auto text-xs text-[#0070F3] hover:underline whitespace-nowrap"
+                  className="ml-auto text-xs text-[#2563EB] hover:underline whitespace-nowrap"
                 >
                   View buyer
                 </a>
@@ -300,7 +300,7 @@ export default function PhoneDetailPage() {
                 </div>
                 <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-[#0070F3] transition-all"
+                    className="h-full rounded-full bg-[#2563EB] transition-all"
                     style={{ width: `${Math.min(100, (phone.sale.weeks_paid / phone.payment_weeks) * 100)}%` }}
                   />
                 </div>
@@ -315,7 +315,7 @@ export default function PhoneDetailPage() {
                 />
                 <DetailRow
                   label="Outstanding Balance"
-                  value={<span className="text-[#F5A623]">{formatCurrency(phone.sale.outstanding_balance)}</span>}
+                  value={<span className="text-[#F59E0B]">{formatCurrency(phone.sale.outstanding_balance)}</span>}
                 />
                 <DetailRow
                   label="Next Due Date"
@@ -331,7 +331,7 @@ export default function PhoneDetailPage() {
               <div className="flex gap-2 pt-2">
                 <a
                   href={`/agent/sales/${phone.sale.id}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0070F3]/15 text-[#0070F3] text-sm font-medium hover:bg-[#0070F3]/25 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB]/15 text-[#2563EB] text-sm font-medium hover:bg-[#2563EB]/25 transition-colors"
                 >
                   <CreditCard className="w-4 h-4" /> View Sale
                 </a>
@@ -342,7 +342,7 @@ export default function PhoneDetailPage() {
               <p className="text-sm text-white/40">This phone has not been sold yet.</p>
               <a
                 href={`/agent/sales/new?phone=${phone.id}`}
-                className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[#0070F3] text-white text-sm font-medium rounded-lg hover:bg-[#0070F3]/90 transition-colors"
+                className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-lg hover:brightness-110 transition-colors"
               >
                 Sell this Phone
               </a>

@@ -109,7 +109,7 @@ export default function BuyersPage() {
         </div>
         <a
           href="/agent/buyers/new"
-          className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Buyer
@@ -125,7 +125,7 @@ export default function BuyersPage() {
             placeholder="Search name, phone, email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]"
+            className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
           />
         </div>
         <button
@@ -147,7 +147,7 @@ export default function BuyersPage() {
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <AlertCircle className="w-8 h-8 text-red-400" />
             <p className="text-sm text-white/60">{error}</p>
-            <button onClick={fetchBuyers} className="text-xs text-[#0070F3] hover:underline">
+            <button onClick={fetchBuyers} className="text-xs text-[#2563EB] hover:underline">
               Try again
             </button>
           </div>
@@ -156,7 +156,7 @@ export default function BuyersPage() {
             <Users className="w-10 h-10 text-white/20" />
             <p className="text-sm text-white/50">No buyers found</p>
             {search && (
-              <button onClick={() => setSearch('')} className="text-xs text-[#0070F3] hover:underline">
+              <button onClick={() => setSearch('')} className="text-xs text-[#2563EB] hover:underline">
                 Clear search
               </button>
             )}
@@ -202,7 +202,7 @@ export default function BuyersPage() {
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         buyer.active_sales > 0
-                          ? 'bg-[#0070F3]/15 text-[#0070F3]'
+                          ? 'bg-[#2563EB]/15 text-[#2563EB]'
                           : 'bg-white/5 text-white/40'
                       }`}>
                         {buyer.active_sales} active
@@ -217,7 +217,7 @@ export default function BuyersPage() {
                     <td className="px-4 py-3 text-right">
                       <a
                         href={`/agent/buyers/${buyer.id}`}
-                        className="inline-flex items-center gap-1 text-xs text-[#0070F3] hover:text-[#0070F3]/80 transition-colors"
+                        className="inline-flex items-center gap-1 text-xs text-[#2563EB] hover:text-[#2563EB]/80 transition-colors"
                       >
                         View <ChevronRight className="w-3.5 h-3.5" />
                       </a>

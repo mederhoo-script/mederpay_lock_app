@@ -34,7 +34,7 @@ function Field({
 }
 
 const INPUT_CLASS =
-  'w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#0070F3]'
+  'w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]'
 
 // ─── Success card ─────────────────────────────────────────────────────────────
 
@@ -78,7 +78,7 @@ function SuccessCard({
           <div className="flex justify-between items-center gap-4">
             <span className="text-sm text-white/50">Temp Password</span>
             <div className="flex items-center gap-2">
-              <code className="text-sm text-[#F5A623] font-mono bg-[#F5A623]/10 px-2 py-1 rounded">
+              <code className="text-sm text-[#F59E0B] font-mono bg-[#F59E0B]/10 px-2 py-1 rounded">
                 {tempPassword}
               </code>
               <button
@@ -95,14 +95,14 @@ function SuccessCard({
           </div>
         </div>
 
-        <p className="text-xs text-[#F5A623]/70 pt-1 border-t border-white/10">
+        <p className="text-xs text-[#F59E0B]/70 pt-1 border-t border-white/10">
           Share these credentials with the sub-agent. They should change their password on first login.
         </p>
       </div>
 
       <button
         onClick={onDone}
-        className="bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+        className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
       >
         Back to Sub-Agents
       </button>
@@ -189,9 +189,9 @@ export default function NewSubAgentPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-5">
+        <div className="gold-panel p-6 space-y-5">
           <h2 className="font-semibold text-white flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-[#0070F3]" />
+            <UserPlus className="w-4 h-4 text-[#2563EB]" />
             Sub-Agent Details
           </h2>
 
@@ -238,7 +238,7 @@ export default function NewSubAgentPage() {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
           >
             <UserPlus className="w-4 h-4" />
             {saving ? 'Creating…' : 'Create Sub-Agent'}

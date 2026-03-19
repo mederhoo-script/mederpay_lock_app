@@ -57,7 +57,7 @@ function Field({
 }
 
 const SELECT_CLASS =
-  'w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#0070F3]'
+  'w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#2563EB]'
 
 // Inner component that uses useSearchParams — must be wrapped in Suspense
 function NewSaleForm() {
@@ -134,9 +134,9 @@ function NewSaleForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-5">
+      <div className="gold-panel p-6 space-y-5">
         <h2 className="font-semibold text-white flex items-center gap-2">
-          <ShoppingBag className="w-4 h-4 text-[#0070F3]" />
+          <ShoppingBag className="w-4 h-4 text-[#2563EB]" />
           Sale Details
         </h2>
 
@@ -150,15 +150,15 @@ function NewSaleForm() {
             ))}
           </select>
           {phones.length === 0 && (
-            <p className="text-xs text-[#F5A623]/70 mt-1">
+            <p className="text-xs text-[#F59E0B]/70 mt-1">
               No available phones.{' '}
-              <a href="/agent/phones/new" className="underline hover:text-[#F5A623]">Add a phone first.</a>
+              <a href="/agent/phones/new" className="underline hover:text-[#F59E0B]">Add a phone first.</a>
             </p>
           )}
         </Field>
 
         {selectedPhone && (
-          <div className="rounded-lg border border-[#0070F3]/20 bg-[#0070F3]/5 p-4 space-y-2 text-sm">
+          <div className="rounded-lg border border-[#2563EB]/20 bg-[#2563EB]/5 p-4 space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-white/50">Selling price</span>
               <span className="text-white font-semibold">{formatNaira(selectedPhone.selling_price)}</span>
@@ -188,17 +188,17 @@ function NewSaleForm() {
             ))}
           </select>
           {buyers.length === 0 && (
-            <p className="text-xs text-[#F5A623]/70 mt-1">
+            <p className="text-xs text-[#F59E0B]/70 mt-1">
               No buyers yet.{' '}
-              <a href="/agent/buyers/new" className="underline hover:text-[#F5A623]">Add a buyer first.</a>
+              <a href="/agent/buyers/new" className="underline hover:text-[#F59E0B]">Add a buyer first.</a>
             </p>
           )}
         </Field>
       </div>
 
-      <div className="rounded-lg border border-[#F5A623]/20 bg-[#F5A623]/5 px-4 py-3 flex items-start gap-3">
-        <CheckCircle2 className="w-4 h-4 text-[#F5A623] shrink-0 mt-0.5" />
-        <p className="text-xs text-[#F5A623]/80">
+      <div className="rounded-lg border border-[#F59E0B]/20 bg-[#F59E0B]/5 px-4 py-3 flex items-start gap-3">
+        <CheckCircle2 className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" />
+        <p className="text-xs text-[#F59E0B]/80">
           A virtual account will be created for the buyer using your configured payment gateway.
           The phone will be marked as sold and the buyer can start making weekly payments.
         </p>
@@ -215,7 +215,7 @@ function NewSaleForm() {
         <button
           type="submit"
           disabled={saving || phones.length === 0 || buyers.length === 0}
-          className="inline-flex items-center gap-2 bg-[#0070F3] hover:bg-[#0070F3]/90 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
         >
           <ShoppingBag className="w-4 h-4" />
           {saving ? 'Recording…' : 'Record Sale'}

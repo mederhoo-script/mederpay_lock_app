@@ -9,42 +9,17 @@ import {
   AtSign,
   Eye,
   EyeOff,
-  Layers,
   Lock,
   Loader2,
   Mail,
   Phone,
-  RefreshCw,
   Smartphone,
   User,
-  Users,
+  ArrowRight,
+  CheckCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { createClient } from '@/lib/supabase/client'
 import { RegisterAgentSchema, type RegisterAgentInput } from '@/lib/validations'
-
-const SIDE_FEATURES = [
-  {
-    icon: Smartphone,
-    title: 'Device Lock Control',
-    desc: 'Automatically lock overdue devices and unlock them on payment.',
-  },
-  {
-    icon: RefreshCw,
-    title: 'Automated Collections',
-    desc: 'Match payments to buyers instantly — no spreadsheets needed.',
-  },
-  {
-    icon: Users,
-    title: 'Agent Network',
-    desc: 'Manage sub-agents and track commissions from one dashboard.',
-  },
-  {
-    icon: Layers,
-    title: 'Flexible Fee Tiers',
-    desc: 'Apply pricing rules automatically based on phone value.',
-  },
-]
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -60,331 +35,330 @@ export default function RegisterPage() {
   })
 
   const onSubmit = async (data: RegisterAgentInput) => {
-    const supabase = createClient()
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
 
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: {
-          full_name: data.full_name,
-          username: data.username,
-          phone: data.phone,
-          role: 'agent',
-        },
-      },
-    })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        toast.error((body as { error?: string }).error ?? 'Registration failed. Please try again.')
+        return
+      }
 
-    if (error) {
-      toast.error(error.message)
-      return
+      toast.success('Account created! Please sign in to continue.')
+      router.push('/login')
+    } catch {
+      toast.error('Network error. Please check your connection and try again.')
     }
-
-    toast.success('Account created! Your account is pending approval.')
-    router.push('/login')
   }
 
+  const inputStyle = (hasError: boolean) => ({
+    width: '100%',
+    boxSizing: 'border-box' as const,
+    background: 'rgba(255,255,255,0.05)',
+    border: hasError ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 10,
+    padding: '12px 14px 12px 40px',
+    fontSize: 14,
+    color: '#fff',
+    outline: 'none',
+  })
+
   return (
-    <div className="min-h-screen bg-[#06121A] lg:flex">
-      {/* Background decoration */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute -top-32 right-1/4 h-96 w-96 rounded-full bg-[#22C55E]/10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[#0EA5E9]/10 blur-3xl" />
-        <div className="absolute right-0 top-1/2 h-72 w-72 rounded-full bg-[#F97316]/8 blur-3xl" />
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(160deg, #0A1628 0%, #060B18 50%, #0A0D1A 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      padding: '40px 16px',
+    }}>
+
+      {/* Card */}
+      <div style={{
+        width: '100%',
+        maxWidth: 520,
+        background: '#0D1432',
+        border: '1px solid rgba(255,255,255,0.09)',
+        borderRadius: 20,
+        overflow: 'hidden',
+        boxShadow: '0 24px 80px rgba(0,0,0,0.55)',
+      }}>
+
+        {/* Gold top bar */}
+        <div style={{ height: 4, background: 'linear-gradient(90deg,#D97706,#F59E0B,#FCD34D)' }} />
+
+        <div style={{ padding: '36px 32px' }}>
+
+          {/* Logo + brand */}
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div style={{
+              width: 52,
+              height: 52,
+              borderRadius: 14,
+              background: 'linear-gradient(135deg,#1D4ED8,#2563EB)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 14px',
+              boxShadow: '0 4px 20px rgba(37,99,235,0.45)',
+            }}>
+              <Smartphone size={24} color="#fff" />
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5, marginBottom: 4 }}>
+              <span style={{ color: '#fff' }}>Meder</span>
+              <span style={{ color: '#F59E0B' }}>Buy</span>
+            </div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)' }}>Create your agent account</div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+
+            {/* Full Name */}
+            <div style={{ marginBottom: 16 }}>
+              <label htmlFor="full_name" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }}>
+                Full Name
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
+                  <User size={15} color="rgba(255,255,255,0.3)" />
+                </span>
+                <input
+                  id="full_name"
+                  type="text"
+                  autoComplete="name"
+                  placeholder="John Doe"
+                  {...register('full_name')}
+                  style={inputStyle(!!errors.full_name)}
+                />
+              </div>
+              {errors.full_name && <p style={{ fontSize: 12, color: '#F87171', marginTop: 4 }}>{errors.full_name.message}</p>}
+            </div>
+
+            {/* Username */}
+            <div style={{ marginBottom: 16 }}>
+              <label htmlFor="username" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }}>
+                Username
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
+                  <AtSign size={15} color="rgba(255,255,255,0.3)" />
+                </span>
+                <input
+                  id="username"
+                  type="text"
+                  autoComplete="username"
+                  placeholder="john_doe"
+                  {...register('username')}
+                  style={inputStyle(!!errors.username)}
+                />
+              </div>
+              {errors.username && <p style={{ fontSize: 12, color: '#F87171', marginTop: 4 }}>{errors.username.message}</p>}
+            </div>
+
+            {/* Email */}
+            <div style={{ marginBottom: 16 }}>
+              <label htmlFor="email" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }}>
+                Email Address
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
+                  <Mail size={15} color="rgba(255,255,255,0.3)" />
+                </span>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  {...register('email')}
+                  style={inputStyle(!!errors.email)}
+                />
+              </div>
+              {errors.email && <p style={{ fontSize: 12, color: '#F87171', marginTop: 4 }}>{errors.email.message}</p>}
+            </div>
+
+            {/* Phone */}
+            <div style={{ marginBottom: 16 }}>
+              <label htmlFor="phone" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }}>
+                Phone Number
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
+                  <Phone size={15} color="rgba(255,255,255,0.3)" />
+                </span>
+                <input
+                  id="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="08012345678"
+                  {...register('phone')}
+                  style={inputStyle(!!errors.phone)}
+                />
+              </div>
+              {errors.phone && <p style={{ fontSize: 12, color: '#F87171', marginTop: 4 }}>{errors.phone.message}</p>}
+            </div>
+
+            {/* Password */}
+            <div style={{ marginBottom: 16 }}>
+              <label htmlFor="password" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }}>
+                Password
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
+                  <Lock size={15} color="rgba(255,255,255,0.3)" />
+                </span>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  placeholder="Min. 8 characters"
+                  {...register('password')}
+                  style={{
+                    ...inputStyle(!!errors.password),
+                    paddingRight: 44,
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  style={{
+                    position: 'absolute',
+                    right: 14,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    display: 'flex',
+                    color: 'rgba(255,255,255,0.35)',
+                  }}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              {errors.password && <p style={{ fontSize: 12, color: '#F87171', marginTop: 4 }}>{errors.password.message}</p>}
+            </div>
+
+            {/* Confirm Password */}
+            <div style={{ marginBottom: 20 }}>
+              <label htmlFor="confirm_password" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }}>
+                Confirm Password
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
+                  <Lock size={15} color="rgba(255,255,255,0.3)" />
+                </span>
+                <input
+                  id="confirm_password"
+                  type={showConfirm ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  placeholder="Repeat your password"
+                  {...register('confirm_password')}
+                  style={{
+                    ...inputStyle(!!errors.confirm_password),
+                    paddingRight: 44,
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm((v) => !v)}
+                  style={{
+                    position: 'absolute',
+                    right: 14,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    display: 'flex',
+                    color: 'rgba(255,255,255,0.35)',
+                  }}
+                  aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              {errors.confirm_password && <p style={{ fontSize: 12, color: '#F87171', marginTop: 4 }}>{errors.confirm_password.message}</p>}
+            </div>
+
+            {/* Disclaimer */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 10,
+              background: 'rgba(16,185,129,0.07)',
+              border: '1px solid rgba(16,185,129,0.2)',
+              borderRadius: 10,
+              padding: '12px 14px',
+              marginBottom: 20,
+            }}>
+              <CheckCircle size={15} color="#34D399" style={{ marginTop: 1, flexShrink: 0 }} />
+              <p style={{ fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
+                Your account will be active immediately after registration. You can sign in right away.
+              </p>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                background: isSubmitting ? 'rgba(217,119,6,0.6)' : 'linear-gradient(135deg,#D97706,#F59E0B)',
+                border: 'none',
+                borderRadius: 12,
+                padding: '14px 20px',
+                fontSize: 15,
+                fontWeight: 700,
+                color: '#000',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 20px rgba(217,119,6,0.4)',
+                marginBottom: 20,
+              }}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                  Creating account…
+                </>
+              ) : (
+                <>
+                  Create Agent Account
+                  <ArrowRight size={16} />
+                </>
+              )}
+            </button>
+
+          </form>
+
+          {/* Login link */}
+          <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+            Already have an account?{' '}
+            <Link href="/login" style={{ fontWeight: 700, color: '#93C5FD', textDecoration: 'none' }}>
+              Sign in
+            </Link>
+          </p>
+
+        </div>
       </div>
 
-      {/* ── Side panel (desktop only) ─────────────────────────────── */}
-      <aside className="hidden lg:flex lg:w-[45%] xl:w-2/5 flex-col justify-between border-r border-white/8 bg-gradient-to-br from-[#0D1F2D]/90 to-[#06121A]/95 p-10 xl:p-14">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#0EA5E9] to-[#22D3EE]">
-            <Smartphone className="h-5 w-5 text-white" />
-          </div>
-          <span className="text-lg font-black tracking-tight text-white">MederBuy</span>
-        </div>
+      {/* Copyright */}
+      <p style={{ marginTop: 28, fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>
+        &copy; 2026 MederBuy. All rights reserved.
+      </p>
 
-        {/* Headline */}
-        <div className="my-12">
-          <h2 className="text-3xl font-black leading-snug text-white xl:text-4xl">
-            The complete platform for phone financing teams.
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-white/55">
-            Join thousands of agents automating collections, controlling devices, and scaling their business with MederBuy.
-          </p>
-
-          {/* Feature list */}
-          <ul className="mt-8 space-y-5">
-            {SIDE_FEATURES.map(({ icon: Icon, title, desc }) => (
-              <li key={title} className="flex items-start gap-3.5">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#0EA5E9]/12 border border-[#0EA5E9]/20">
-                  <Icon className="h-4 w-4 text-[#67E8F9]" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{title}</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-white/50">{desc}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Bottom testimonial */}
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <p className="text-sm leading-relaxed text-white/70 italic">
-            &ldquo;MederBuy cut my overdue accounts by 60% in the first month. The automatic lock feature is a game-changer.&rdquo;
-          </p>
-          <div className="mt-4 flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#F97316] to-[#FB923C] text-xs font-black text-white">
-              AO
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-white">Adebayo Okafor</p>
-              <p className="text-xs text-white/45">Senior Agent, Lagos</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* ── Form panel ─────────────────────────────────────────────── */}
-      <main className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:px-8">
-        <div className="w-full max-w-md animate-fade-in-up">
-          {/* Mobile brand */}
-          <div className="mb-8 text-center lg:hidden">
-            <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0EA5E9] to-[#22D3EE] shadow-[0_4px_20px_rgba(14,165,233,0.4)]">
-              <User className="h-7 w-7 text-white" />
-            </div>
-            <h1 className="text-2xl font-black text-white">Create Agent Account</h1>
-            <p className="mt-1 text-sm text-white/50">Start managing phone financing today</p>
-          </div>
-
-          {/* Desktop heading */}
-          <div className="mb-8 hidden lg:block">
-            <h1 className="text-2xl font-black text-white">Create your account</h1>
-            <p className="mt-1 text-sm text-white/50">Fill in your details to get started</p>
-          </div>
-
-          {/* Card */}
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm sm:p-8">
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-
-              {/* Full Name */}
-              <div className="space-y-1.5">
-                <label htmlFor="full_name" className="block text-sm font-medium text-white/70">
-                  Full name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
-                  <input
-                    id="full_name"
-                    type="text"
-                    autoComplete="name"
-                    {...register('full_name')}
-                    placeholder="John Doe"
-                    className={`w-full rounded-lg border bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-1 transition-colors ${
-                      errors.full_name
-                        ? 'border-red-500/60 focus:border-red-500/60 focus:ring-red-500/30'
-                        : 'border-white/10 focus:border-[#0EA5E9]/60 focus:ring-[#0EA5E9]/40'
-                    }`}
-                  />
-                </div>
-                {errors.full_name && (
-                  <p className="flex items-center gap-1 text-xs text-red-400">
-                    <span className="inline-block h-1 w-1 rounded-full bg-red-400" />
-                    {errors.full_name.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div className="space-y-1.5">
-                <label htmlFor="email" className="block text-sm font-medium text-white/70">
-                  Email address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    {...register('email')}
-                    placeholder="you@example.com"
-                    className={`w-full rounded-lg border bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-1 transition-colors ${
-                      errors.email
-                        ? 'border-red-500/60 focus:border-red-500/60 focus:ring-red-500/30'
-                        : 'border-white/10 focus:border-[#0EA5E9]/60 focus:ring-[#0EA5E9]/40'
-                    }`}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="flex items-center gap-1 text-xs text-red-400">
-                    <span className="inline-block h-1 w-1 rounded-full bg-red-400" />
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Username */}
-              <div className="space-y-1.5">
-                <label htmlFor="username" className="block text-sm font-medium text-white/70">
-                  Username
-                </label>
-                <div className="relative">
-                  <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
-                  <input
-                    id="username"
-                    type="text"
-                    autoComplete="username"
-                    {...register('username')}
-                    placeholder="john_doe"
-                    className={`w-full rounded-lg border bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-1 transition-colors ${
-                      errors.username
-                        ? 'border-red-500/60 focus:border-red-500/60 focus:ring-red-500/30'
-                        : 'border-white/10 focus:border-[#0EA5E9]/60 focus:ring-[#0EA5E9]/40'
-                    }`}
-                  />
-                </div>
-                {errors.username && (
-                  <p className="flex items-center gap-1 text-xs text-red-400">
-                    <span className="inline-block h-1 w-1 rounded-full bg-red-400" />
-                    {errors.username.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Phone */}
-              <div className="space-y-1.5">
-                <label htmlFor="phone" className="block text-sm font-medium text-white/70">
-                  Phone number
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
-                  <input
-                    id="phone"
-                    type="tel"
-                    autoComplete="tel"
-                    {...register('phone')}
-                    placeholder="08012345678"
-                    className={`w-full rounded-lg border bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-1 transition-colors ${
-                      errors.phone
-                        ? 'border-red-500/60 focus:border-red-500/60 focus:ring-red-500/30'
-                        : 'border-white/10 focus:border-[#0EA5E9]/60 focus:ring-[#0EA5E9]/40'
-                    }`}
-                  />
-                </div>
-                {errors.phone && (
-                  <p className="flex items-center gap-1 text-xs text-red-400">
-                    <span className="inline-block h-1 w-1 rounded-full bg-red-400" />
-                    {errors.phone.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Password */}
-              <div className="space-y-1.5">
-                <label htmlFor="password" className="block text-sm font-medium text-white/70">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
-                  <input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    {...register('password')}
-                    placeholder="Min. 8 characters"
-                    className={`w-full rounded-lg border bg-white/5 py-2.5 pl-10 pr-10 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-1 transition-colors ${
-                      errors.password
-                        ? 'border-red-500/60 focus:border-red-500/60 focus:ring-red-500/30'
-                        : 'border-white/10 focus:border-[#0EA5E9]/60 focus:ring-[#0EA5E9]/40'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="flex items-center gap-1 text-xs text-red-400">
-                    <span className="inline-block h-1 w-1 rounded-full bg-red-400" />
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Confirm Password */}
-              <div className="space-y-1.5">
-                <label htmlFor="confirm_password" className="block text-sm font-medium text-white/70">
-                  Confirm password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
-                  <input
-                    id="confirm_password"
-                    type={showConfirm ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    {...register('confirm_password')}
-                    placeholder="Repeat your password"
-                    className={`w-full rounded-lg border bg-white/5 py-2.5 pl-10 pr-10 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-1 transition-colors ${
-                      errors.confirm_password
-                        ? 'border-red-500/60 focus:border-red-500/60 focus:ring-red-500/30'
-                        : 'border-white/10 focus:border-[#0EA5E9]/60 focus:ring-[#0EA5E9]/40'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-                    aria-label={showConfirm ? 'Hide password' : 'Show password'}
-                  >
-                    {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                {errors.confirm_password && (
-                  <p className="flex items-center gap-1 text-xs text-red-400">
-                    <span className="inline-block h-1 w-1 rounded-full bg-red-400" />
-                    {errors.confirm_password.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Disclaimer */}
-              <p className="text-xs text-white/35 leading-relaxed rounded-lg border border-white/8 bg-white/[0.02] px-3 py-2.5">
-                Your account will be reviewed by our team before activation. You will be notified once approved.
-              </p>
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0EA5E9] to-[#22D3EE] py-2.5 text-sm font-semibold text-[#032336] shadow-[0_2px_12px_rgba(14,165,233,0.35)] transition hover:brightness-110 hover:shadow-[0_4px_20px_rgba(14,165,233,0.45)] focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]/50 focus:ring-offset-2 focus:ring-offset-[#06121A] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Creating account…
-                  </>
-                ) : (
-                  'Create Account'
-                )}
-              </button>
-            </form>
-
-            <p className="mt-6 text-center text-sm text-white/40">
-              Already have an account?{' '}
-              <Link
-                href="/login"
-                className="font-medium text-[#67E8F9] transition-colors hover:text-[#67E8F9]/80"
-              >
-                Sign in
-              </Link>
-            </p>
-          </div>
-        </div>
-      </main>
     </div>
   )
 }
