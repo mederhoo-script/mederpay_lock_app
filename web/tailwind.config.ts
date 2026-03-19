@@ -8,6 +8,18 @@ const config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: [
+          'Inter',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"Segoe UI"',
+          'Roboto',
+          '"Helvetica Neue"',
+          'Arial',
+          'sans-serif',
+        ],
+      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',

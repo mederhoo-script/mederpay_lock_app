@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-background text-foreground">
+      <body className="bg-background text-foreground font-sans antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

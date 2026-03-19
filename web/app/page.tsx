@@ -12,7 +12,6 @@ import {
   CheckCircle,
   TrendingUp,
   Star,
-  Menu,
 } from 'lucide-react'
 
 // ─── Data ────────────────────────────────────────────────────────────────────

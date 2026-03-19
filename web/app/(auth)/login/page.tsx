@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Eye, EyeOff, Loader2, Mail, Lock, Smartphone } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Mail, Lock, Smartphone, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { LoginSchema, type LoginInput } from '@/lib/validations'
@@ -87,96 +87,49 @@ function LoginForm() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(160deg, #0A1628 0%, #060B18 50%, #0A0D1A 100%)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '40px 16px',
-    }}>
+    <div className="min-h-screen bg-[linear-gradient(160deg,#0A1628_0%,#060B18_50%,#0A0D1A_100%)] flex flex-col items-center justify-center px-4 py-10">
 
       {/* Card */}
-      <div style={{
-        width: '100%',
-        maxWidth: 440,
-        background: '#0D1432',
-        border: '1px solid rgba(255,255,255,0.09)',
-        borderRadius: 20,
-        overflow: 'hidden',
-        boxShadow: '0 24px 80px rgba(0,0,0,0.55)',
-      }}>
+      <div className="w-full max-w-[440px] bg-[#0D1432] border border-white/[0.09] rounded-2xl overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.55)] animate-fade-in-up">
 
-        {/* Gold top bar */}
-        <div style={{ height: 4, background: 'linear-gradient(90deg,#D97706,#F59E0B,#FCD34D)' }} />
+        {/* Gold accent bar */}
+        <div className="h-1 bg-gradient-to-r from-[#D97706] via-[#F59E0B] to-[#FCD34D]" />
 
-        <div style={{ padding: '36px 32px' }}>
+        <div className="px-8 py-9">
 
           {/* Logo + brand */}
-          <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <div style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              background: 'linear-gradient(135deg,#1D4ED8,#2563EB)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 14px',
-              boxShadow: '0 4px 20px rgba(37,99,235,0.45)',
-            }}>
-              <Smartphone size={24} color="#fff" />
+          <div className="text-center mb-7">
+            <div className="w-[52px] h-[52px] rounded-[14px] bg-gradient-to-br from-[#1D4ED8] to-[#2563EB] flex items-center justify-center mx-auto mb-3.5 shadow-[0_4px_20px_rgba(37,99,235,0.45)]">
+              <Smartphone className="w-6 h-6 text-white" />
             </div>
-            <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5, marginBottom: 4 }}>
-              <span style={{ color: '#fff' }}>Meder</span>
-              <span style={{ color: '#F59E0B' }}>Buy</span>
-            </div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)' }}>Sign in to your account</div>
+            <h1 className="text-[22px] font-black tracking-tight leading-none mb-1">
+              <span className="text-white">Meder</span>
+              <span className="text-[#F59E0B]">Buy</span>
+            </h1>
+            <p className="text-sm text-white/45">Sign in to your account</p>
           </div>
 
           {/* Error banner */}
           {errorParam && (
-            <div style={{
-              background: 'rgba(239,68,68,0.1)',
-              border: '1px solid rgba(239,68,68,0.3)',
-              borderRadius: 10,
-              padding: '12px 16px',
-              fontSize: 13,
-              color: '#F87171',
-              marginBottom: 20,
-            }}>
-              {errorParam === 'inactive'
-                ? 'Your account is inactive. Please contact support.'
-                : 'An error occurred. Please try again.'}
+            <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 mb-5">
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+              <p className="text-[13px] text-red-400">
+                {errorParam === 'inactive'
+                  ? 'Your account is inactive. Please contact support.'
+                  : 'An error occurred. Please try again.'}
+              </p>
             </div>
           )}
 
-          {/* Google button */}
+          {/* Google sign-in */}
           <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={googleLoading}
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 10,
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 12,
-              padding: '12px 20px',
-              fontSize: 14,
-              fontWeight: 500,
-              color: 'rgba(255,255,255,0.8)',
-              cursor: googleLoading ? 'not-allowed' : 'pointer',
-              opacity: googleLoading ? 0.6 : 1,
-              marginBottom: 20,
-            }}
+            className="w-full flex items-center justify-center gap-2.5 bg-white/[0.04] border border-white/[0.12] rounded-xl px-5 py-3 text-sm font-medium text-white/80 hover:bg-white/[0.07] hover:border-white/20 transition-all mb-5 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {googleLoading ? (
-              <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -189,131 +142,83 @@ function LoginForm() {
           </button>
 
           {/* Divider */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            marginBottom: 20,
-          }}>
-            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>or sign in with email</span>
-            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex-1 h-px bg-white/[0.08]" />
+            <span className="text-xs text-white/30">or sign in with email</span>
+            <div className="flex-1 h-px bg-white/[0.08]" />
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
 
             {/* Email */}
-            <div style={{ marginBottom: 16 }}>
-              <label htmlFor="email" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)', marginBottom: 6 }}>
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="block text-[13px] font-semibold text-white/65">
                 Email address
               </label>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
-                  <Mail size={15} color="rgba(255,255,255,0.3)" />
-                </span>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-white/30" />
                 <input
                   id="email"
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
                   {...register('email')}
-                  style={{
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: errors.email ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 10,
-                    padding: '12px 14px 12px 40px',
-                    fontSize: 14,
-                    color: '#fff',
-                    outline: 'none',
-                  }}
+                  className={`w-full bg-white/[0.05] border rounded-xl pl-10 pr-3.5 py-3 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:ring-1 focus:ring-[#2563EB] focus:border-[#2563EB]/60 ${
+                    errors.email ? 'border-red-500/60' : 'border-white/10'
+                  }`}
                 />
               </div>
-              {errors.email && <p style={{ fontSize: 12, color: '#F87171', marginTop: 4 }}>{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-xs text-red-400">{errors.email.message}</p>
+              )}
             </div>
 
             {/* Password */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <label htmlFor="password" style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)' }}>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="text-[13px] font-semibold text-white/65">
                   Password
                 </label>
-                <Link href="/forgot-password" style={{ fontSize: 12, fontWeight: 600, color: '#FCD34D', textDecoration: 'none' }}>
+                <Link href="/forgot-password" className="text-xs font-semibold text-[#FCD34D] hover:text-[#F59E0B] transition-colors">
                   Forgot password?
                 </Link>
               </div>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
-                  <Lock size={15} color="rgba(255,255,255,0.3)" />
-                </span>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-white/30" />
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   placeholder="••••••••"
                   {...register('password')}
-                  style={{
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: errors.password ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 10,
-                    padding: '12px 44px 12px 40px',
-                    fontSize: 14,
-                    color: '#fff',
-                    outline: 'none',
-                  }}
+                  className={`w-full bg-white/[0.05] border rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:ring-1 focus:ring-[#2563EB] focus:border-[#2563EB]/60 ${
+                    errors.password ? 'border-red-500/60' : 'border-white/10'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: 14,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    display: 'flex',
-                    color: 'rgba(255,255,255,0.35)',
-                  }}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/35 hover:text-white/70 transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {errors.password && <p style={{ fontSize: 12, color: '#F87171', marginTop: 4 }}>{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-xs text-red-400">{errors.password.message}</p>
+              )}
             </div>
 
             {/* Submit */}
             <button
               type="submit"
               disabled={isSubmitting}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                background: isSubmitting ? 'rgba(37,99,235,0.6)' : 'linear-gradient(135deg,#2563EB,#3B82F6)',
-                border: 'none',
-                borderRadius: 12,
-                padding: '14px 20px',
-                fontSize: 15,
-                fontWeight: 700,
-                color: '#fff',
-                cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                boxShadow: '0 4px 20px rgba(37,99,235,0.4)',
-                marginBottom: 20,
-              }}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white font-bold text-[15px] rounded-xl py-3.5 mt-2 shadow-[0_4px_20px_rgba(37,99,235,0.4)] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Signing in…
                 </>
               ) : (
@@ -324,9 +229,9 @@ function LoginForm() {
           </form>
 
           {/* Register link */}
-          <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+          <p className="text-center text-[13px] text-white/40 mt-5">
             Don&apos;t have an account?{' '}
-            <Link href="/register" style={{ fontWeight: 700, color: '#93C5FD', textDecoration: 'none' }}>
+            <Link href="/register" className="font-bold text-[#93C5FD] hover:text-blue-300 transition-colors">
               Create one
             </Link>
           </p>
@@ -335,7 +240,7 @@ function LoginForm() {
       </div>
 
       {/* Copyright */}
-      <p style={{ marginTop: 28, fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>
+      <p className="mt-7 text-xs text-white/20">
         &copy; 2026 MederBuy. All rights reserved.
       </p>
 
@@ -345,7 +250,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#060B18' }} />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#060B18]" />}>
       <LoginForm />
     </Suspense>
   )
