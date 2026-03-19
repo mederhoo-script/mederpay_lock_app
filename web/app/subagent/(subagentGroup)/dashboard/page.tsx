@@ -38,4 +38,21 @@ export default async function SubagentDashboardPage() {
     { label: 'Locked Phones', value: lockedSales ?? 0, color: 'text-red-400' },
   ]
 
-  
+  return (
+    <div className="p-6 lg:p-8 space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-1">Your sales overview</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {stats.map(({ label, value, color }) => (
+          <div key={label} className="stat-card p-5">
+            <p className="text-sm text-muted-foreground">{label}</p>
+            <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
