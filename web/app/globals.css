@@ -54,28 +54,27 @@
 
 @layer base {
 	:root {
-		/* Brand: Deep Navy + Royal Blue + Gold — matches login/register template */
-		--background: 228 56% 6%;
-		--foreground: 210 40% 98%;
-		--card: 230 57% 13%;
-		--card-foreground: 210 40% 96%;
-		--popover: 230 57% 12%;
-		--popover-foreground: 210 40% 96%;
+		/* Light mode — clean white/slate */
+		--background: 220 18% 97%;
+		--foreground: 224 50% 10%;
+		--card: 0 0% 100%;
+		--card-foreground: 224 50% 10%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 224 50% 10%;
 		--primary: 221 83% 53%;
 		--primary-foreground: 0 0% 100%;
-		--secondary: 228 48% 16%;
-		--secondary-foreground: 210 40% 96%;
-		--muted: 228 45% 13%;
-		--muted-foreground: 215 20% 65%;
+		--secondary: 220 14% 93%;
+		--secondary-foreground: 224 50% 18%;
+		--muted: 220 14% 93%;
+		--muted-foreground: 220 10% 46%;
 		--accent: 38 92% 50%;
 		--accent-foreground: 30 100% 10%;
 		--destructive: 0 78% 55%;
-		--destructive-foreground: 210 40% 98%;
-		--border: 228 30% 18%;
-		--input: 228 45% 14%;
+		--destructive-foreground: 0 0% 100%;
+		--border: 220 13% 85%;
+		--input: 220 13% 90%;
 		--ring: 221 83% 53%;
 		--radius: 0.85rem;
-		/* Gold token */
 		--gold: 38 92% 50%;
 		--gold-light: 43 96% 56%;
 		--gold-pale: 44 100% 91%;
