@@ -15,488 +15,268 @@ import {
   Menu,
 } from 'lucide-react'
 
+// ─── Data ────────────────────────────────────────────────────────────────────
+
+const features = [
+  {
+    icon: Lock,
+    title: 'IMEI Device Control',
+    description:
+      'Lock financed phones instantly for overdue accounts and unlock them the moment a payment clears — no manual steps.',
+    gold: true,
+  },
+  {
+    icon: RefreshCw,
+    title: 'Payment Reconciliation',
+    description:
+      'Incoming transfers from any gateway automatically match to the right buyer. No spreadsheets, no guesswork.',
+    gold: false,
+  },
+  {
+    icon: Users,
+    title: 'Agent Network Ops',
+    description:
+      'Manage sub-agents, track performance, and calculate commissions — all in one secure, role-based dashboard.',
+    gold: true,
+  },
+  {
+    icon: BarChart2,
+    title: 'Risk Visibility',
+    description:
+      'Monitor delinquency trends and overdue balances in real time before they become business losses.',
+    gold: false,
+  },
+  {
+    icon: Layers,
+    title: 'Flexible Fee Tiers',
+    description:
+      'Set pricing bands and platform fees by phone value range. Changes apply automatically across all transactions.',
+    gold: true,
+  },
+  {
+    icon: FileText,
+    title: 'Audit-Ready Logs',
+    description:
+      'Every payment, lock event, and admin action is permanently logged for trust, compliance, and dispute resolution.',
+    gold: false,
+  },
+]
+
+const steps = [
+  {
+    icon: Shield,
+    step: '01',
+    title: 'Create Your Agent Account',
+    desc: 'Register in minutes. Our team reviews and approves you so you can access the full platform.',
+  },
+  {
+    icon: Smartphone,
+    step: '02',
+    title: 'Add Phones & Buyers',
+    desc: 'Import your inventory, register buyers, and connect your preferred payment gateway.',
+  },
+  {
+    icon: Zap,
+    step: '03',
+    title: 'Automate Collections',
+    desc: 'Payments reconcile automatically. Lock rules trigger on overdue accounts — zero manual chasing.',
+  },
+]
+
+const testimonials = [
+  {
+    name: 'Adebayo Okafor',
+    role: 'Senior Agent, Lagos',
+    initials: 'AO',
+    quote:
+      'MederBuy cut my overdue accounts by 60% in the first month. The automatic lock feature is an absolute game-changer.',
+    gold: true,
+  },
+  {
+    name: 'Ngozi Eze',
+    role: 'Phone Finance Agent, Enugu',
+    initials: 'NE',
+    quote:
+      'I spent 3 hours a day chasing payments manually. Now I get notified when money hits and devices lock automatically.',
+    gold: false,
+  },
+  {
+    name: 'Emeka Nwosu',
+    role: 'Sub-Agent Manager, Abuja',
+    initials: 'EN',
+    quote:
+      'Managing 12 sub-agents and 800+ buyers used to be chaotic. Now I have full visibility and my team performs better.',
+    gold: true,
+  },
+  {
+    name: 'Fatima Bello',
+    role: 'Phones & Accessories Dealer, Kano',
+    initials: 'FB',
+    quote:
+      'Bank transfers match to buyers automatically. I can see exactly who owes what in real time.',
+    gold: false,
+  },
+  {
+    name: 'Chukwudi Ibe',
+    role: 'Agent, Port Harcourt',
+    initials: 'CI',
+    quote:
+      'After one week the results spoke for themselves. Collections are up, disputes are down.',
+    gold: true,
+  },
+  {
+    name: 'Blessing Akinlabi',
+    role: 'Fleet Agent, Ibadan',
+    initials: 'BA',
+    quote:
+      'Setup took under 30 minutes. Monnify integration worked first try and the platform has been reliable every day since.',
+    gold: false,
+  },
+]
+
 export default function LandingPage() {
-  const features = [
-    {
-      icon: Lock,
-      title: 'IMEI Device Control',
-      description: 'Lock financed phones instantly for overdue accounts and unlock them the moment a payment clears — no manual steps.',
-      color: '#F59E0B',
-    },
-    {
-      icon: RefreshCw,
-      title: 'Payment Reconciliation',
-      description: 'Incoming transfers from any gateway automatically match to the right buyer. No spreadsheets, no guesswork.',
-      color: '#3B82F6',
-    },
-    {
-      icon: Users,
-      title: 'Agent Network Ops',
-      description: 'Manage sub-agents, track performance, and calculate commissions — all in one secure, role-based dashboard.',
-      color: '#F59E0B',
-    },
-    {
-      icon: BarChart2,
-      title: 'Risk Visibility',
-      description: 'Monitor delinquency trends and overdue balances in real time before they become business losses.',
-      color: '#3B82F6',
-    },
-    {
-      icon: Layers,
-      title: 'Flexible Fee Tiers',
-      description: 'Set pricing bands and platform fees by phone value range. Changes apply automatically across all transactions.',
-      color: '#F59E0B',
-    },
-    {
-      icon: FileText,
-      title: 'Audit-Ready Logs',
-      description: 'Every payment, lock event, and admin action is permanently logged for trust, compliance, and dispute resolution.',
-      color: '#3B82F6',
-    },
-  ]
-
-  const steps = [
-    {
-      icon: Shield,
-      title: 'Create Your Agent Account',
-      desc: 'Register in minutes. Our team reviews and approves you so you can access the full platform.',
-    },
-    {
-      icon: Smartphone,
-      title: 'Add Phones & Buyers',
-      desc: 'Import your inventory, register buyers, and connect your preferred payment gateway.',
-    },
-    {
-      icon: Zap,
-      title: 'Automate Collections',
-      desc: 'Payments reconcile automatically. Lock rules trigger on overdue accounts — zero manual chasing.',
-    },
-  ]
-
-  const testimonials = [
-    {
-      name: 'Adebayo Okafor',
-      role: 'Senior Agent, Lagos',
-      initials: 'AO',
-      quote: 'MederBuy cut my overdue accounts by 60% in the first month. The automatic lock feature is an absolute game-changer.',
-      gold: true,
-    },
-    {
-      name: 'Ngozi Eze',
-      role: 'Phone Finance Agent, Enugu',
-      initials: 'NE',
-      quote: 'I spent 3 hours a day chasing payments manually. Now I get notified when money hits and devices lock automatically.',
-      gold: false,
-    },
-    {
-      name: 'Emeka Nwosu',
-      role: 'Sub-Agent Manager, Abuja',
-      initials: 'EN',
-      quote: 'Managing 12 sub-agents and 800+ buyers used to be chaotic. Now I have full visibility and my team performs better.',
-      gold: true,
-    },
-    {
-      name: 'Fatima Bello',
-      role: 'Phones & Accessories Dealer, Kano',
-      initials: 'FB',
-      quote: 'Bank transfers match to buyers automatically. I can see exactly who owes what in real time.',
-      gold: false,
-    },
-    {
-      name: 'Chukwudi Ibe',
-      role: 'Agent, Port Harcourt',
-      initials: 'CI',
-      quote: 'After one week the results spoke for themselves. Collections are up, disputes are down.',
-      gold: true,
-    },
-    {
-      name: 'Blessing Akinlabi',
-      role: 'Fleet Agent, Ibadan',
-      initials: 'BA',
-      quote: 'Setup took under 30 minutes. Monnify integration worked first try and the platform has been reliable every day since.',
-      gold: false,
-    },
-  ]
-
   return (
-    <div style={{ background: '#060B18', color: '#fff', minHeight: '100vh', fontFamily: 'inherit' }}>
+    <div className="min-h-screen bg-[#060B18] text-white font-sans antialiased">
 
-      {/* ═══════════════════════════════════════════════════════════
-          NAV
-      ═══════════════════════════════════════════════════════════ */}
-      <header style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        background: 'rgba(6,11,24,0.92)',
-        backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
-      }}>
-        <nav style={{
-          maxWidth: 1200,
-          margin: '0 auto',
-          padding: '0 24px',
-          height: 68,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
+      {/* ─── HEADER ────────────────────────────────────────────────────────── */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#060B18]/90 backdrop-blur-xl border-b border-white/[0.07]">
+        <nav className="max-w-6xl mx-auto px-6 h-[68px] flex items-center justify-between">
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              background: 'linear-gradient(135deg,#1D4ED8,#2563EB)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 12px rgba(37,99,235,0.5)',
-              flexShrink: 0,
-            }}>
-              <Smartphone size={18} color="#fff" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-blue-700 to-[#2563EB] flex items-center justify-center shadow-[0_2px_12px_rgba(37,99,235,0.5)] shrink-0">
+              <Smartphone size={17} className="text-white" />
             </div>
-            <span style={{ fontSize: 20, fontWeight: 900, letterSpacing: -0.5, lineHeight: 1 }}>
-              <span style={{ color: '#fff' }}>Meder</span>
-              <span style={{ color: '#F59E0B' }}>Buy</span>
+            <span className="text-xl font-black tracking-tight leading-none">
+              <span className="text-white">Meder</span>
+              <span className="text-amber-400">Buy</span>
             </span>
           </div>
 
           {/* Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <a href="/login" style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: 'rgba(255,255,255,0.7)',
-              textDecoration: 'none',
-              padding: '8px 14px',
-              borderRadius: 8,
-              transition: 'color .15s',
-            }}>
+          <div className="flex items-center gap-3">
+            <a
+              href="/login"
+              className="hidden sm:inline-flex text-sm font-semibold text-white/70 hover:text-white transition-colors px-3 py-2 rounded-lg"
+            >
               Sign In
             </a>
-            <a href="/register" style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#000',
-              textDecoration: 'none',
-              background: 'linear-gradient(135deg,#D97706,#F59E0B)',
-              padding: '9px 20px',
-              borderRadius: 10,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              boxShadow: '0 2px 14px rgba(217,119,6,0.4)',
-            }}>
+            <a
+              href="/register"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-black bg-gradient-to-r from-[#D97706] to-[#F59E0B] px-5 py-2.5 rounded-xl shadow-[0_2px_14px_rgba(217,119,6,0.4)] hover:opacity-90 transition-opacity"
+            >
               Get Started <ArrowRight size={14} />
             </a>
           </div>
         </nav>
       </header>
 
-      {/* ═══════════════════════════════════════════════════════════
-          HERO
-      ═══════════════════════════════════════════════════════════ */}
-      <section style={{
-        background: 'linear-gradient(180deg, #0A1628 0%, #060B18 100%)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        paddingTop: 80,
-        paddingBottom: 80,
-      }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
+      {/* ─── HERO ──────────────────────────────────────────────────────────── */}
+      <section className="relative pt-[148px] pb-24 bg-gradient-to-b from-[#0A1628] to-[#060B18] border-b border-white/[0.06] overflow-hidden">
+        {/* Background glow blobs */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[520px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/8 rounded-full blur-[100px] pointer-events-none" />
 
+        <div className="relative max-w-6xl mx-auto px-6 text-center">
           {/* Badge */}
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '6px 18px',
-              borderRadius: 9999,
-              background: 'rgba(245,158,11,0.1)',
-              border: '1px solid rgba(245,158,11,0.3)',
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: '#FCD34D',
-            }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#F59E0B', display: 'inline-block' }} />
-              Built for Nigerian Phone Finance Teams
+          <div className="animate-fade-in-up mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[11px] font-bold tracking-[0.16em] uppercase text-amber-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+              BNPL Phone Financing OS
             </span>
           </div>
 
           {/* Headline */}
-          <h1 style={{
-            textAlign: 'center',
-            fontSize: 'clamp(36px, 6vw, 68px)',
-            fontWeight: 900,
-            lineHeight: 1.08,
-            letterSpacing: -1.5,
-            margin: '0 auto 24px',
-            maxWidth: 820,
-          }}>
-            Sell Phones on Credit.{' '}
-            <span style={{
-              background: 'linear-gradient(135deg,#F59E0B,#FCD34D)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              Collect Without Chaos.
+          <h1 className="animate-fade-in-up mx-auto mb-6 max-w-3xl text-4xl sm:text-5xl lg:text-[68px] font-black leading-[1.06] tracking-[-1.5px] text-white">
+            Finance Phones.{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#F59E0B] to-[#FCD34D]">
+              Lock Overdue.
             </span>
+            {' '}Collect Reliably.
           </h1>
 
-          {/* Subheadline */}
-          <p style={{
-            textAlign: 'center',
-            fontSize: 18,
-            lineHeight: 1.7,
-            color: 'rgba(255,255,255,0.6)',
-            maxWidth: 600,
-            margin: '0 auto 40px',
-          }}>
-            MederBuy gives agents one command centre for IMEI device lock, buyer repayments,
-            and sub-agent operations. Cut defaults, protect inventory, and scale.
+          {/* Subtext */}
+          <p className="animate-fade-in-up mx-auto mb-10 max-w-xl text-base sm:text-lg leading-relaxed text-white/60">
+            MederBuy gives phone agents complete control — sell on finance, auto-lock on overdue,
+            reconcile payments, manage agents and sub-agents from one dashboard.
           </p>
 
           {/* CTA buttons */}
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 14,
-            justifyContent: 'center',
-            marginBottom: 60,
-          }}>
-            <a href="/register" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: 'linear-gradient(135deg,#2563EB,#3B82F6)',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: 15,
-              padding: '14px 32px',
-              borderRadius: 12,
-              textDecoration: 'none',
-              boxShadow: '0 4px 24px rgba(37,99,235,0.45)',
-            }}>
-              Start Free Trial <ArrowRight size={16} />
+          <div className="animate-fade-in-up flex flex-wrap items-center justify-center gap-4 mb-14">
+            <a
+              href="/register"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D97706] via-[#F59E0B] to-[#FCD34D] text-black font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-[0_4px_20px_rgba(217,119,6,0.45)] hover:shadow-[0_4px_28px_rgba(217,119,6,0.6)] hover:scale-[1.02] transition-all"
+            >
+              Start Free — Create Agent Account <ArrowRight size={16} />
             </a>
-            <a href="/login" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: 'transparent',
-              color: '#FCD34D',
-              fontWeight: 600,
-              fontSize: 15,
-              padding: '14px 32px',
-              borderRadius: 12,
-              textDecoration: 'none',
-              border: '1px solid rgba(245,158,11,0.3)',
-            }}>
-              Sign In to Dashboard
+            <a
+              href="/login"
+              className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-white/80 border border-white/20 px-7 py-3.5 rounded-xl hover:bg-white/[0.06] hover:border-white/30 transition-all"
+            >
+              Sign In
             </a>
           </div>
 
-          {/* Dashboard preview card */}
-          <div style={{
-            maxWidth: 840,
-            margin: '0 auto',
-            background: 'linear-gradient(145deg,#0D1A40,#0A0F20)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 20,
-            padding: 24,
-            boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
-          }}>
-            {/* Dashboard header */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: 'rgba(3,9,23,0.9)',
-              border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: 14,
-              padding: '16px 20px',
-              marginBottom: 16,
-            }}>
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>
-                  Today&apos;s Collections
-                </div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: '#FCD34D', fontVariantNumeric: 'tabular-nums' }}>
-                  ₦3,450,000
-                </div>
-              </div>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-                background: 'rgba(217,119,6,0.15)',
-                border: '1px solid rgba(245,158,11,0.25)',
-                borderRadius: 9999,
-                padding: '5px 12px',
-              }}>
-                <TrendingUp size={13} color="#FCD34D" />
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#FCD34D' }}>+18.2%</span>
-              </div>
-            </div>
-
-            {/* Stats row */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 16 }}>
-              {[
-                { label: 'Overdue Devices', value: '27', color: '#F87171' },
-                { label: 'Active Buyers', value: '1,284', color: '#93C5FD' },
-                { label: 'Sub-Agents', value: '96', color: '#FCD34D' },
-              ].map((item) => (
-                <div key={item.label} style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 12,
-                  padding: '14px 8px',
-                  textAlign: 'center',
-                }}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: item.color, fontVariantNumeric: 'tabular-nums' }}>{item.value}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{item.label}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Mini bar chart */}
-            <div style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: 12,
-              padding: 14,
-            }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 10 }}>Weekly Revenue</div>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 56 }}>
-                {[35, 55, 42, 70, 58, 80, 65, 90].map((h, i) => (
-                  <div key={i} style={{
-                    flex: 1,
-                    height: `${h}%`,
-                    borderRadius: '3px 3px 0 0',
-                    background: i >= 6
-                      ? 'linear-gradient(to top,#D97706,#F59E0B)'
-                      : `linear-gradient(to top,#1D4ED8,#3B82F6)`,
-                    opacity: i >= 6 ? 1 : 0.5 + i * 0.07,
-                  }} />
-                ))}
-              </div>
-            </div>
+          {/* Trust badges */}
+          <div className="animate-fade-in-up flex flex-wrap items-center justify-center gap-3">
+            {[
+              { emoji: '⚡', label: '500+ Agents' },
+              { emoji: '📈', label: '₦2.1B Managed' },
+              { emoji: '🛡️', label: 'SOC 2 Ready' },
+            ].map((b) => (
+              <span
+                key={b.label}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-sm font-semibold text-white/75"
+              >
+                <span>{b.emoji}</span>
+                {b.label}
+              </span>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════════
-          STATS STRIP
-      ═══════════════════════════════════════════════════════════ */}
-      <section style={{
-        background: '#0A1225',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        padding: '48px 24px',
-      }}>
-        <div style={{
-          maxWidth: 1200,
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-          gap: 40,
-          textAlign: 'center',
-        }}>
-          {[
-            { value: '₦2B+', label: 'Payments Processed', gold: true },
-            { value: '5,000+', label: 'Active Devices Managed', gold: false },
-            { value: '99.9%', label: 'Uptime SLA', gold: true },
-            { value: '4', label: 'Payment Gateways', gold: false },
-          ].map((stat) => (
-            <div key={stat.label}>
-              <div style={{ fontSize: 'clamp(28px,5vw,44px)', fontWeight: 900, color: stat.gold ? '#F59E0B' : '#93C5FD' }}>
-                {stat.value}
-              </div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          FEATURES
-      ═══════════════════════════════════════════════════════════ */}
-      <section id="features" style={{ padding: '96px 24px', background: '#060B18' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-
-          {/* Section label */}
-          <div style={{ textAlign: 'center', marginBottom: 14 }}>
-            <span style={{
-              display: 'inline-block',
-              padding: '5px 16px',
-              borderRadius: 9999,
-              background: 'rgba(245,158,11,0.09)',
-              border: '1px solid rgba(245,158,11,0.25)',
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: '#FCD34D',
-            }}>
-              Platform Capabilities
+      {/* ─── FEATURES ──────────────────────────────────────────────────────── */}
+      <section className="py-24 bg-[#060B18]">
+        <div className="max-w-6xl mx-auto px-6">
+          {/* Section header */}
+          <div className="text-center mb-14">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-600/10 border border-blue-500/20 text-xs font-bold tracking-widest uppercase text-blue-400 mb-4">
+              Platform Features
             </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4">
+              Everything Your{' '}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#2563EB] to-[#3B82F6]">
+                Finance Business
+              </span>{' '}
+              Needs
+            </h2>
+            <p className="max-w-lg mx-auto text-base text-white/50">
+              One platform to sell, collect, lock, and scale — no duct-tape integrations.
+            </p>
           </div>
 
-          <h2 style={{
-            textAlign: 'center',
-            fontSize: 'clamp(28px,4vw,42px)',
-            fontWeight: 900,
-            lineHeight: 1.18,
-            marginBottom: 16,
-          }}>
-            Everything You Need to Run{' '}
-            <span style={{
-              background: 'linear-gradient(135deg,#3B82F6,#93C5FD)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              BNPL Operations
-            </span>
-          </h2>
-
-          <p style={{ textAlign: 'center', fontSize: 15, color: 'rgba(255,255,255,0.5)', maxWidth: 540, margin: '0 auto 56px' }}>
-            One platform built specifically for Nigerian phone finance agents — from device lock to payment reconciliation.
-          </p>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))',
-            gap: 20,
-          }}>
-            {features.map((feature) => {
-              const Icon = feature.icon
+          {/* Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {features.map((f) => {
+              const Icon = f.icon
               return (
-                <div key={feature.title} style={{
-                  background: 'linear-gradient(145deg,rgba(13,26,64,0.85),rgba(6,11,24,0.6))',
-                  border: `1px solid ${feature.color}22`,
-                  borderRadius: 18,
-                  padding: '28px 24px',
-                  transition: 'transform .2s, box-shadow .2s',
-                }}>
-                  <div style={{
-                    width: 46,
-                    height: 46,
-                    borderRadius: 12,
-                    background: `${feature.color}14`,
-                    border: `1px solid ${feature.color}28`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 18,
-                  }}>
-                    <Icon size={20} color={feature.color} />
+                <div
+                  key={f.title}
+                  className="group relative bg-[#0D1432] rounded-2xl p-6 border border-white/[0.07] hover:border-white/[0.14] hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                >
+                  {/* Top accent bar */}
+                  <div className={`absolute top-0 left-0 right-0 h-[3px] ${f.gold ? 'bg-gradient-to-r from-[#D97706] via-[#F59E0B] to-[#FCD34D]' : 'bg-gradient-to-r from-[#1D4ED8] via-[#2563EB] to-[#3B82F6]'}`} />
+
+                  {/* Icon */}
+                  <div className={`mb-4 w-11 h-11 rounded-xl flex items-center justify-center ${f.gold ? 'bg-amber-500/10 text-amber-400' : 'bg-blue-600/10 text-blue-400'}`}>
+                    <Icon size={20} />
                   </div>
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 8 }}>{feature.title}</h3>
-                  <p style={{ fontSize: 14, lineHeight: 1.65, color: 'rgba(255,255,255,0.55)' }}>{feature.description}</p>
+
+                  <h3 className="text-base font-bold text-white mb-2">{f.title}</h3>
+                  <p className="text-sm leading-relaxed text-white/55">{f.description}</p>
+
+                  {/* Subtle glow on hover */}
+                  <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none ${f.gold ? 'shadow-[inset_0_0_40px_rgba(245,158,11,0.04)]' : 'shadow-[inset_0_0_40px_rgba(37,99,235,0.04)]'}`} />
                 </div>
               )
             })}
@@ -504,90 +284,49 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════════
-          HOW IT WORKS
-      ═══════════════════════════════════════════════════════════ */}
-      <section style={{ padding: '96px 24px', background: '#070D1E', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-
-          <div style={{ textAlign: 'center', marginBottom: 14 }}>
-            <span style={{
-              display: 'inline-block',
-              padding: '5px 16px',
-              borderRadius: 9999,
-              background: 'rgba(37,99,235,0.1)',
-              border: '1px solid rgba(59,130,246,0.25)',
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: '#93C5FD',
-            }}>
-              Getting Started
+      {/* ─── HOW IT WORKS ──────────────────────────────────────────────────── */}
+      <section className="py-24 bg-gradient-to-b from-[#060B18] to-[#080E1E] border-y border-white/[0.06]">
+        <div className="max-w-6xl mx-auto px-6">
+          {/* Section header */}
+          <div className="text-center mb-14">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-bold tracking-widest uppercase text-amber-400 mb-4">
+              How It Works
             </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4">
+              Up and Running in{' '}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#F59E0B] to-[#FCD34D]">
+                30 Minutes
+              </span>
+            </h2>
+            <p className="max-w-lg mx-auto text-base text-white/50">
+              No IT team. No months of setup. Just a fast, guided onboarding.
+            </p>
           </div>
 
-          <h2 style={{
-            textAlign: 'center',
-            fontSize: 'clamp(28px,4vw,42px)',
-            fontWeight: 900,
-            lineHeight: 1.18,
-            marginBottom: 56,
-          }}>
-            Up and Running in{' '}
-            <span style={{
-              background: 'linear-gradient(135deg,#F59E0B,#FCD34D)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              3 Steps
-            </span>
-          </h2>
+          {/* Steps */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+            {/* Connector line (desktop only) */}
+            <div className="hidden md:block absolute top-10 left-[calc(16.67%+24px)] right-[calc(16.67%+24px)] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: 32,
-          }}>
             {steps.map((s, i) => {
               const Icon = s.icon
               return (
-                <div key={s.title} style={{ textAlign: 'center', padding: '0 16px' }}>
-                  {/* Step icon + number */}
-                  <div style={{ display: 'inline-block', position: 'relative', marginBottom: 22 }}>
-                    <div style={{
-                      width: 70,
-                      height: 70,
-                      borderRadius: 18,
-                      background: 'linear-gradient(135deg,rgba(217,119,6,0.15),rgba(37,99,235,0.1))',
-                      border: '1px solid rgba(245,158,11,0.25)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      <Icon size={26} color="#FCD34D" />
-                    </div>
-                    <span style={{
-                      position: 'absolute',
-                      top: -8,
-                      right: -8,
-                      width: 24,
-                      height: 24,
-                      borderRadius: '50%',
-                      background: 'linear-gradient(135deg,#D97706,#F59E0B)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 10,
-                      fontWeight: 900,
-                      color: '#000',
-                    }}>
-                      {i + 1}
-                    </span>
+                <div
+                  key={s.title}
+                  className="relative bg-[#0D1432] rounded-2xl p-7 border border-white/[0.07] hover:border-amber-500/20 transition-all duration-300 text-center group"
+                >
+                  {/* Step number */}
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-black tracking-widest text-amber-500/70 bg-[#060B18] px-2">
+                    {s.step}
+                  </span>
+
+                  {/* Icon ring */}
+                  <div className="mx-auto mb-5 w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-600/20 to-amber-400/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
+                    <Icon size={24} />
                   </div>
-                  <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 10 }}>{s.title}</h3>
-                  <p style={{ fontSize: 14, lineHeight: 1.65, color: 'rgba(255,255,255,0.5)' }}>{s.desc}</p>
+
+                  <h3 className="text-base font-bold text-white mb-2">{s.title}</h3>
+                  <p className="text-sm leading-relaxed text-white/55">{s.desc}</p>
                 </div>
               )
             })}
@@ -595,95 +334,55 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════════
-          TESTIMONIALS
-      ═══════════════════════════════════════════════════════════ */}
-      <section style={{ padding: '96px 24px', background: '#060B18' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-
-          <div style={{ textAlign: 'center', marginBottom: 14 }}>
-            <span style={{
-              display: 'inline-block',
-              padding: '5px 16px',
-              borderRadius: 9999,
-              background: 'rgba(245,158,11,0.09)',
-              border: '1px solid rgba(245,158,11,0.25)',
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: '#FCD34D',
-            }}>
-              What Agents Say
+      {/* ─── TESTIMONIALS ──────────────────────────────────────────────────── */}
+      <section className="py-24 bg-[#060B18]">
+        <div className="max-w-6xl mx-auto px-6">
+          {/* Section header */}
+          <div className="text-center mb-14">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-600/10 border border-blue-500/20 text-xs font-bold tracking-widest uppercase text-blue-400 mb-4">
+              Agent Stories
             </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4">
+              Trusted by{' '}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#2563EB] to-[#3B82F6]">
+                Agents Nationwide
+              </span>
+            </h2>
+            <p className="max-w-lg mx-auto text-base text-white/50">
+              Real results from phone finance teams across Nigeria.
+            </p>
           </div>
 
-          <h2 style={{
-            textAlign: 'center',
-            fontSize: 'clamp(28px,4vw,42px)',
-            fontWeight: 900,
-            marginBottom: 12,
-          }}>
-            Trusted by Top Agents Across Nigeria
-          </h2>
-
-          <p style={{ textAlign: 'center', fontSize: 15, color: 'rgba(255,255,255,0.5)', maxWidth: 480, margin: '0 auto 52px' }}>
-            Real feedback from agents running active phone financing operations.
-          </p>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 20,
-          }}>
+          {/* Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {testimonials.map((t) => (
-              <div key={t.name} style={{
-                background: 'linear-gradient(145deg,rgba(13,26,64,0.7),rgba(6,11,24,0.4))',
-                border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 18,
-                padding: '24px 22px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 16,
-              }}>
-                {/* Stars */}
-                <div style={{ display: 'flex', gap: 3 }}>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={13} fill="#F59E0B" color="#F59E0B" />
-                  ))}
-                </div>
-                {/* Quote */}
-                <p style={{ fontSize: 14, lineHeight: 1.65, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic', flexGrow: 1 }}>
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                {/* Author */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  paddingTop: 14,
-                  borderTop: '1px solid rgba(255,255,255,0.07)',
-                }}>
-                  <div style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: '50%',
-                    background: t.gold
-                      ? 'linear-gradient(135deg,#D97706,#F59E0B)'
-                      : 'linear-gradient(135deg,#1D4ED8,#3B82F6)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 11,
-                    fontWeight: 900,
-                    color: t.gold ? '#000' : '#fff',
-                    flexShrink: 0,
-                  }}>
-                    {t.initials}
+              <div
+                key={t.name}
+                className="group bg-[#0D1432] rounded-2xl border border-white/[0.07] hover:border-white/[0.14] hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+              >
+                {/* Gold accent bar */}
+                <div className={`h-1 ${t.gold ? 'bg-gradient-to-r from-[#D97706] via-[#F59E0B] to-[#FCD34D]' : 'bg-gradient-to-r from-[#1D4ED8] via-[#2563EB] to-[#3B82F6]'}`} />
+
+                <div className="p-6">
+                  {/* Stars */}
+                  <div className="flex gap-0.5 mb-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} size={13} className="text-amber-400 fill-amber-400" />
+                    ))}
                   </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t.name}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{t.role}</div>
+
+                  {/* Quote */}
+                  <p className="text-sm leading-relaxed text-white/70 mb-5">&ldquo;{t.quote}&rdquo;</p>
+
+                  {/* Author */}
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${t.gold ? 'bg-gradient-to-br from-[#D97706] to-[#F59E0B] text-black' : 'bg-gradient-to-br from-blue-700 to-blue-500 text-white'}`}>
+                      {t.initials}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white leading-tight">{t.name}</p>
+                      <p className="text-xs text-white/45 mt-0.5">{t.role}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -692,132 +391,84 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════════
-          CTA BANNER
-      ═══════════════════════════════════════════════════════════ */}
-      <section style={{ padding: '96px 24px', background: '#070D1E', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <div style={{
-            background: 'linear-gradient(135deg,#0D1A40,#0A1225)',
-            border: '1px solid rgba(245,158,11,0.18)',
-            borderRadius: 24,
-            padding: 'clamp(40px,6vw,72px) clamp(28px,6vw,64px)',
-            textAlign: 'center',
-            borderTop: '3px solid #F59E0B',
-          }}>
-            <span style={{
-              display: 'inline-block',
-              padding: '5px 16px',
-              borderRadius: 9999,
-              background: 'rgba(245,158,11,0.1)',
-              border: '1px solid rgba(245,158,11,0.28)',
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: '#FCD34D',
-              marginBottom: 20,
-            }}>
-              Start Today — It&apos;s Free
+      {/* ─── CTA BANNER ────────────────────────────────────────────────────── */}
+      <section className="py-20 bg-gradient-to-br from-[#0D1432] to-[#060B18] border-y border-white/[0.06]">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <div className="relative inline-block mb-3">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-bold tracking-widest uppercase text-amber-400">
+              Get Started Today
             </span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-5">
+            Stop Chasing Payments.{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#F59E0B] to-[#FCD34D]">
+              Start Automating.
+            </span>
+          </h2>
+          <p className="max-w-md mx-auto text-base text-white/55 mb-10">
+            Join 500+ agents already using MederBuy to protect their inventory and collect reliably.
+          </p>
 
-            <h2 style={{
-              fontSize: 'clamp(26px,4vw,42px)',
-              fontWeight: 900,
-              lineHeight: 1.18,
-              marginBottom: 16,
-            }}>
-              Turn Repayments Into{' '}
-              <span style={{
-                background: 'linear-gradient(135deg,#F59E0B,#FCD34D)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>
-                Predictable Cash Flow
-              </span>
-            </h2>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <a
+              href="/register"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D97706] via-[#F59E0B] to-[#FCD34D] text-black font-bold text-sm sm:text-base px-8 py-4 rounded-xl shadow-[0_4px_20px_rgba(217,119,6,0.45)] hover:shadow-[0_4px_28px_rgba(217,119,6,0.6)] hover:scale-[1.02] transition-all"
+            >
+              Create Your Free Account <ArrowRight size={16} />
+            </a>
+            <a
+              href="/login"
+              className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-white/80 border border-white/20 px-8 py-4 rounded-xl hover:bg-white/[0.06] hover:border-white/30 transition-all"
+            >
+              Sign In
+            </a>
+          </div>
 
-            <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,0.55)', maxWidth: 520, margin: '0 auto 36px' }}>
-              Launch your account in minutes and manage collections, lock rules, and growth dashboards from one platform.
-            </p>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, justifyContent: 'center' }}>
-              <a href="/register" style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                background: 'linear-gradient(135deg,#D97706,#F59E0B)',
-                color: '#000',
-                fontWeight: 800,
-                fontSize: 15,
-                padding: '14px 32px',
-                borderRadius: 12,
-                textDecoration: 'none',
-                boxShadow: '0 4px 24px rgba(217,119,6,0.45)',
-              }}>
-                Create Agent Account <ArrowRight size={16} />
-              </a>
-              <a href="/login" style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                background: 'rgba(37,99,235,0.12)',
-                border: '1px solid rgba(59,130,246,0.3)',
-                color: '#93C5FD',
-                fontWeight: 600,
-                fontSize: 15,
-                padding: '14px 32px',
-                borderRadius: 12,
-                textDecoration: 'none',
-              }}>
-                Already have an account?
-              </a>
-            </div>
+          {/* Trust chips */}
+          <div className="flex flex-wrap justify-center gap-5 mt-10">
+            {[
+              { icon: CheckCircle, text: 'No credit card required' },
+              { icon: Shield, text: 'Bank-grade security' },
+              { icon: TrendingUp, text: 'Live in 30 minutes' },
+            ].map((c) => {
+              const Icon = c.icon
+              return (
+                <div key={c.text} className="flex items-center gap-2 text-sm text-white/50">
+                  <Icon size={14} className="text-amber-400" />
+                  {c.text}
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════════
-          FOOTER
-      ═══════════════════════════════════════════════════════════ */}
-      <footer style={{
-        background: '#030917',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-        padding: '32px 24px',
-      }}>
-        <div style={{
-          maxWidth: 1200,
-          margin: '0 auto',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 16,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{
-              width: 30,
-              height: 30,
-              borderRadius: 8,
-              background: 'linear-gradient(135deg,#1D4ED8,#2563EB)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <Smartphone size={14} color="#fff" />
+      {/* ─── FOOTER ────────────────────────────────────────────────────────── */}
+      <footer className="bg-[#060B18] border-t border-white/[0.06] py-12">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            {/* Logo */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-[9px] bg-gradient-to-br from-blue-700 to-[#2563EB] flex items-center justify-center shadow-[0_2px_10px_rgba(37,99,235,0.4)]">
+                <Smartphone size={15} className="text-white" />
+              </div>
+              <span className="text-lg font-black tracking-tight">
+                <span className="text-white">Meder</span>
+                <span className="text-amber-400">Buy</span>
+              </span>
             </div>
-            <span style={{ fontSize: 14, fontWeight: 800 }}>
-              <span style={{ color: 'rgba(255,255,255,0.75)' }}>Meder</span>
-              <span style={{ color: '#F59E0B' }}>Buy</span>
-            </span>
-          </div>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
-            &copy; 2026 MederBuy. Built for high-performance phone finance teams.
-          </p>
-          <div style={{ display: 'flex', gap: 24 }}>
-            <a href="/login" style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Sign In</a>
-            <a href="/register" style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Register</a>
+
+            {/* Links */}
+            <div className="flex flex-wrap items-center gap-6 text-sm text-white/45">
+              <a href="/privacy" className="hover:text-white/80 transition-colors">Privacy</a>
+              <a href="/terms" className="hover:text-white/80 transition-colors">Terms</a>
+              <a href="/contact" className="hover:text-white/80 transition-colors">Contact</a>
+            </div>
+
+            {/* Copyright */}
+            <p className="text-xs text-white/30">
+              &copy; {new Date().getFullYear()} MederBuy. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
