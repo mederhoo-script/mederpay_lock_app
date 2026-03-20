@@ -27,9 +27,9 @@ export default function FeeTiersPage() {
   })
 
   const fetchTiers = async () => {
-    const res = await fetch('/api/fees/calculate')
+    const res = await fetch('/api/fees/tiers')
     const data = await res.json()
-    setTiers(data.tiers ?? data ?? [])
+    setTiers(data.tiers ?? [])
     setLoading(false)
   }
 
@@ -44,7 +44,7 @@ export default function FeeTiersPage() {
       max_price: data.max_price != null ? nairaToKobo(data.max_price) : null,
       fee_amount: nairaToKobo(data.fee_amount),
     }
-    const res = await fetch('/api/fees/calculate', {
+    const res = await fetch('/api/fees/tiers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -63,7 +63,7 @@ export default function FeeTiersPage() {
   const deleteTier = async (id: string) => {
     if (!confirm('Delete this fee tier?')) return
     setDeleting(id)
-    await fetch(`/api/fees/calculate?id=${id}`, { method: 'DELETE' })
+    await fetch(`/api/fees/tiers?id=${id}`, { method: 'DELETE' })
     setDeleting(null)
     fetchTiers()
   }
