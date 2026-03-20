@@ -43,6 +43,106 @@
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
   }
 
+  /* ─── AMOLED THEME (pure black) ───────────────────────────────────── */
+  html.amoled {
+    --bg-primary: #000000;
+    --bg-card: #0a0a0a;
+    --bg-sidebar: #000000;
+    --bg-hover: #111111;
+    --accent: #7c3aed;
+    --accent-hover: #6d28d9;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --info: #3B82F6;
+    --text-primary: #ffffff;
+    --text-secondary: #a1a1aa;
+    --border: rgba(255, 255, 255, 0.06);
+    --input-bg: #050505;
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.8);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ─── SEPIA THEME (reading) ───────────────────────────────────────── */
+  html.sepia {
+    --bg-primary: #f4ede0;
+    --bg-card: #faf5ec;
+    --bg-sidebar: #ede0cc;
+    --bg-hover: #f8f2e6;
+    --accent: #a0522d;
+    --accent-hover: #8b3a1e;
+    --success: #5a7c3a;
+    --warning: #c07030;
+    --danger: #c0392b;
+    --info: #4a6fa5;
+    --text-primary: #3b2a1a;
+    --text-secondary: #7a6248;
+    --border: rgba(100, 70, 40, 0.15);
+    --input-bg: #faf5ec;
+    --shadow: 0 4px 24px rgba(80, 50, 20, 0.12);
+    --shadow-sm: 0 2px 8px rgba(80, 50, 20, 0.08);
+  }
+
+  /* ─── BLUE THEME (finance) ────────────────────────────────────────── */
+  html.blue {
+    --bg-primary: #0a1628;
+    --bg-card: #0f2040;
+    --bg-sidebar: #061020;
+    --bg-hover: #132848;
+    --accent: #1d6eff;
+    --accent-hover: #1557e0;
+    --success: #00c07a;
+    --warning: #f5a623;
+    --danger: #ff4757;
+    --info: #54a0ff;
+    --text-primary: #e8f0ff;
+    --text-secondary: #7a9bc8;
+    --border: rgba(100, 150, 255, 0.12);
+    --input-bg: #081530;
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  /* ─── GREEN THEME (health/fintech) ───────────────────────────────── */
+  html.green {
+    --bg-primary: #071a0f;
+    --bg-card: #0c2418;
+    --bg-sidebar: #050e08;
+    --bg-hover: #0f2e20;
+    --accent: #22c55e;
+    --accent-hover: #16a34a;
+    --success: #4ade80;
+    --warning: #facc15;
+    --danger: #f87171;
+    --info: #38bdf8;
+    --text-primary: #e8fdf0;
+    --text-secondary: #6db88a;
+    --border: rgba(34, 197, 94, 0.12);
+    --input-bg: #050e08;
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  /* ─── PURPLE THEME (modern SaaS) ─────────────────────────────────── */
+  html.purple {
+    --bg-primary: #0f0720;
+    --bg-card: #170a30;
+    --bg-sidebar: #08031a;
+    --bg-hover: #1e0d3e;
+    --accent: #a855f7;
+    --accent-hover: #9333ea;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --info: #60a5fa;
+    --text-primary: #f3e8ff;
+    --text-secondary: #a78bce;
+    --border: rgba(168, 85, 247, 0.15);
+    --input-bg: #0a0318;
+    --shadow: 0 4px 24px rgba(100, 0, 200, 0.2);
+    --shadow-sm: 0 2px 8px rgba(100, 0, 200, 0.12);
+  }
+
   * {
     box-sizing: border-box;
     margin: 0;

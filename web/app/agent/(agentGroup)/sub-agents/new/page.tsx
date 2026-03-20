@@ -41,6 +41,7 @@ export default function NewSubAgentPage() {
       username: data.username || undefined,
       phone: data.phone || undefined,
       address: data.address || undefined,
+      password: data.password || undefined,
     }
     const res = await fetch('/api/sub-agents', {
       method: 'POST',
@@ -133,6 +134,12 @@ export default function NewSubAgentPage() {
               <input type="text" className="input" placeholder="123 Main St, Lagos" {...register('address')} />
               {errors.address && <span className="field-error">{errors.address.message}</span>}
             </div>
+          </div>
+
+          <div className="form-group">
+            <label className="label">Password <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(optional — auto-generated if left blank)</span></label>
+            <input type="password" className="input" placeholder="Min. 8 characters" autoComplete="new-password" {...register('password')} />
+            {errors.password && <span className="field-error">{errors.password.message}</span>}
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem' }}>

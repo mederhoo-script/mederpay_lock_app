@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatNaira } from '@/lib/utils'
-import { ShoppingBag } from 'lucide-react'
+import { ShoppingBag, Plus } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,6 +33,10 @@ export default async function SubagentSalesPage() {
           <h1>My Sales</h1>
           <p>Sales you have processed</p>
         </div>
+        <Link href="/subagent/sales/new" className="btn btn-primary btn-sm">
+          <Plus size={15} />
+          New Sale
+        </Link>
       </div>
 
       <div className="card" style={{ padding: 0 }}>

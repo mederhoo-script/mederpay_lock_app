@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, ShoppingBag, ScrollText, LogOut, Menu, X, Smartphone, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, ScrollText, LogOut, Menu, X, Smartphone, ChevronRight, Settings } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface SidebarProps {
@@ -14,6 +14,7 @@ const navItems = [
   { label: 'Dashboard', href: '/subagent/dashboard', icon: LayoutDashboard },
   { label: 'Sales', href: '/subagent/sales', icon: ShoppingBag },
   { label: 'Logs', href: '/subagent/logs', icon: ScrollText },
+  { label: 'Settings', href: '/subagent/settings', icon: Settings },
 ]
 
 export default function SubagentSidebar({ user }: SidebarProps) {
@@ -30,10 +31,12 @@ export default function SubagentSidebar({ user }: SidebarProps) {
   const sidebarContent = (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '1rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.25rem 0.5rem', marginBottom: '1.5rem' }}>
-        <div style={{ width: '2rem', height: '2rem', borderRadius: '8px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Smartphone size={14} color="white" />
-        </div>
-        <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>MederBuy</span>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
+          <div style={{ width: '2rem', height: '2rem', borderRadius: '8px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Smartphone size={14} color="white" />
+          </div>
+          <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>MederBuy</span>
+        </Link>
       </div>
 
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>

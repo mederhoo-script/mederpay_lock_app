@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { full_name, email, username, phone, address } = parsed.data
+  const { full_name, email, username, phone, address, password } = parsed.data
 
   // Check if email already exists in profiles
   const { data: existingProfile } = await supabase
@@ -125,11 +125,12 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Generate a temporary password — agent should share this with the sub-agent
-  const tempPassword =
-    Math.random().toString(36).slice(2, 10) +
-    Math.random().toString(36).slice(2, 10).toUpperCase() +
-    '!1'
+  // Use agent-provided password or generate a temporary one
+  const tempPassword = (password && password.length >= 8)
+    ? password
+    : Math.random().toString(36).slice(2, 10) +
+      Math.random().toString(36).slice(2, 10).toUpperCase() +
+      '!1'
 
   // Use the service role client so auth.admin.createUser() has the necessary privileges
   const serviceSupabase = createServiceClient()
