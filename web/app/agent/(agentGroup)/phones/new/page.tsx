@@ -1,251 +1,127 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
-import { ArrowLeft, Smartphone } from 'lucide-react'
 import { AddPhoneSchema, type AddPhoneInput } from '@/lib/validations'
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function Field({
-  label,
-  hint,
-  error,
-  children,
-}: {
-  label: string
-  hint?: string
-  error?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-sm text-white/60">{label}</label>
-      {children}
-      {hint && !error && <p className="text-xs text-white/30">{hint}</p>}
-      {error && <p className="text-xs text-red-400">{error}</p>}
-    </div>
-  )
-}
-
-const INPUT_CLASS =
-  'w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]'
-
-function NumberField({
-  label,
-  hint,
-  error,
-  ...props
-}: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'className'> & {
-  label: string
-  hint?: string
-  error?: string
-}) {
-  return (
-    <Field label={label} hint={hint} error={error}>
-      <input
-        type="number"
-        step="1"
-        min="0"
-        {...props}
-        className={INPUT_CLASS}
-      />
-    </Field>
-  )
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+import { nairaToKobo } from '@/lib/utils'
+import { ArrowLeft } from 'lucide-react'
+import { useToast } from '@/components/Toast'
 
 export default function NewPhonePage() {
   const router = useRouter()
-  const [saving, setSaving] = useState(false)
-
+  const toast = useToast()
   const {
     register,
     handleSubmit,
-    watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<AddPhoneInput>({
     resolver: zodResolver(AddPhoneSchema),
-    defaultValues: {
-      payment_weeks: 12,
-      down_payment: 0,
-    },
+    defaultValues: { payment_weeks: 12, down_payment: 0 },
   })
 
-  const sellingPrice = watch('selling_price') ?? 0
-  const downPayment  = watch('down_payment') ?? 0
-  const weeks        = watch('payment_weeks') ?? 12
-  const weeklyPayment = weeks > 0 ? Math.ceil((sellingPrice - downPayment) / weeks) : 0
-
-  async function onSubmit(values: AddPhoneInput) {
-    setSaving(true)
-    try {
-      const res = await fetch('/api/phones', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error ?? 'Failed to add phone')
-        return
-      }
-
-      toast.success('Phone added to inventory')
-      router.push('/agent/phones')
-    } catch {
-      toast.error('An unexpected error occurred')
-    } finally {
-      setSaving(false)
+  const onSubmit = async (data: AddPhoneInput) => {
+    const payload = {
+      ...data,
+      cost_price: nairaToKobo(data.cost_price),
+      selling_price: nairaToKobo(data.selling_price),
+      down_payment: nairaToKobo(data.down_payment),
     }
+    const res = await fetch('/api/phones', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}))
+      toast.error(json.error ?? 'Failed to add phone.', 'Error')
+      return
+    }
+    toast.success('Phone added to inventory!', 'Phone added')
+    router.push('/agent/phones')
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-xl space-y-6">
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Phones
-      </button>
-
-      <div>
-        <h1 className="text-2xl font-bold text-white">Add Phone to Inventory</h1>
-        <p className="text-sm text-white/50 mt-1">Register a new device for BNPL sale</p>
+    <div>
+      <div className="page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link href="/agent/phones" className="btn btn-ghost btn-sm"><ArrowLeft size={16} /></Link>
+          <div>
+            <h1>Add New Phone</h1>
+            <p>Register a phone to your inventory</p>
+          </div>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Device Info */}
-        <div className="gold-panel p-6 space-y-5">
-          <h2 className="font-semibold text-white flex items-center gap-2">
-            <Smartphone className="w-4 h-4 text-[#2563EB]" />
-            Device Information
-          </h2>
-
-          <Field label="IMEI Number *" hint="15-digit IMEI from the box or dial *#06#" error={errors.imei?.message}>
-            <input
-              {...register('imei')}
-              type="text"
-              maxLength={15}
-              placeholder="e.g. 357298060033426"
-              className={INPUT_CLASS}
-            />
-          </Field>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Brand *" error={errors.brand?.message}>
-              <input
-                {...register('brand')}
-                type="text"
-                placeholder="e.g. Samsung"
-                className={INPUT_CLASS}
-              />
-            </Field>
-            <Field label="Model *" error={errors.model?.message}>
-              <input
-                {...register('model')}
-                type="text"
-                placeholder="e.g. Galaxy A54"
-                className={INPUT_CLASS}
-              />
-            </Field>
+      <div className="card" style={{ maxWidth: '640px' }}>
+        <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div className="form-group">
+            <label className="label">IMEI (15 digits)</label>
+            <input type="text" className="input" placeholder="123456789012345" maxLength={15} {...register('imei')} />
+            {errors.imei && <span className="field-error">{errors.imei.message}</span>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Storage" error={errors.storage?.message}>
-              <input
-                {...register('storage')}
-                type="text"
-                placeholder="e.g. 128GB"
-                className={INPUT_CLASS}
-              />
-            </Field>
-            <Field label="Color" error={errors.color?.message}>
-              <input
-                {...register('color')}
-                type="text"
-                placeholder="e.g. Graphite"
-                className={INPUT_CLASS}
-              />
-            </Field>
-          </div>
-        </div>
-
-        {/* Pricing */}
-        <div className="gold-panel p-6 space-y-5">
-          <h2 className="font-semibold text-white">Pricing & Payment Plan</h2>
-
-          <div className="grid grid-cols-2 gap-4">
-            <NumberField
-              {...register('cost_price', { valueAsNumber: true })}
-              label="Cost Price (₦) *"
-              placeholder="0"
-              error={errors.cost_price?.message}
-            />
-            <NumberField
-              {...register('selling_price', { valueAsNumber: true })}
-              label="Selling Price (₦) *"
-              placeholder="0"
-              error={errors.selling_price?.message}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <NumberField
-              {...register('down_payment', { valueAsNumber: true })}
-              label="Down Payment (₦)"
-              placeholder="0"
-              error={errors.down_payment?.message}
-            />
-            <NumberField
-              {...register('payment_weeks', { valueAsNumber: true })}
-              label="Payment Weeks *"
-              placeholder="12"
-              min="1"
-              max="104"
-              error={errors.payment_weeks?.message}
-            />
-          </div>
-
-          {/* Computed weekly */}
-          {sellingPrice > 0 && (
-            <div className="rounded-lg bg-[#2563EB]/10 border border-[#2563EB]/20 px-4 py-3 flex items-center justify-between">
-              <span className="text-sm text-white/60">Computed weekly payment</span>
-              <span className="text-sm font-bold text-[#2563EB]">
-                ₦{weeklyPayment.toLocaleString('en-NG')}/week × {weeks} weeks
-              </span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Brand</label>
+              <input type="text" className="input" placeholder="Samsung" {...register('brand')} />
+              {errors.brand && <span className="field-error">{errors.brand.message}</span>}
             </div>
-          )}
-        </div>
+            <div className="form-group">
+              <label className="label">Model</label>
+              <input type="text" className="input" placeholder="Galaxy A54" {...register('model')} />
+              {errors.model && <span className="field-error">{errors.model.message}</span>}
+            </div>
+          </div>
 
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="px-4 py-2.5 text-sm font-medium text-white/60 hover:text-white rounded-lg border border-white/10 hover:bg-white/5 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
-          >
-            <Smartphone className="w-4 h-4" />
-            {saving ? 'Adding…' : 'Add Phone'}
-          </button>
-        </div>
-      </form>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Storage (optional)</label>
+              <input type="text" className="input" placeholder="128GB" {...register('storage')} />
+            </div>
+            <div className="form-group">
+              <label className="label">Color (optional)</label>
+              <input type="text" className="input" placeholder="Black" {...register('color')} />
+            </div>
+          </div>
+
+          <div className="divider" />
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Cost Price (₦)</label>
+              <input type="number" className="input" placeholder="80000" min={0} step={0.01} {...register('cost_price', { valueAsNumber: true })} />
+              {errors.cost_price && <span className="field-error">{errors.cost_price.message}</span>}
+            </div>
+            <div className="form-group">
+              <label className="label">Selling Price (₦)</label>
+              <input type="number" className="input" placeholder="120000" min={0} step={0.01} {...register('selling_price', { valueAsNumber: true })} />
+              {errors.selling_price && <span className="field-error">{errors.selling_price.message}</span>}
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Down Payment (₦)</label>
+              <input type="number" className="input" placeholder="20000" min={0} step={0.01} {...register('down_payment', { valueAsNumber: true })} />
+              {errors.down_payment && <span className="field-error">{errors.down_payment.message}</span>}
+            </div>
+            <div className="form-group">
+              <label className="label">Payment Weeks</label>
+              <input type="number" className="input" placeholder="12" min={1} {...register('payment_weeks', { valueAsNumber: true })} />
+              {errors.payment_weeks && <span className="field-error">{errors.payment_weeks.message}</span>}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? <><span className="spinner" /> Adding…</> : 'Add Phone'}
+            </button>
+            <Link href="/agent/phones" className="btn btn-secondary">Cancel</Link>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

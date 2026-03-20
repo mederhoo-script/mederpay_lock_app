@@ -1,99 +1,76 @@
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { formatNaira } from '@/lib/utils'
+import { Smartphone } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'All Phones | MederBuy Admin' }
 
-interface PhoneRow {
-  id: string
-  imei: string
-  brand: string
-  model: string
-  status: string
-  selling_price: number
-  profiles: Array<{ full_name: string }> | { full_name: string } | null
-}
-
-function getAgentName(phone: PhoneRow): string {
-  if (!phone.profiles) return '—'
-  if (Array.isArray(phone.profiles)) return phone.profiles[0]?.full_name ?? '—'
-  return phone.profiles.full_name
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  available: 'bg-emerald-900/30 text-emerald-400',
-  sold: 'bg-blue-900/30 text-blue-400',
-  locked: 'bg-red-900/30 text-red-400',
-  unlocked: 'bg-green-900/30 text-green-400',
-  returned: 'bg-white/10 text-white/50',
+function StatusBadge({ status }: { status: string }) {
+  const cls =
+    status === 'available' ? 'badge-success' :
+    status === 'sold' ? 'badge-info' :
+    status === 'locked' ? 'badge-danger' : 'badge-neutral'
+  return <span className={`badge ${cls}`}>{status}</span>
 }
 
 export default async function SuperadminPhonesPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: phones } = await supabase
     .from('phones')
-    .select('id, imei, brand, model, status, selling_price, profiles(full_name)')
+    .select('id, imei, brand, model, status, selling_price, created_at, profiles(full_name, email)')
     .order('created_at', { ascending: false })
-    .limit(200)
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">All Phones</h1>
-        <p className="text-sm text-white/50 mt-1">
-          Full phone inventory across all agents
-        </p>
+    <div>
+      <div className="page-header">
+        <div>
+          <h1>All Phones</h1>
+          <p>All phones across all agents</p>
+        </div>
       </div>
 
-      <div className="rounded-xl border border-white/10 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-white/10 bg-white/5">
-              <th className="px-4 py-3 text-left font-medium text-white/50">IMEI</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Phone</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Agent</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Price</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {phones && phones.length > 0 ? (
-              (phones as unknown as PhoneRow[]).map((phone) => (
-                <tr key={phone.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-3 font-mono text-white/70 text-xs">{phone.imei}</td>
-                  <td className="px-4 py-3 text-white">
-                    {phone.brand} {phone.model}
-                  </td>
-                  <td className="px-4 py-3 text-white/60">
-                    {getAgentName(phone)}
-                  </td>
-                  <td className="px-4 py-3 text-white">{formatNaira(phone.selling_price)}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                        STATUS_COLORS[phone.status] ?? 'bg-white/10 text-white/60'
-                      }`}
-                    >
-                      {phone.status}
-                    </span>
-                  </td>
+      <div className="card" style={{ padding: 0 }}>
+        {phones && phones.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>IMEI</th>
+                  <th>Brand / Model</th>
+                  <th>Agent</th>
+                  <th>Status</th>
+                  <th>Selling Price</th>
+                  <th>Added</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="px-4 py-16 text-center text-white/30">
-                  No phones registered on the platform yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {phones.map((phone) => {
+                  const profile = Array.isArray(phone.profiles) ? phone.profiles[0] : phone.profiles
+                  return (
+                    <tr key={phone.id}>
+                      <td style={{ fontFamily: 'monospace', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>{phone.imei}</td>
+                      <td style={{ fontWeight: 500 }}>{phone.brand} {phone.model}</td>
+                      <td style={{ color: 'var(--text-secondary)' }}>{profile?.full_name ?? profile?.email ?? '—'}</td>
+                      <td><StatusBadge status={phone.status ?? 'available'} /></td>
+                      <td>{formatNaira(phone.selling_price ?? 0)}</td>
+                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
+                        {new Date(phone.created_at).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="empty-state">
+            <Smartphone size={32} />
+            <p>No phones registered yet.</p>
+          </div>
+        )}
       </div>
     </div>
   )
