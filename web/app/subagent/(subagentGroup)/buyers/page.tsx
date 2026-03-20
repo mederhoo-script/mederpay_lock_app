@@ -52,6 +52,7 @@ export default function SubagentBuyersPage() {
                   <th>Name</th>
                   <th>Phone</th>
                   <th>Email</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -60,6 +61,9 @@ export default function SubagentBuyersPage() {
                     <td style={{ fontWeight: 500 }}>{buyer.full_name}</td>
                     <td style={{ color: 'var(--text-secondary)' }}>{buyer.phone}</td>
                     <td style={{ color: 'var(--text-secondary)' }}>{buyer.email ?? '—'}</td>
+                    <td>
+                      <Link href={`/subagent/buyers/${buyer.id}`} className="btn btn-ghost btn-sm">View</Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>

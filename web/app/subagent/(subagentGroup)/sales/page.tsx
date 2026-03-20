@@ -44,7 +44,7 @@ export default async function SubagentSalesPage() {
           <div style={{ overflowX: 'auto' }}>
             <table className="data-table">
               <thead>
-                <tr><th>Buyer</th><th>Phone</th><th>Status</th><th>Selling Price</th><th>Total Paid</th><th>Date</th></tr>
+                <tr><th>Buyer</th><th>Phone</th><th>Status</th><th>Selling Price</th><th>Total Paid</th><th>Date</th><th>Actions</th></tr>
               </thead>
               <tbody>
                 {sales.map((sale) => {
@@ -62,6 +62,9 @@ export default async function SubagentSalesPage() {
                       <td style={{ color: 'var(--success)' }}>{formatNaira(sale.total_paid ?? 0)}</td>
                       <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
                         {new Date(sale.created_at).toLocaleDateString()}
+                      </td>
+                      <td>
+                        <Link href={`/subagent/sales/${sale.id}`} className="btn btn-ghost btn-sm">View</Link>
                       </td>
                     </tr>
                   )
