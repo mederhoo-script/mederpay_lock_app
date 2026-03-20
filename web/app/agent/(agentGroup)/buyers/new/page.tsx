@@ -1,16 +1,16 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RegisterBuyerSchema, type RegisterBuyerInput } from '@/lib/validations'
 import { ArrowLeft } from 'lucide-react'
+import { useToast } from '@/components/Toast'
 
 export default function NewBuyerPage() {
   const router = useRouter()
-  const [serverError, setServerError] = useState('')
+  const toast = useToast()
   const {
     register,
     handleSubmit,
@@ -18,7 +18,6 @@ export default function NewBuyerPage() {
   } = useForm<RegisterBuyerInput>({ resolver: zodResolver(RegisterBuyerSchema) })
 
   const onSubmit = async (data: RegisterBuyerInput) => {
-    setServerError('')
     const payload = {
       ...data,
       email: data.email || undefined,
@@ -33,9 +32,10 @@ export default function NewBuyerPage() {
     })
     if (!res.ok) {
       const json = await res.json().catch(() => ({}))
-      setServerError(json.error ?? 'Failed to register buyer.')
+      toast.error(json.error ?? 'Failed to register buyer.', 'Registration failed')
       return
     }
+    toast.success('Buyer registered successfully!', 'Buyer created')
     router.push('/agent/buyers')
   }
 
@@ -52,9 +52,6 @@ export default function NewBuyerPage() {
       </div>
 
       <div className="card" style={{ maxWidth: '560px' }}>
-        {serverError && (
-          <div className="alert alert-error" style={{ marginBottom: '1.25rem' }}>{serverError}</div>
-        )}
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>

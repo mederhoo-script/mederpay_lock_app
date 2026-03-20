@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { ArrowLeft } from 'lucide-react'
 import { use } from 'react'
+import { useToast } from '@/components/Toast'
 
 interface EditFormData {
   brand: string
@@ -24,7 +25,7 @@ interface PhoneData {
 export default function EditPhonePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
-  const [serverError, setServerError] = useState('')
+  const toast = useToast()
   const [loading, setLoading] = useState(true)
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<EditFormData>()
@@ -47,7 +48,6 @@ export default function EditPhonePage({ params }: { params: Promise<{ id: string
   }, [id, reset])
 
   const onSubmit = async (data: EditFormData) => {
-    setServerError('')
     const res = await fetch(`/api/phones/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -55,9 +55,10 @@ export default function EditPhonePage({ params }: { params: Promise<{ id: string
     })
     if (!res.ok) {
       const json = await res.json().catch(() => ({}))
-      setServerError(json.error ?? 'Failed to update phone.')
+      toast.error(json.error ?? 'Failed to update phone.', 'Update failed')
       return
     }
+    toast.success('Phone updated successfully!', 'Phone updated')
     router.push(`/agent/phones/${id}`)
   }
 
@@ -82,9 +83,6 @@ export default function EditPhonePage({ params }: { params: Promise<{ id: string
       </div>
 
       <div className="card" style={{ maxWidth: '480px' }}>
-        {serverError && (
-          <div className="alert alert-error" style={{ marginBottom: '1.25rem' }}>{serverError}</div>
-        )}
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="form-group">

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CheckCircle, XCircle, Clock } from 'lucide-react'
+import { useToast } from '@/components/Toast'
 
 interface Props {
   agentId: string
@@ -11,13 +12,12 @@ interface Props {
 
 export default function AgentStatusActions({ agentId, currentStatus }: Props) {
   const router = useRouter()
+  const toast = useToast()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
   const setStatus = async (status: 'active' | 'suspended' | 'pending') => {
     if (!confirm(`Set agent status to "${status}"?`)) return
     setLoading(true)
-    setError('')
     const res = await fetch(`/api/agents/${agentId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -26,15 +26,15 @@ export default function AgentStatusActions({ agentId, currentStatus }: Props) {
     setLoading(false)
     if (!res.ok) {
       const json = await res.json().catch(() => ({}))
-      setError(json.error ?? 'Failed to update status.')
+      toast.error(json.error ?? 'Failed to update status.', 'Update failed')
       return
     }
+    toast.success(`Agent status set to "${status}".`, 'Status updated')
     router.refresh()
   }
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-      {error && <span style={{ color: 'var(--danger)', fontSize: '0.875rem' }}>{error}</span>}
       {currentStatus !== 'active' && (
         <button
           onClick={() => setStatus('active')}

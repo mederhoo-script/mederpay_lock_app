@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { z } from 'zod'
+import { useToast } from '@/components/Toast'
 
 const ForgotPasswordSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -13,14 +14,13 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const toast = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
     const parsed = ForgotPasswordSchema.safeParse({ email })
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Invalid email')
+      toast.error(parsed.error.issues[0]?.message ?? 'Invalid email', 'Validation error')
       return
     }
     setLoading(true)
@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
     })
     setLoading(false)
     if (supabaseError) {
-      setError(supabaseError.message)
+      toast.error(supabaseError.message, 'Request failed')
       return
     }
     setSubmitted(true)
@@ -85,8 +85,6 @@ export default function ForgotPasswordPage() {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
                 Enter your email address and we&apos;ll send you a link to reset your password.
               </p>
-
-              {error && <div className="alert alert-error" style={{ marginBottom: '1rem' }}>{error}</div>}
 
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div className="form-group">

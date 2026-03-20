@@ -1,16 +1,16 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginSchema, type LoginInput } from '@/lib/validations'
 import { createClient } from '@/lib/supabase/client'
+import { useToast } from '@/components/Toast'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [serverError, setServerError] = useState('')
+  const toast = useToast()
   const {
     register,
     handleSubmit,
@@ -18,24 +18,24 @@ export default function LoginPage() {
   } = useForm<LoginInput>({ resolver: zodResolver(LoginSchema) })
 
   const onSubmit = async (data: LoginInput) => {
-    setServerError('')
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     })
     if (error) {
-      setServerError(error.message)
+      toast.error(error.message, 'Sign-in failed')
       return
     }
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setServerError('Authentication failed.'); return }
+    if (!user) { toast.error('Authentication failed.', 'Sign-in failed'); return }
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single()
     const role = profile?.role
+    toast.success('Welcome back!', 'Signed in')
     if (role === 'superadmin') router.push('/superadmin/dashboard')
     else if (role === 'subagent') router.push('/subagent/dashboard')
     else router.push('/agent/dashboard')
@@ -78,15 +78,6 @@ export default function LoginPage() {
           <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
             Sign in to your account
           </h2>
-
-          {serverError && (
-            <div className="alert alert-error" style={{ marginBottom: '1.25rem' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              {serverError}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div className="form-group">

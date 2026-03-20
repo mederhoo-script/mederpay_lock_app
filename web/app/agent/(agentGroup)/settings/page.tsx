@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AgentSettingsSchema, type AgentSettingsInput } from '@/lib/validations'
+import { useToast } from '@/components/Toast'
 
 const GATEWAYS = [
   { value: 'monnify', label: 'Monnify' },
@@ -15,9 +16,8 @@ const GATEWAYS = [
 export default function AgentSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [serverError, setServerError] = useState('')
   const [gateway, setGateway] = useState('')
+  const toast = useToast()
 
   const {
     register,
@@ -46,8 +46,6 @@ export default function AgentSettingsPage() {
 
   const onSubmit = async (data: AgentSettingsInput) => {
     setSaving(true)
-    setServerError('')
-    setSuccess(false)
     const res = await fetch('/api/agent/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -56,11 +54,10 @@ export default function AgentSettingsPage() {
     setSaving(false)
     if (!res.ok) {
       const json = await res.json().catch(() => ({}))
-      setServerError(json.error ?? 'Failed to save settings.')
+      toast.error(json.error ?? 'Failed to save settings.', 'Save failed')
       return
     }
-    setSuccess(true)
-    setTimeout(() => setSuccess(false), 3000)
+    toast.success('Settings saved successfully!', 'Settings saved')
   }
 
   if (loading) {
@@ -81,9 +78,6 @@ export default function AgentSettingsPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '640px' }}>
-        {serverError && <div className="alert alert-error">{serverError}</div>}
-        {success && <div className="alert alert-success">Settings saved successfully!</div>}
-
         {/* Profile Section */}
         <div className="card">
           <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.25rem' }}>Profile</h2>

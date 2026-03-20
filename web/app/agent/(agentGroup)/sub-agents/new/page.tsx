@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CreateSubAgentSchema, type CreateSubAgentInput } from '@/lib/validations'
 import { ArrowLeft, Copy, CheckCheck } from 'lucide-react'
+import { useToast } from '@/components/Toast'
 
 interface CreatedSubAgent {
   full_name: string
@@ -16,7 +17,7 @@ interface CreatedSubAgent {
 
 export default function NewSubAgentPage() {
   const router = useRouter()
-  const [serverError, setServerError] = useState('')
+  const toast = useToast()
   const [created, setCreated] = useState<CreatedSubAgent | null>(null)
   const [copied, setCopied] = useState(false)
 
@@ -34,7 +35,6 @@ export default function NewSubAgentPage() {
   } = useForm<CreateSubAgentInput>({ resolver: zodResolver(CreateSubAgentSchema) })
 
   const onSubmit = async (data: CreateSubAgentInput) => {
-    setServerError('')
     const res = await fetch('/api/sub-agents', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -42,9 +42,10 @@ export default function NewSubAgentPage() {
     })
     const json = await res.json()
     if (!res.ok) {
-      setServerError(json.error ?? 'Failed to create sub-agent.')
+      toast.error(json.error ?? 'Failed to create sub-agent.', 'Creation failed')
       return
     }
+    toast.success('Sub-agent account created!', 'Sub-agent created')
     setCreated({
       full_name: data.full_name,
       email: data.email,
@@ -57,9 +58,6 @@ export default function NewSubAgentPage() {
       <div>
         <div className="page-header"><h1>Sub-Agent Created!</h1></div>
         <div className="card" style={{ maxWidth: '480px' }}>
-          <div className="alert alert-success" style={{ marginBottom: '1.25rem' }}>
-            Sub-agent account created successfully.
-          </div>
           <div className="detail-row"><span className="detail-key">Name</span><span className="detail-value">{created.full_name}</span></div>
           <div className="detail-row"><span className="detail-key">Email</span><span className="detail-value">{created.email}</span></div>
           <div className="detail-row">
@@ -98,9 +96,6 @@ export default function NewSubAgentPage() {
       </div>
 
       <div className="card" style={{ maxWidth: '480px' }}>
-        {serverError && (
-          <div className="alert alert-error" style={{ marginBottom: '1.25rem' }}>{serverError}</div>
-        )}
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div className="form-group">
             <label className="label">Full Name</label>
