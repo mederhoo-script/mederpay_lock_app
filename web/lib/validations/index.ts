@@ -63,7 +63,9 @@ export const AgentSettingsSchema = z.object({
 export const CreateSubAgentSchema = z.object({
   full_name: z.string().min(2, 'Full name is required'),
   email: z.string().email('Invalid email address'),
-  phone: z.string().min(10, 'Invalid phone number'),
+  username: z.string().min(3, 'Username must be at least 3 characters').max(30).regex(/^[a-z0-9_]+$/, 'Lowercase letters, numbers, underscores only').optional().or(z.literal('')),
+  phone: z.string().min(10, 'Invalid phone number').optional().or(z.literal('')),
+  address: z.string().optional().or(z.literal('')),
 })
 
 export const FeeTierSchema = z.object({

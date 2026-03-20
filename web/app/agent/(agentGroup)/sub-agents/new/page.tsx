@@ -35,10 +35,17 @@ export default function NewSubAgentPage() {
   } = useForm<CreateSubAgentInput>({ resolver: zodResolver(CreateSubAgentSchema) })
 
   const onSubmit = async (data: CreateSubAgentInput) => {
+    const payload = {
+      full_name: data.full_name,
+      email: data.email,
+      username: data.username || undefined,
+      phone: data.phone || undefined,
+      address: data.address || undefined,
+    }
     const res = await fetch('/api/sub-agents', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     })
     const json = await res.json()
     if (!res.ok) {
@@ -95,22 +102,37 @@ export default function NewSubAgentPage() {
         </div>
       </div>
 
-      <div className="card" style={{ maxWidth: '480px' }}>
+      <div className="card" style={{ maxWidth: '640px' }}>
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div className="form-group">
-            <label className="label">Full Name</label>
-            <input type="text" className="input" placeholder="Jane Doe" {...register('full_name')} />
-            {errors.full_name && <span className="field-error">{errors.full_name.message}</span>}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Full Name <span style={{ color: 'var(--danger)' }}>*</span></label>
+              <input type="text" className="input" placeholder="Jane Doe" {...register('full_name')} />
+              {errors.full_name && <span className="field-error">{errors.full_name.message}</span>}
+            </div>
+            <div className="form-group">
+              <label className="label">Username</label>
+              <input type="text" className="input" placeholder="jane_doe" {...register('username')} />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Lowercase, numbers, underscores only</span>
+              {errors.username && <span className="field-error">{errors.username.message}</span>}
+            </div>
           </div>
           <div className="form-group">
-            <label className="label">Email address</label>
+            <label className="label">Email address <span style={{ color: 'var(--danger)' }}>*</span></label>
             <input type="email" className="input" placeholder="jane@example.com" {...register('email')} />
             {errors.email && <span className="field-error">{errors.email.message}</span>}
           </div>
-          <div className="form-group">
-            <label className="label">Phone Number</label>
-            <input type="tel" className="input" placeholder="08012345678" {...register('phone')} />
-            {errors.phone && <span className="field-error">{errors.phone.message}</span>}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Phone Number</label>
+              <input type="tel" className="input" placeholder="08012345678" {...register('phone')} />
+              {errors.phone && <span className="field-error">{errors.phone.message}</span>}
+            </div>
+            <div className="form-group">
+              <label className="label">Address</label>
+              <input type="text" className="input" placeholder="123 Main St, Lagos" {...register('address')} />
+              {errors.address && <span className="field-error">{errors.address.message}</span>}
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem' }}>
