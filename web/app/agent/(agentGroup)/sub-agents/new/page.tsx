@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CreateSubAgentSchema, type CreateSubAgentInput } from '@/lib/validations'
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
+import { ArrowLeft, Copy, CheckCheck } from 'lucide-react'
 
 interface CreatedSubAgent {
   full_name: string
@@ -18,7 +18,15 @@ export default function NewSubAgentPage() {
   const router = useRouter()
   const [serverError, setServerError] = useState('')
   const [created, setCreated] = useState<CreatedSubAgent | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const copyPassword = () => {
+    if (!created) return
+    navigator.clipboard.writeText(created.temp_password).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
   const {
     register,
     handleSubmit,
@@ -57,11 +65,10 @@ export default function NewSubAgentPage() {
           <div className="detail-row">
             <span className="detail-key">Temporary Password</span>
             <span className="detail-value" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1rem' }}>
-                {showPassword ? created.temp_password : '••••••••'}
-              </span>
-              <button onClick={() => setShowPassword(!showPassword)} className="btn btn-ghost btn-sm" style={{ padding: '0.125rem 0.25rem' }} aria-label="Toggle password visibility">
-                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+              <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1rem' }}>••••••••</span>
+              <button onClick={copyPassword} className="btn btn-ghost btn-sm" style={{ padding: '0.125rem 0.375rem' }} aria-label="Copy password to clipboard">
+                {copied ? <CheckCheck size={14} color="var(--success)" /> : <Copy size={14} />}
+                <span style={{ fontSize: '0.75rem' }}>{copied ? 'Copied!' : 'Copy'}</span>
               </button>
             </span>
           </div>
