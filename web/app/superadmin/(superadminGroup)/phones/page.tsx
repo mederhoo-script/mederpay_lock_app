@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { formatNaira } from '@/lib/utils'
 import { Smartphone } from 'lucide-react'
 
@@ -18,7 +18,9 @@ export default async function SuperadminPhonesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: phones } = await supabase
+  // Use service client so RLS doesn't restrict phones to the requesting user
+  const db = createServiceClient()
+  const { data: phones } = await db
     .from('phones')
     .select('id, imei, brand, model, status, selling_price, created_at, profiles(full_name, email)')
     .order('created_at', { ascending: false })
