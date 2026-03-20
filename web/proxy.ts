@@ -57,16 +57,17 @@ export async function proxy(request: NextRequest) {
   }
 
   // ── 1. Public / landing paths ────────────────────────────────────────────
-  const isPublic = pathname === '/' ||
-    PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
+  // `/` redirects to `/login` via the root page component (app/page.tsx).
+  // We do NOT add it to public paths so authenticated users also reach the 404.
+  const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
 
   if (isPublic) {
-    // Authenticated users on login/register/root → send to their dashboard,
+    // Authenticated users on login/register → send to their dashboard,
     // but only when there is a real destination AND the account is active.
     // Skipping the redirect for missing-profile or inactive users prevents
     // the ERR_TOO_MANY_REDIRECTS loop where the RBAC block immediately
     // bounces them back to /login.
-    if (user && (pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === '/forgot-password')) {
+    if (user && (pathname === '/login' || pathname === '/register' || pathname === '/forgot-password')) {
       const { data: profile } = await supabase
         .from('profiles')
         .select('role, status')

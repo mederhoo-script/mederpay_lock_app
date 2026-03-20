@@ -1,158 +1,148 @@
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { formatNaira } from '@/lib/utils'
 import Link from 'next/link'
-import {
-  Users,
-  Clock,
-  Smartphone,
-  ShoppingBag,
-  AlertTriangle,
-  ChevronRight,
-} from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
+import { formatNaira } from '@/lib/utils'
+import { Users, Smartphone, ShoppingBag, DollarSign, UserCheck } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Superadmin Dashboard | MederBuy' }
+
+function StatusBadge({ status }: { status: string }) {
+  const cls =
+    status === 'active' ? 'badge-success' :
+    status === 'grace' ? 'badge-warning' :
+    status === 'locked' || status === 'lock' ? 'badge-danger' :
+    status === 'completed' ? 'badge-info' : 'badge-neutral'
+  return <span className={`badge ${cls}`}>{status}</span>
+}
 
 export default async function SuperadminDashboardPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Use service client for data queries so RLS does not filter out other users' records
+  const db = createServiceClient()
+
   const [
-    { count: activeAgents },
-    { count: pendingAgents },
+    { count: totalAgents },
+    { count: totalSubAgents },
     { count: totalPhones },
     { count: totalSales },
-    { data: recentFees },
+    { data: revenueRows },
+    { data: recentAgents },
+    { data: recentSales },
   ] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
+    db.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'agent'),
+    db.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'subagent'),
+    db.from('phones').select('*', { count: 'exact', head: true }),
+    db.from('phone_sales').select('*', { count: 'exact', head: true }),
+    db.from('phone_sales').select('total_paid'),
+    db.from('profiles')
+      .select('id, full_name, email, phone, status, created_at')
       .eq('role', 'agent')
-      .eq('status', 'active'),
-    supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .eq('role', 'agent')
-      .eq('status', 'pending'),
-    supabase.from('phones').select('*', { count: 'exact', head: true }),
-    supabase.from('phone_sales').select('*', { count: 'exact', head: true }),
-    supabase
-      .from('weekly_fees')
-      .select('total_fee, status')
-      .in('status', ['pending', 'overdue']),
+      .order('created_at', { ascending: false })
+      .limit(5),
+    db.from('phone_sales')
+      .select('id, status, selling_price, total_paid, created_at, buyers(full_name), phones(brand, model)')
+      .order('created_at', { ascending: false })
+      .limit(5),
   ])
 
-  const outstandingFees =
-    recentFees?.reduce((s, f) => s + (f.total_fee as number), 0) ?? 0
+  const totalRevenue = (revenueRows ?? []).reduce((sum, r) => sum + (r.total_paid ?? 0), 0)
 
   const stats = [
-    {
-      label: 'Active Agents',
-      value: activeAgents ?? 0,
-      Icon: Users,
-      iconColor: 'text-[#2563EB]',
-      iconBg: 'bg-[#2563EB]/12',
-    },
-    {
-      label: 'Pending Approval',
-      value: pendingAgents ?? 0,
-      Icon: Clock,
-      iconColor: 'text-[#F59E0B]',
-      iconBg: 'bg-[#F59E0B]/12',
-    },
-    {
-      label: 'Total Phones',
-      value: totalPhones ?? 0,
-      Icon: Smartphone,
-      iconColor: 'text-white/80',
-      iconBg: 'bg-white/8',
-    },
-    {
-      label: 'Total Sales',
-      value: totalSales ?? 0,
-      Icon: ShoppingBag,
-      iconColor: 'text-[#F59E0B]',
-      iconBg: 'bg-[#F59E0B]/12',
-    },
-  ]
-
-  const quickLinks = [
-    { label: 'Manage Agents', href: '/superadmin/agents' },
-    { label: 'View All Phones', href: '/superadmin/phones' },
-    { label: 'Fee Tiers', href: '/superadmin/fee-tiers' },
-    { label: 'All Payments', href: '/superadmin/payments' },
-    { label: 'Settings', href: '/superadmin/settings' },
+    { label: 'Total Agents', value: totalAgents ?? 0, icon: Users, color: 'var(--accent)', bg: 'rgba(99,102,241,0.12)' },
+    { label: 'Total Sub-Agents', value: totalSubAgents ?? 0, icon: UserCheck, color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
+    { label: 'Total Phones', value: totalPhones ?? 0, icon: Smartphone, color: 'var(--info)', bg: 'rgba(59,130,246,0.12)' },
+    { label: 'Total Sales', value: totalSales ?? 0, icon: ShoppingBag, color: 'var(--warning)', bg: 'rgba(245,158,11,0.12)' },
+    { label: 'Total Revenue', value: formatNaira(totalRevenue), icon: DollarSign, color: 'var(--success)', bg: 'rgba(16,185,129,0.12)' },
   ]
 
   return (
-    <div className="p-6 lg:p-8 space-y-8">
-      <div className="animate-fade-in-up">
-        <h1 className="text-2xl font-bold text-white">Superadmin Dashboard</h1>
-        <p className="text-sm text-white/50 mt-1">Platform-wide overview</p>
+    <div>
+      <div className="page-header">
+        <div>
+          <h1>Superadmin Dashboard</h1>
+          <p>Platform-wide overview</p>
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {stats.map((s, i) => (
-          <div
-            key={s.label}
-            className={`stat-card p-5 animate-fade-in-up`}
-            style={{ animationDelay: `${i * 60}ms` }}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/45">{s.label}</p>
-                <p className="text-3xl font-black mt-2.5 tabular-nums text-white">{s.value}</p>
-              </div>
-              <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${s.iconBg}`}>
-                <s.Icon className={`h-5 w-5 ${s.iconColor}`} />
-              </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        {stats.map(({ label, value, icon: Icon, color, bg }) => (
+          <div key={label} className="stat-card">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span className="stat-label">{label}</span>
+              <div className="stat-icon" style={{ background: bg }}><Icon size={16} color={color} /></div>
             </div>
+            <div className="stat-value">{value}</div>
           </div>
         ))}
       </div>
 
-      {/* Outstanding fees banner */}
-      {outstandingFees > 0 && (
-        <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/[0.06] p-5 flex items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-yellow-500/15 mt-0.5">
-              <AlertTriangle className="h-4.5 w-4.5 text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-yellow-400">Outstanding Platform Fees</p>
-              <p className="text-2xl font-bold text-white mt-1">{formatNaira(outstandingFees)}</p>
-            </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        {/* Recent Agents */}
+        <div className="card" style={{ padding: 0 }}>
+          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>Recent Agents</h2>
+            <Link href="/superadmin/agents" className="btn btn-ghost btn-sm">View all →</Link>
           </div>
-          <Link
-            href="/superadmin/fee-tiers"
-            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-yellow-500/15 text-yellow-400 text-sm font-semibold hover:bg-yellow-500/25 transition-colors"
-          >
-            View Fees <ChevronRight className="h-3.5 w-3.5" />
-          </Link>
+          {recentAgents && recentAgents.length > 0 ? (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="data-table">
+                <thead>
+                  <tr><th>Name</th><th>Status</th><th>Joined</th></tr>
+                </thead>
+                <tbody>
+                  {recentAgents.map((agent) => (
+                    <tr key={agent.id}>
+                      <td>
+                        <div style={{ fontWeight: 500 }}>{agent.full_name ?? '—'}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{agent.email}</div>
+                      </td>
+                      <td><span className={`badge ${agent.status === 'active' ? 'badge-success' : 'badge-danger'}`}>{agent.status ?? '—'}</span></td>
+                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>{new Date(agent.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="empty-state"><Users size={32} /><p>No agents yet.</p></div>
+          )}
         </div>
-      )}
 
-      {/* Quick links */}
-      <div>
-        <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-white/40 mb-4">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {quickLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0D1432] px-4 py-3.5 text-sm font-medium text-white/70 hover:bg-[#0D1432]/80 hover:border-[#F59E0B]/30 hover:text-white transition-colors group"
-            >
-              <span>{item.label}</span>
-              <ChevronRight className="h-3.5 w-3.5 text-white/25 group-hover:text-white/60 transition-colors" />
-            </Link>
-          ))}
+        {/* Recent Sales */}
+        <div className="card" style={{ padding: 0 }}>
+          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>Recent Sales</h2>
+            <Link href="/superadmin/sales" className="btn btn-ghost btn-sm">View all →</Link>
+          </div>
+          {recentSales && recentSales.length > 0 ? (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="data-table">
+                <thead>
+                  <tr><th>Buyer</th><th>Phone</th><th>Status</th><th>Total Paid</th></tr>
+                </thead>
+                <tbody>
+                  {recentSales.map((sale) => {
+                    const buyer = Array.isArray(sale.buyers) ? sale.buyers[0] : sale.buyers
+                    const phone = Array.isArray(sale.phones) ? sale.phones[0] : sale.phones
+                    return (
+                      <tr key={sale.id}>
+                        <td style={{ fontWeight: 500 }}>{buyer?.full_name ?? '—'}</td>
+                        <td style={{ color: 'var(--text-secondary)' }}>{phone ? `${phone.brand} ${phone.model}` : '—'}</td>
+                        <td><StatusBadge status={sale.status} /></td>
+                        <td style={{ color: 'var(--success)' }}>{formatNaira(sale.total_paid ?? 0)}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="empty-state"><ShoppingBag size={32} /><p>No sales yet.</p></div>
+          )}
         </div>
       </div>
     </div>

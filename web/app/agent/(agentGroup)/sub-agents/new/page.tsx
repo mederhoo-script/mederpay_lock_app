@@ -1,250 +1,156 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
-import { ArrowLeft, UserPlus, Copy, CheckCheck } from 'lucide-react'
 import { CreateSubAgentSchema, type CreateSubAgentInput } from '@/lib/validations'
+import { ArrowLeft, Copy, CheckCheck } from 'lucide-react'
+import { useToast } from '@/components/Toast'
+import PasswordInput from '@/components/PasswordInput'
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function Field({
-  label,
-  hint,
-  error,
-  children,
-}: {
-  label: string
-  hint?: string
-  error?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-sm text-white/60">{label}</label>
-      {children}
-      {hint && !error && <p className="text-xs text-white/30">{hint}</p>}
-      {error && <p className="text-xs text-red-400">{error}</p>}
-    </div>
-  )
-}
-
-const INPUT_CLASS =
-  'w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]'
-
-// ─── Success card ─────────────────────────────────────────────────────────────
-
-function SuccessCard({
-  fullName,
-  email,
-  tempPassword,
-  onDone,
-}: {
-  fullName: string
+interface CreatedSubAgent {
+  full_name: string
   email: string
-  tempPassword: string
-  onDone: () => void
-}) {
-  const [copied, setCopied] = useState(false)
-
-  function copyPassword() {
-    navigator.clipboard.writeText(tempPassword)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  return (
-    <div className="max-w-xl space-y-6">
-      <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-6 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-emerald-400/15 flex items-center justify-center">
-            <CheckCheck className="w-5 h-5 text-emerald-400" />
-          </div>
-          <div>
-            <p className="font-semibold text-white">Sub-agent created!</p>
-            <p className="text-sm text-white/50">{fullName} can now log in with the credentials below.</p>
-          </div>
-        </div>
-
-        <div className="space-y-3 pt-2 border-t border-white/10">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-white/50">Email</span>
-            <span className="text-sm text-white font-mono">{email}</span>
-          </div>
-          <div className="flex justify-between items-center gap-4">
-            <span className="text-sm text-white/50">Temp Password</span>
-            <div className="flex items-center gap-2">
-              <code className="text-sm text-[#F59E0B] font-mono bg-[#F59E0B]/10 px-2 py-1 rounded">
-                {tempPassword}
-              </code>
-              <button
-                onClick={copyPassword}
-                className="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-white/50 hover:text-white"
-              >
-                {copied ? (
-                  <CheckCheck className="w-4 h-4 text-emerald-400" />
-                ) : (
-                  <Copy className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <p className="text-xs text-[#F59E0B]/70 pt-1 border-t border-white/10">
-          Share these credentials with the sub-agent. They should change their password on first login.
-        </p>
-      </div>
-
-      <button
-        onClick={onDone}
-        className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
-      >
-        Back to Sub-Agents
-      </button>
-    </div>
-  )
+  temp_password: string
 }
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function NewSubAgentPage() {
   const router = useRouter()
-  const [saving, setSaving] = useState(false)
-  const [created, setCreated] = useState<{
-    fullName: string
-    email: string
-    tempPassword: string
-  } | null>(null)
+  const toast = useToast()
+  const [created, setCreated] = useState<CreatedSubAgent | null>(null)
+  const [copied, setCopied] = useState(false)
 
+  const copyPassword = () => {
+    if (!created) return
+    navigator.clipboard.writeText(created.temp_password).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<CreateSubAgentInput>({
-    resolver: zodResolver(CreateSubAgentSchema),
-  })
+    formState: { errors, isSubmitting },
+  } = useForm<CreateSubAgentInput>({ resolver: zodResolver(CreateSubAgentSchema) })
 
-  async function onSubmit(values: CreateSubAgentInput) {
-    setSaving(true)
-    try {
-      const res = await fetch('/api/sub-agents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error ?? 'Failed to create sub-agent')
-        return
-      }
-
-      setCreated({
-        fullName: values.full_name,
-        email: values.email,
-        tempPassword: data.temp_password,
-      })
-    } catch {
-      toast.error('An unexpected error occurred')
-    } finally {
-      setSaving(false)
+  const onSubmit = async (data: CreateSubAgentInput) => {
+    const payload = {
+      full_name: data.full_name,
+      email: data.email,
+      username: data.username || undefined,
+      phone: data.phone || undefined,
+      address: data.address || undefined,
+      password: data.password || undefined,
     }
+    const res = await fetch('/api/sub-agents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      toast.error(json.error ?? 'Failed to create sub-agent.', 'Creation failed')
+      return
+    }
+    toast.success('Sub-agent account created!', 'Sub-agent created')
+    setCreated({
+      full_name: data.full_name,
+      email: data.email,
+      temp_password: json.temp_password ?? json.password ?? '(see email)',
+    })
   }
 
   if (created) {
     return (
-      <div className="p-6 lg:p-8">
-        <SuccessCard
-          fullName={created.fullName}
-          email={created.email}
-          tempPassword={created.tempPassword}
-          onDone={() => router.push('/agent/sub-agents')}
-        />
+      <div>
+        <div className="page-header"><h1>Sub-Agent Created!</h1></div>
+        <div className="card" style={{ maxWidth: '480px' }}>
+          <div className="detail-row"><span className="detail-key">Name</span><span className="detail-value">{created.full_name}</span></div>
+          <div className="detail-row"><span className="detail-key">Email</span><span className="detail-value">{created.email}</span></div>
+          <div className="detail-row">
+            <span className="detail-key">Temporary Password</span>
+            <span className="detail-value" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1rem' }}>••••••••</span>
+              <button onClick={copyPassword} className="btn btn-ghost btn-sm" style={{ padding: '0.125rem 0.375rem' }} aria-label="Copy password to clipboard">
+                {copied ? <CheckCheck size={14} color="var(--success)" /> : <Copy size={14} />}
+                <span style={{ fontSize: '0.75rem' }}>{copied ? 'Copied!' : 'Copy'}</span>
+              </button>
+            </span>
+          </div>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--warning)', marginTop: '1rem', marginBottom: '1.25rem' }}>
+            ⚠ Share this password securely. The sub-agent should change it after first login.
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button onClick={() => { setCreated(null); router.push('/agent/sub-agents') }} className="btn btn-primary">
+              Done
+            </button>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-lg space-y-6">
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Sub-Agents
-      </button>
-
-      <div>
-        <h1 className="text-2xl font-bold text-white">Add Sub-Agent</h1>
-        <p className="text-sm text-white/50 mt-1">
-          Sub-agents can add buyers and record sales on your behalf.
-        </p>
+    <div>
+      <div className="page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link href="/agent/sub-agents" className="btn btn-ghost btn-sm"><ArrowLeft size={16} /></Link>
+          <div>
+            <h1>Add Sub-Agent</h1>
+            <p>Create a sub-agent account</p>
+          </div>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="gold-panel p-6 space-y-5">
-          <h2 className="font-semibold text-white flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-[#2563EB]" />
-            Sub-Agent Details
-          </h2>
+      <div className="card" style={{ maxWidth: '640px' }}>
+        <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Full Name <span style={{ color: 'var(--danger)' }}>*</span></label>
+              <input type="text" className="input" placeholder="Jane Doe" {...register('full_name')} />
+              {errors.full_name && <span className="field-error">{errors.full_name.message}</span>}
+            </div>
+            <div className="form-group">
+              <label className="label">Username</label>
+              <input type="text" className="input" placeholder="jane_doe" {...register('username')} />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Lowercase, numbers, underscores only</span>
+              {errors.username && <span className="field-error">{errors.username.message}</span>}
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="label">Email address <span style={{ color: 'var(--danger)' }}>*</span></label>
+            <input type="email" className="input" placeholder="jane@example.com" {...register('email')} />
+            {errors.email && <span className="field-error">{errors.email.message}</span>}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Phone Number</label>
+              <input type="tel" className="input" placeholder="08012345678" {...register('phone')} />
+              {errors.phone && <span className="field-error">{errors.phone.message}</span>}
+            </div>
+            <div className="form-group">
+              <label className="label">Address</label>
+              <input type="text" className="input" placeholder="123 Main St, Lagos" {...register('address')} />
+              {errors.address && <span className="field-error">{errors.address.message}</span>}
+            </div>
+          </div>
 
-          <Field label="Full Name *" error={errors.full_name?.message}>
-            <input
-              {...register('full_name')}
-              type="text"
-              placeholder="e.g. Fatima Aliyu"
-              className={INPUT_CLASS}
-            />
-          </Field>
+          <div className="form-group">
+            <label className="label">Password <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(optional — auto-generated if left blank)</span></label>
+            <PasswordInput placeholder="Min. 8 characters" autoComplete="new-password" registration={register('password')} />
+            {errors.password && <span className="field-error">{errors.password.message}</span>}
+          </div>
 
-          <Field
-            label="Email Address *"
-            hint="The sub-agent will log in with this email."
-            error={errors.email?.message}
-          >
-            <input
-              {...register('email')}
-              type="email"
-              placeholder="subagent@email.com"
-              className={INPUT_CLASS}
-            />
-          </Field>
-
-          <Field label="Phone Number *" error={errors.phone?.message}>
-            <input
-              {...register('phone')}
-              type="tel"
-              placeholder="e.g. 08012345678"
-              className={INPUT_CLASS}
-            />
-          </Field>
-        </div>
-
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="px-4 py-2.5 text-sm font-medium text-white/60 hover:text-white rounded-lg border border-white/10 hover:bg-white/5 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
-          >
-            <UserPlus className="w-4 h-4" />
-            {saving ? 'Creating…' : 'Create Sub-Agent'}
-          </button>
-        </div>
-      </form>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? <><span className="spinner" /> Creating…</> : 'Create Sub-Agent'}
+            </button>
+            <Link href="/agent/sub-agents" className="btn btn-secondary">Cancel</Link>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

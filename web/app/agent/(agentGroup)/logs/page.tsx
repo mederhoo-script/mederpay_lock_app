@@ -1,89 +1,96 @@
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { formatDistanceToNow } from 'date-fns'
+import { createClient } from '@/lib/supabase/server'
+import { ScrollText } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Phone Logs | MederBuy' }
 
-const EVENT_COLORS: Record<string, string> = {
-  LOCK_ENFORCED: 'bg-red-900/30 text-red-400',
-  UNLOCK: 'bg-green-900/30 text-green-400',
-  ROOT_DETECTED: 'bg-orange-900/30 text-orange-400',
-  PAYMENT_RECEIVED: 'bg-blue-900/30 text-blue-400',
-  BOOT: 'bg-white/10 text-white/60',
-  SYNC_FAIL: 'bg-yellow-900/30 text-yellow-400',
-  STATUS_CHANGE: 'bg-purple-900/30 text-purple-400',
-  DEVICE_REGISTERED: 'bg-emerald-900/30 text-emerald-400',
-  STATUS_CHECK: 'bg-white/10 text-white/60',
+function EventBadge({ type }: { type: string }) {
+  const cls =
+    type === 'locked' ? 'badge-danger' :
+    type === 'unlocked' ? 'badge-success' :
+    type === 'payment' ? 'badge-info' :
+    type === 'registered' ? 'badge-accent' :
+    'badge-neutral'
+  return <span className={`badge ${cls}`}>{type}</span>
 }
 
-export default async function AgentLogsPage() {
+export default async function LogsPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: logs } = await supabase
-    .from('phone_logs')
-    .select('*')
-    .order('timestamp', { ascending: false })
-    .limit(200)
+  // get agent's phone ids first
+  const { data: phones } = await supabase
+    .from('phones')
+    .select('id, imei')
+    .eq('agent_id', user.id)
+
+  const phoneIds = (phones ?? []).map((p) => p.id)
+  const imeiMap: Record<string, string> = {}
+  ;(phones ?? []).forEach((p) => { imeiMap[p.id] = p.imei })
+
+  const { data: logs } = phoneIds.length > 0
+    ? await supabase
+        .from('phone_logs')
+        .select('*')
+        .in('phone_id', phoneIds)
+        .order('created_at', { ascending: false })
+        .limit(200)
+    : { data: [] }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Phone Logs</h1>
-        <p className="text-sm text-white/50 mt-1">
-          All device events reported by your Android lock app
-        </p>
+    <div>
+      <div className="page-header">
+        <div>
+          <h1>Phone Logs</h1>
+          <p>Activity log for your phones</p>
+        </div>
       </div>
 
-      <div className="rounded-xl border border-white/10 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-white/10 bg-white/5">
-              <th className="px-4 py-3 text-left font-medium text-white/50">IMEI</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Event</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Details</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Time</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {logs && logs.length > 0 ? (
-              logs.map((log) => (
-                <tr key={log.id as string} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-3 font-mono text-white/70 text-xs">
-                    {log.imei as string}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                        EVENT_COLORS[log.event_type as string] ?? 'bg-white/10 text-white/60'
-                      }`}
-                    >
-                      {log.event_type as string}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-white/50 max-w-xs truncate">
-                    {(log.details as string | null) ?? '—'}
-                  </td>
-                  <td className="px-4 py-3 text-white/40 whitespace-nowrap">
-                    {formatDistanceToNow(new Date(log.timestamp as string), {
-                      addSuffix: true,
-                    })}
-                  </td>
+      <div className="card" style={{ padding: 0 }}>
+        {logs && logs.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>IMEI</th>
+                  <th>Event</th>
+                  <th>Details</th>
+                  <th>Old Status</th>
+                  <th>New Status</th>
+                  <th>Timestamp</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="px-4 py-16 text-center text-white/30">
-                  No device events yet. Connect your Android lock app to start receiving logs.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {logs.map((log) => (
+                  <tr key={log.id}>
+                    <td style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>
+                      {imeiMap[log.phone_id] ?? log.phone_id?.slice(0, 8) + '…'}
+                    </td>
+                    <td><EventBadge type={log.event_type ?? 'unknown'} /></td>
+                    <td style={{ color: 'var(--text-secondary)', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {log.details ?? '—'}
+                    </td>
+                    <td>
+                      {log.old_status ? <span className="badge badge-neutral">{log.old_status}</span> : <span style={{ color: 'var(--text-secondary)' }}>—</span>}
+                    </td>
+                    <td>
+                      {log.new_status ? <span className="badge badge-info">{log.new_status}</span> : <span style={{ color: 'var(--text-secondary)' }}>—</span>}
+                    </td>
+                    <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
+                      {new Date(log.created_at).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="empty-state">
+            <ScrollText size={32} />
+            <p>No activity logs yet.</p>
+          </div>
+        )}
       </div>
     </div>
   )

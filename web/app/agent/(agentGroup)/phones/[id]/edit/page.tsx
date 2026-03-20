@@ -1,356 +1,121 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Smartphone, AlertCircle, AlertTriangle } from 'lucide-react'
-import { toast } from 'sonner'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useForm } from 'react-hook-form'
+import { ArrowLeft } from 'lucide-react'
+import { use } from 'react'
+import { useToast } from '@/components/Toast'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface Phone {
-  id: string
-  imei: string
-  brand: string
-  model: string
-  storage: string | null
-  color: string | null
-  status: string
-  cost_price: number
-  selling_price: number
-  down_payment: number
-  payment_weeks: number
-}
-
-interface FormValues {
+interface EditFormData {
   brand: string
   model: string
   storage: string
   color: string
-  cost_price: string
-  selling_price: string
-  down_payment: string
-  payment_weeks: string
 }
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-function FormSkeleton() {
-  return (
-    <div className="space-y-4">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="h-12 rounded-lg bg-white/5 animate-pulse" />
-      ))}
-    </div>
-  )
+interface PhoneData {
+  brand: string
+  model: string
+  storage: string | null
+  color: string | null
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
-export default function EditPhonePage() {
-  const params = useParams<{ id: string }>()
+export default function EditPhonePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const router = useRouter()
-
-  const [phone, setPhone] = useState<Phone | null>(null)
+  const toast = useToast()
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
 
-  const [form, setForm] = useState<FormValues>({
-    brand: '',
-    model: '',
-    storage: '',
-    color: '',
-    cost_price: '',
-    selling_price: '',
-    down_payment: '',
-    payment_weeks: '',
-  })
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<EditFormData>()
 
   useEffect(() => {
-    async function fetchPhone() {
-      setLoading(true)
-      setError(null)
-      try {
-        const res = await fetch(`/api/phones/${params.id}`)
-        if (!res.ok) throw new Error(res.status === 404 ? 'Phone not found' : 'Failed to load phone')
-        const data: Phone = await res.json()
-        setPhone(data)
-        setForm({
-          brand: data.brand,
-          model: data.model,
-          storage: data.storage ?? '',
-          color: data.color ?? '',
-          cost_price: String(data.cost_price),
-          selling_price: String(data.selling_price),
-          down_payment: String(data.down_payment),
-          payment_weeks: String(data.payment_weeks),
-        })
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
-      } finally {
+    fetch(`/api/phones/${id}`)
+      .then((r) => r.json())
+      .then((data: { phone?: PhoneData }) => {
+        if (data.phone) {
+          reset({
+            brand: data.phone.brand ?? '',
+            model: data.phone.model ?? '',
+            storage: data.phone.storage ?? '',
+            color: data.phone.color ?? '',
+          })
+        }
         setLoading(false)
-      }
-    }
-    fetchPhone()
-  }, [params.id])
+      })
+      .catch(() => setLoading(false))
+  }, [id, reset])
 
-  function setField(field: keyof FormValues, value: string) {
-    setForm((f) => ({ ...f, [field]: value }))
+  const onSubmit = async (data: EditFormData) => {
+    const res = await fetch(`/api/phones/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}))
+      toast.error(json.error ?? 'Failed to update phone.', 'Update failed')
+      return
+    }
+    toast.success('Phone updated successfully!', 'Phone updated')
+    router.push(`/agent/phones/${id}`)
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-
-    // Basic validation
-    if (!form.brand.trim() || !form.model.trim()) {
-      toast.error('Brand and model are required')
-      return
-    }
-    const costPrice = parseFloat(form.cost_price)
-    const sellingPrice = parseFloat(form.selling_price)
-    const downPayment = parseFloat(form.down_payment)
-    const paymentWeeks = parseInt(form.payment_weeks, 10)
-
-    if (isNaN(costPrice) || costPrice <= 0) {
-      toast.error('Cost price must be a positive number')
-      return
-    }
-    if (isNaN(sellingPrice) || sellingPrice <= 0) {
-      toast.error('Selling price must be a positive number')
-      return
-    }
-    if (isNaN(downPayment) || downPayment < 0) {
-      toast.error('Down payment cannot be negative')
-      return
-    }
-    if (isNaN(paymentWeeks) || paymentWeeks <= 0) {
-      toast.error('Payment weeks must be a positive integer')
-      return
-    }
-
-    setSubmitting(true)
-    try {
-      const res = await fetch(`/api/phones/${params.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          brand: form.brand.trim(),
-          model: form.model.trim(),
-          storage: form.storage.trim() || undefined,
-          color: form.color.trim() || undefined,
-          cost_price: costPrice,
-          selling_price: sellingPrice,
-          down_payment: downPayment,
-          payment_weeks: paymentWeeks,
-        }),
-      })
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}))
-        throw new Error((errData as { error?: string }).error ?? 'Failed to update phone')
-      }
-
-      toast.success('Phone updated successfully')
-      router.push(`/agent/phones/${params.id}`)
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Update failed')
-    } finally {
-      setSubmitting(false)
-    }
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+        <span className="spinner" style={{ width: '2rem', height: '2rem' }} />
+      </div>
+    )
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-2xl">
-      {/* Back */}
-      <button
-        onClick={() => router.push(`/agent/phones/${params.id}`)}
-        className="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Phone
-      </button>
-
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#2563EB]/15 flex items-center justify-center">
-          <Smartphone className="w-5 h-5 text-[#2563EB]" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold text-white">Edit Phone</h1>
-          <p className="text-sm text-white/50">Update phone details</p>
+    <div>
+      <div className="page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link href={`/agent/phones/${id}`} className="btn btn-ghost btn-sm"><ArrowLeft size={16} /></Link>
+          <div>
+            <h1>Edit Phone</h1>
+            <p>Update phone details</p>
+          </div>
         </div>
       </div>
 
-      {loading ? (
-        <div className="gold-panel p-6">
-          <FormSkeleton />
-        </div>
-      ) : error ? (
-        <div className="flex flex-col items-center gap-3 py-20 text-center">
-          <AlertCircle className="w-8 h-8 text-red-400" />
-          <p className="text-sm text-white/60">{error}</p>
-          <button
-            onClick={() => router.push('/agent/phones')}
-            className="text-xs text-[#2563EB] hover:underline"
-          >
-            Back to phones
-          </button>
-        </div>
-      ) : phone ? (
-        <>
-          {/* Warning for non-available phones */}
-          {phone.status !== 'available' && (
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/20">
-              <AlertTriangle className="w-5 h-5 text-[#F59E0B] shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-[#F59E0B]">Phone is not available</p>
-                <p className="text-xs text-[#F59E0B]/70 mt-0.5">
-                  This phone has status <span className="font-semibold capitalize">{phone.status}</span>.
-                  Only available phones can be edited.
-                </p>
-              </div>
+      <div className="card" style={{ maxWidth: '480px' }}>
+        <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Brand</label>
+              <input type="text" className="input" placeholder="Samsung" {...register('brand', { required: 'Brand is required' })} />
+              {errors.brand && <span className="field-error">{errors.brand.message}</span>}
             </div>
-          )}
-
-          <div className="gold-panel p-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {/* Brand */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/50">Brand <span className="text-red-400">*</span></label>
-                  <input
-                    value={form.brand}
-                    onChange={(e) => setField('brand', e.target.value)}
-                    disabled={phone.status !== 'available'}
-                    placeholder="e.g. Samsung"
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Model */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/50">Model <span className="text-red-400">*</span></label>
-                  <input
-                    value={form.model}
-                    onChange={(e) => setField('model', e.target.value)}
-                    disabled={phone.status !== 'available'}
-                    placeholder="e.g. Galaxy A54"
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Storage */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/50">Storage</label>
-                  <input
-                    value={form.storage}
-                    onChange={(e) => setField('storage', e.target.value)}
-                    disabled={phone.status !== 'available'}
-                    placeholder="e.g. 128GB"
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Color */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/50">Color</label>
-                  <input
-                    value={form.color}
-                    onChange={(e) => setField('color', e.target.value)}
-                    disabled={phone.status !== 'available'}
-                    placeholder="e.g. Midnight Black"
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Cost price */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/50">Cost Price (₦) <span className="text-red-400">*</span></label>
-                  <input
-                    type="number"
-                    value={form.cost_price}
-                    onChange={(e) => setField('cost_price', e.target.value)}
-                    disabled={phone.status !== 'available'}
-                    placeholder="0"
-                    min={0}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Selling price */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/50">Selling Price (₦) <span className="text-red-400">*</span></label>
-                  <input
-                    type="number"
-                    value={form.selling_price}
-                    onChange={(e) => setField('selling_price', e.target.value)}
-                    disabled={phone.status !== 'available'}
-                    placeholder="0"
-                    min={0}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Down payment */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/50">Down Payment (₦) <span className="text-red-400">*</span></label>
-                  <input
-                    type="number"
-                    value={form.down_payment}
-                    onChange={(e) => setField('down_payment', e.target.value)}
-                    disabled={phone.status !== 'available'}
-                    placeholder="0"
-                    min={0}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-
-                {/* Payment weeks */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/50">Payment Duration (weeks) <span className="text-red-400">*</span></label>
-                  <input
-                    type="number"
-                    value={form.payment_weeks}
-                    onChange={(e) => setField('payment_weeks', e.target.value)}
-                    disabled={phone.status !== 'available'}
-                    placeholder="e.g. 12"
-                    min={1}
-                    step={1}
-                    className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#2563EB]/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                </div>
-              </div>
-
-              {/* IMEI (read-only) */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-white/50">IMEI (cannot be changed)</label>
-                <input
-                  value={phone.imei}
-                  readOnly
-                  className="w-full px-3 py-2.5 rounded-lg bg-white/3 border border-white/5 text-sm font-mono text-white/40 cursor-not-allowed"
-                />
-              </div>
-
-              <div className="flex items-center gap-3 pt-2 border-t border-white/10">
-                <button
-                  type="submit"
-                  disabled={submitting || phone.status !== 'available'}
-                  className="px-6 py-2.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting ? 'Saving…' : 'Save Changes'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => router.push(`/agent/phones/${params.id}`)}
-                  className="px-6 py-2.5 rounded-lg bg-white/5 text-white/70 text-sm font-medium hover:bg-white/10 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+            <div className="form-group">
+              <label className="label">Model</label>
+              <input type="text" className="input" placeholder="Galaxy A54" {...register('model', { required: 'Model is required' })} />
+              {errors.model && <span className="field-error">{errors.model.message}</span>}
+            </div>
           </div>
-        </>
-      ) : null}
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Storage</label>
+              <input type="text" className="input" placeholder="128GB" {...register('storage')} />
+            </div>
+            <div className="form-group">
+              <label className="label">Color</label>
+              <input type="text" className="input" placeholder="Black" {...register('color')} />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? <><span className="spinner" /> Saving…</> : 'Save Changes'}
+            </button>
+            <Link href={`/agent/phones/${id}`} className="btn btn-secondary">Cancel</Link>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

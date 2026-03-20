@@ -1,211 +1,109 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
-import { ArrowLeft, UserPlus, Eye, EyeOff } from 'lucide-react'
 import { RegisterBuyerSchema, type RegisterBuyerInput } from '@/lib/validations'
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string
-  error?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-sm text-white/60">{label}</label>
-      {children}
-      {error && <p className="text-xs text-red-400">{error}</p>}
-    </div>
-  )
-}
-
-function MaskedInput({
-  label,
-  error,
-  ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) {
-  const [show, setShow] = useState(false)
-  return (
-    <Field label={label} error={error}>
-      <div className="relative">
-        <input
-          {...props}
-          type={show ? 'text' : 'password'}
-          className="w-full pr-10 pl-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
-        />
-        <button
-          type="button"
-          onClick={() => setShow((v) => !v)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
-        >
-          {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-        </button>
-      </div>
-    </Field>
-  )
-}
-
-const INPUT_CLASS =
-  'w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB]'
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+import { ArrowLeft } from 'lucide-react'
+import { useToast } from '@/components/Toast'
 
 export default function NewBuyerPage() {
   const router = useRouter()
-  const [saving, setSaving] = useState(false)
-
+  const toast = useToast()
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterBuyerInput>({
-    resolver: zodResolver(RegisterBuyerSchema),
-  })
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterBuyerInput>({ resolver: zodResolver(RegisterBuyerSchema) })
 
-  async function onSubmit(values: RegisterBuyerInput) {
-    setSaving(true)
-    try {
-      const res = await fetch('/api/buyers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error ?? 'Failed to add buyer')
-        return
-      }
-
-      toast.success('Buyer added successfully')
-      router.push('/agent/buyers')
-    } catch {
-      toast.error('An unexpected error occurred')
-    } finally {
-      setSaving(false)
+  const onSubmit = async (data: RegisterBuyerInput) => {
+    const payload = {
+      ...data,
+      email: data.email || undefined,
+      bvn: data.bvn || undefined,
+      nin: data.nin || undefined,
+      phone_id: data.phone_id || undefined,
     }
+    const res = await fetch('/api/buyers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}))
+      toast.error(json.error ?? 'Failed to register buyer.', 'Registration failed')
+      return
+    }
+    toast.success('Buyer registered successfully!', 'Buyer created')
+    router.push('/agent/buyers')
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-xl space-y-6">
-      {/* Back */}
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Buyers
-      </button>
-
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">Add New Buyer</h1>
-        <p className="text-sm text-white/50 mt-1">Register a buyer to record a phone sale</p>
+    <div>
+      <div className="page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link href="/agent/buyers" className="btn btn-ghost btn-sm"><ArrowLeft size={16} /></Link>
+          <div>
+            <h1>Register Buyer</h1>
+            <p>Add a new buyer to your list</p>
+          </div>
+        </div>
       </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="gold-panel p-6 space-y-5">
-          <h2 className="font-semibold text-white flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-[#2563EB]" />
-            Personal Information
-          </h2>
-
-          <Field label="Full Name *" error={errors.full_name?.message}>
-            <input
-              {...register('full_name')}
-              type="text"
-              placeholder="e.g. Aminu Musa"
-              className={INPUT_CLASS}
-            />
-          </Field>
-
-          <Field label="Phone Number *" error={errors.phone?.message}>
-            <input
-              {...register('phone')}
-              type="tel"
-              placeholder="e.g. 08012345678"
-              className={INPUT_CLASS}
-            />
-          </Field>
-
-          <Field label="Email Address" error={errors.email?.message}>
-            <input
-              {...register('email')}
-              type="email"
-              placeholder="buyer@email.com (optional)"
-              className={INPUT_CLASS}
-            />
-          </Field>
-
-          <Field label="Home Address *" error={errors.address?.message}>
-            <textarea
-              {...register('address')}
-              rows={2}
-              placeholder="Full home address"
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-[#2563EB] resize-none"
-            />
-          </Field>
-        </div>
-
-        <div className="gold-panel p-6 space-y-5">
-          <div>
-            <h2 className="font-semibold text-white">Identity Verification</h2>
-            <p className="text-xs text-white/40 mt-1">Optional but recommended. Encrypted at rest.</p>
+      <div className="card" style={{ maxWidth: '560px' }}>
+        <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <label className="label">Full Name</label>
+              <input type="text" className="input" placeholder="John Doe" {...register('full_name')} />
+              {errors.full_name && <span className="field-error">{errors.full_name.message}</span>}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <MaskedInput
-              {...register('bvn')}
-              label="BVN (11 digits)"
-              placeholder="Enter BVN"
-              maxLength={11}
-              error={errors.bvn?.message}
-            />
-            <MaskedInput
-              {...register('nin')}
-              label="NIN (11 digits)"
-              placeholder="Enter NIN"
-              maxLength={11}
-              error={errors.nin?.message}
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">Phone Number</label>
+              <input type="tel" className="input" placeholder="08012345678" {...register('phone')} />
+              {errors.phone && <span className="field-error">{errors.phone.message}</span>}
+            </div>
+            <div className="form-group">
+              <label className="label">Email (optional)</label>
+              <input type="email" className="input" placeholder="buyer@example.com" {...register('email')} />
+              {errors.email && <span className="field-error">{errors.email.message}</span>}
+            </div>
           </div>
-        </div>
 
-        {/* Hidden phone_id — not required when adding a buyer standalone */}
-        <input type="hidden" {...register('phone_id')} value="" />
+          <div className="form-group">
+            <label className="label">Address</label>
+            <input type="text" className="input" placeholder="123 Main Street, Lagos" {...register('address')} />
+            {errors.address && <span className="field-error">{errors.address.message}</span>}
+          </div>
 
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="px-4 py-2.5 text-sm font-medium text-white/60 hover:text-white rounded-lg border border-white/10 hover:bg-white/5 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
-          >
-            <UserPlus className="w-4 h-4" />
-            {saving ? 'Adding…' : 'Add Buyer'}
-          </button>
-        </div>
-      </form>
+          <div className="divider" />
+          <p className="section-title">Identity Verification (optional)</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="label">BVN (11 digits)</label>
+              <input type="text" className="input" placeholder="12345678901" maxLength={11} {...register('bvn')} />
+              {errors.bvn && <span className="field-error">{errors.bvn.message}</span>}
+            </div>
+            <div className="form-group">
+              <label className="label">NIN (11 digits) <span style={{ color: 'var(--danger)' }}>*</span></label>
+              <input type="text" className="input" placeholder="12345678901" maxLength={11} {...register('nin')} />
+              {errors.nin && <span className="field-error">{errors.nin.message}</span>}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? <><span className="spinner" /> Registering…</> : 'Register Buyer'}
+            </button>
+            <Link href="/agent/buyers" className="btn btn-secondary">Cancel</Link>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

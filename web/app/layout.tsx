@@ -1,30 +1,26 @@
 import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
-
+import { ToastProvider } from '@/components/Toast'
 import './globals.css'
-import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
-  title: 'MederBuy — Phone Financing Management',
-  description: 'Sell phones on finance. Get paid on time. MederBuy is the complete BNPL phone management platform for agents in Nigeria.',
+  title: 'MederBuy | Phone Finance Platform',
+  description: 'Professional phone financing and installment payment platform.',
+  icons: {
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
+  },
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-background text-foreground">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-          storageKey="mederbuy-theme"
-        >
-          {children}
-          <Toaster richColors position="top-right" />
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} themes={['dark', 'light', 'amoled', 'sepia', 'blue', 'green', 'purple']}>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

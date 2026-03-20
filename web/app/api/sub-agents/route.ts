@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { CreateSubAgentSchema } from '@/lib/validations'
 
 export async function GET(request: NextRequest) {
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { full_name, email, phone } = parsed.data
+  const { full_name, email, username, phone, address, password } = parsed.data
 
   // Check if email already exists in profiles
   const { data: existingProfile } = await supabase
@@ -112,18 +112,35 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'This email is already registered' }, { status: 409 })
   }
 
-  // Generate a temporary password — agent should share this with the sub-agent
-  const tempPassword =
-    Math.random().toString(36).slice(2, 10) +
-    Math.random().toString(36).slice(2, 10).toUpperCase() +
-    '!1'
+  // Check if username is taken (if provided)
+  if (username) {
+    const { data: existingUsername } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', username)
+      .maybeSingle()
+
+    if (existingUsername) {
+      return NextResponse.json({ error: 'This username is already taken' }, { status: 409 })
+    }
+  }
+
+  // Use agent-provided password or generate a temporary one
+  const tempPassword = (password && password.length >= 8)
+    ? password
+    : Math.random().toString(36).slice(2, 10) +
+      Math.random().toString(36).slice(2, 10).toUpperCase() +
+      '!1'
+
+  // Use the service role client so auth.admin.createUser() has the necessary privileges
+  const serviceSupabase = createServiceClient()
 
   const { data: authData, error: signUpError } =
-    await supabase.auth.admin.createUser({
+    await serviceSupabase.auth.admin.createUser({
       email,
       password: tempPassword,
       email_confirm: true,
-      user_metadata: { full_name, role: 'subagent' },
+      user_metadata: { full_name, role: 'subagent', username: username || null, phone: phone || null },
     })
 
   if (signUpError || !authData.user) {
@@ -136,20 +153,20 @@ export async function POST(request: NextRequest) {
 
   const newUserId = authData.user.id
 
-  const { error: profileError } = await supabase
+  const profilePayload: Record<string, unknown> = {
+    id: newUserId,
+    full_name,
+    email,
+    phone: phone || null,
+    role: 'subagent',
+    status: 'active',
+    parent_agent_id: user.id,
+  }
+  if (username) profilePayload.username = username
+
+  const { error: profileError } = await serviceSupabase
     .from('profiles')
-    .upsert(
-      {
-        id: newUserId,
-        full_name,
-        email,
-        phone,
-        role: 'subagent',
-        status: 'active',
-        parent_agent_id: user.id,
-      },
-      { onConflict: 'id' },
-    )
+    .upsert(profilePayload, { onConflict: 'id' })
 
   if (profileError) {
     console.error('Failed to create sub-agent profile:', profileError)
@@ -157,7 +174,7 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json(
-    { id: newUserId, full_name, email, phone, status: 'active', temp_password: tempPassword },
+    { id: newUserId, full_name, email, username: username || null, phone: phone || null, address: address || null, status: 'active', temp_password: tempPassword },
     { status: 201 },
   )
 }

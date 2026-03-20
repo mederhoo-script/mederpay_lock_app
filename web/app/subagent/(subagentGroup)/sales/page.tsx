@@ -1,132 +1,80 @@
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { formatNaira } from '@/lib/utils'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { formatNaira } from '@/lib/utils'
+import { ShoppingBag, Plus } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'My Sales | MederBuy Sub-Agent' }
 
-interface SaleRow {
-  id: string
-  status: string
-  selling_price: number
-  outstanding_balance: number
-  next_due_date: string | null
-  buyers: Array<{ full_name: string; phone: string }> | { full_name: string; phone: string } | null
-  phones: Array<{ brand: string; model: string; imei: string }> | { brand: string; model: string; imei: string } | null
-}
-
-function getBuyerName(sale: SaleRow): string {
-  if (!sale.buyers) return '—'
-  if (Array.isArray(sale.buyers)) return sale.buyers[0]?.full_name ?? '—'
-  return sale.buyers.full_name
-}
-
-function getBuyerPhone(sale: SaleRow): string {
-  if (!sale.buyers) return ''
-  if (Array.isArray(sale.buyers)) return sale.buyers[0]?.phone ?? ''
-  return sale.buyers.phone
-}
-
-function getPhoneLabel(sale: SaleRow): string {
-  if (!sale.phones) return '—'
-  if (Array.isArray(sale.phones)) {
-    const p = sale.phones[0]
-    return p ? `${p.brand} ${p.model}` : '—'
-  }
-  return `${sale.phones.brand} ${sale.phones.model}`
-}
-
-function getPhoneImei(sale: SaleRow): string {
-  if (!sale.phones) return ''
-  if (Array.isArray(sale.phones)) return sale.phones[0]?.imei ?? ''
-  return sale.phones.imei
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  active: 'bg-blue-900/30 text-blue-400',
-  grace: 'bg-yellow-900/30 text-yellow-400',
-  lock: 'bg-red-900/30 text-red-400',
-  completed: 'bg-emerald-900/30 text-emerald-400',
-  defaulted: 'bg-red-900/40 text-red-300',
+function StatusBadge({ status }: { status: string }) {
+  const cls =
+    status === 'active' ? 'badge-success' :
+    status === 'grace' ? 'badge-warning' :
+    status === 'locked' || status === 'lock' ? 'badge-danger' :
+    status === 'completed' ? 'badge-info' : 'badge-neutral'
+  return <span className={`badge ${cls}`}>{status}</span>
 }
 
 export default async function SubagentSalesPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: sales } = await supabase
     .from('phone_sales')
-    .select('id, status, selling_price, outstanding_balance, next_due_date, buyers(full_name, phone), phones(brand, model, imei)')
+    .select('id, status, selling_price, total_paid, created_at, buyers(full_name, phone), phones(brand, model)')
     .eq('sold_by', user.id)
-    .order('sale_date', { ascending: false })
+    .order('created_at', { ascending: false })
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">My Sales</h1>
-        <p className="text-sm text-white/50 mt-1">
-          Phone sales you have processed
-        </p>
+    <div>
+      <div className="page-header">
+        <div>
+          <h1>My Sales</h1>
+          <p>Sales you have processed</p>
+        </div>
+        <Link href="/subagent/sales/new" className="btn btn-primary btn-sm">
+          <Plus size={15} />
+          New Sale
+        </Link>
       </div>
 
-      <div className="rounded-xl border border-white/10 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-white/10 bg-white/5">
-              <th className="px-4 py-3 text-left font-medium text-white/50">Buyer</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Phone</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Price</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Outstanding</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Next Due</th>
-              <th className="px-4 py-3 text-left font-medium text-white/50">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {sales && sales.length > 0 ? (
-              (sales as unknown as SaleRow[]).map((sale) => (
-                <tr key={sale.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-3">
-                    <p className="text-white">{getBuyerName(sale)}</p>
-                    <p className="text-xs text-white/40">{getBuyerPhone(sale)}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <p className="text-white/80">{getPhoneLabel(sale)}</p>
-                    <p className="text-xs text-white/40 font-mono">{getPhoneImei(sale)}</p>
-                  </td>
-                  <td className="px-4 py-3 text-white">{formatNaira(sale.selling_price)}</td>
-                  <td className="px-4 py-3 text-white/70">
-                    {formatNaira(sale.outstanding_balance)}
-                  </td>
-                  <td className="px-4 py-3 text-white/50">
-                    {sale.next_due_date ?? '—'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                        STATUS_COLORS[sale.status] ?? 'bg-white/10 text-white/60'
-                      }`}
-                    >
-                      {sale.status}
-                    </span>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6} className="px-4 py-16 text-center text-white/30">
-                  <p>You have not processed any sales yet.</p>
-                  <p className="text-xs mt-2">
-                    Contact your agent to be assigned phones to sell.
-                  </p>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <div className="card" style={{ padding: 0 }}>
+        {sales && sales.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table">
+              <thead>
+                <tr><th>Buyer</th><th>Phone</th><th>Status</th><th>Selling Price</th><th>Total Paid</th><th>Date</th></tr>
+              </thead>
+              <tbody>
+                {sales.map((sale) => {
+                  const buyer = Array.isArray(sale.buyers) ? sale.buyers[0] : sale.buyers
+                  const phone = Array.isArray(sale.phones) ? sale.phones[0] : sale.phones
+                  return (
+                    <tr key={sale.id}>
+                      <td>
+                        <div style={{ fontWeight: 500 }}>{buyer?.full_name ?? '—'}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{buyer?.phone ?? ''}</div>
+                      </td>
+                      <td style={{ color: 'var(--text-secondary)' }}>{phone ? `${phone.brand} ${phone.model}` : '—'}</td>
+                      <td><StatusBadge status={sale.status} /></td>
+                      <td>{formatNaira(sale.selling_price ?? 0)}</td>
+                      <td style={{ color: 'var(--success)' }}>{formatNaira(sale.total_paid ?? 0)}</td>
+                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
+                        {new Date(sale.created_at).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="empty-state">
+            <ShoppingBag size={32} />
+            <p>No sales yet.</p>
+          </div>
+        )}
       </div>
     </div>
   )

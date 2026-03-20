@@ -1,355 +1,138 @@
-'use client'
+import { redirect, notFound } from 'next/navigation'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { formatNaira } from '@/lib/utils'
+import { ArrowLeft, Lock, Unlock } from 'lucide-react'
 
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import {
-  ArrowLeft,
-  Smartphone,
-  Edit2,
-  Trash2,
-  Lock,
-  LockOpen,
-  User,
-  Calendar,
-  CreditCard,
-  AlertCircle,
-} from 'lucide-react'
+export const dynamic = 'force-dynamic'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type PhoneStatus = 'available' | 'sold' | 'locked' | 'returned'
-type SaleStatus  = 'active' | 'grace' | 'lock' | 'completed' | 'defaulted'
-
-interface Phone {
-  id: string
-  imei: string
-  brand: string
-  model: string
-  storage?: string
-  color?: string
-  status: PhoneStatus
-  cost_price: number
-  selling_price: number
-  down_payment: number
-  payment_weeks: number
-  created_at: string
-  sale?: {
-    id: string
-    status: SaleStatus
-    total_amount: number
-    total_paid: number
-    outstanding_balance: number
-    weeks_paid: number
-    due_date: string
-    buyer: {
-      id: string
-      full_name: string
-      phone: string
-      email?: string
-      address: string
-    }
-  }
+function StatusBadge({ status }: { status: string }) {
+  const cls =
+    status === 'available' ? 'badge-success' :
+    status === 'sold' ? 'badge-info' :
+    status === 'locked' ? 'badge-danger' :
+    'badge-neutral'
+  return <span className={`badge ${cls}`}>{status}</span>
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    minimumFractionDigits: 0,
-  }).format(amount)
+function SaleStatusBadge({ status }: { status: string }) {
+  const cls =
+    status === 'active' ? 'badge-success' :
+    status === 'grace' ? 'badge-warning' :
+    status === 'locked' || status === 'lock' ? 'badge-danger' :
+    status === 'completed' ? 'badge-info' :
+    'badge-neutral'
+  return <span className={`badge ${cls}`}>{status}</span>
 }
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat('en-NG', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(iso))
-}
+export default async function PhoneDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-const PHONE_STATUS_STYLES: Record<PhoneStatus, string> = {
-  available: 'bg-emerald-400/15 text-emerald-400',
-  sold:      'bg-[#2563EB]/15 text-[#2563EB]',
-  locked:    'bg-red-400/15 text-red-400',
-  returned:  'bg-[#F59E0B]/15 text-[#F59E0B]',
-}
+  const { data: phone } = await supabase
+    .from('phones')
+    .select('*')
+    .eq('id', id)
+    .eq('agent_id', user.id)
+    .single()
 
-const SALE_STATUS_STYLES: Record<SaleStatus, string> = {
-  active:    'bg-emerald-400/15 text-emerald-400',
-  grace:     'bg-[#F59E0B]/15 text-[#F59E0B]',
-  lock:      'bg-red-400/15 text-red-400',
-  completed: 'bg-[#2563EB]/15 text-[#2563EB]',
-  defaulted: 'bg-red-900/30 text-red-300',
-}
+  if (!phone) notFound()
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-function DetailSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="h-48 rounded-xl bg-white/5 animate-pulse" />
-      <div className="h-64 rounded-xl bg-white/5 animate-pulse" />
-    </div>
-  )
-}
-
-// ─── Detail Row ───────────────────────────────────────────────────────────────
-
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
-      <span className="text-sm text-white/50">{label}</span>
-      <span className="text-sm text-white font-medium text-right">{value}</span>
-    </div>
-  )
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
-export default function PhoneDetailPage() {
-  const params  = useParams<{ id: string }>()
-  const router  = useRouter()
-  const [phone, setPhone]   = useState<Phone | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError]   = useState<string | null>(null)
-  const [actionPending, setActionPending] = useState(false)
-
-  useEffect(() => {
-    async function fetchPhone() {
-      setLoading(true)
-      setError(null)
-      try {
-        const res = await fetch(`/api/phones/${params.id}`)
-        if (!res.ok) throw new Error(res.status === 404 ? 'Phone not found' : 'Failed to load phone')
-        const data: Phone = await res.json()
-        setPhone(data)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchPhone()
-  }, [params.id])
-
-  async function handleLockToggle() {
-    if (!phone?.sale) return
-    setActionPending(true)
-    try {
-      const action = phone.status === 'locked' ? 'unlock' : 'lock'
-      const res = await fetch(`/api/phones/${phone.id}/${action}`, { method: 'POST' })
-      if (!res.ok) throw new Error(`Failed to ${action} phone`)
-      const updated: Phone = await res.json()
-      setPhone(updated)
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Action failed')
-    } finally {
-      setActionPending(false)
-    }
-  }
-
-  async function handleDelete() {
-    if (!confirm('Are you sure you want to delete this phone? This cannot be undone.')) return
-    setActionPending(true)
-    try {
-      const res = await fetch(`/api/phones/${phone?.id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Failed to delete phone')
-      router.push('/phones')
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Delete failed')
-      setActionPending(false)
-    }
-  }
+  const { data: sales } = await supabase
+    .from('phone_sales')
+    .select('id, status, selling_price, total_paid, created_at, buyers(full_name)')
+    .eq('phone_id', id)
+    .order('created_at', { ascending: false })
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-3xl">
-      {/* Back */}
-      <button
-        onClick={() => router.back()}
-        className="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Phones
-      </button>
-
-      {loading ? (
-        <DetailSkeleton />
-      ) : error ? (
-        <div className="flex flex-col items-center gap-3 py-20 text-center">
-          <AlertCircle className="w-8 h-8 text-red-400" />
-          <p className="text-sm text-white/60">{error}</p>
-          <button onClick={() => router.push('/phones')} className="text-xs text-[#2563EB] hover:underline">
-            Back to list
-          </button>
-        </div>
-      ) : phone ? (
-        <>
-          {/* Header card */}
-          <div className="gold-panel p-6">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#2563EB]/15 flex items-center justify-center shrink-0">
-                  <Smartphone className="w-6 h-6 text-[#2563EB]" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-white">
-                    {phone.brand} {phone.model}
-                  </h1>
-                  <p className="text-sm font-mono text-white/50 mt-0.5">{phone.imei}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium capitalize ${PHONE_STATUS_STYLES[phone.status]}`}>
-                  {phone.status}
-                </span>
-
-                {/* Lock / Unlock (only for sold phones) */}
-                {phone.sale && (
-                  <button
-                    onClick={handleLockToggle}
-                    disabled={actionPending}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${
-                      phone.status === 'locked'
-                        ? 'bg-emerald-400/15 text-emerald-400 hover:bg-emerald-400/25'
-                        : 'bg-red-400/15 text-red-400 hover:bg-red-400/25'
-                    }`}
-                  >
-                    {phone.status === 'locked' ? (
-                      <><LockOpen className="w-3.5 h-3.5" /> Unlock</>
-                    ) : (
-                      <><Lock className="w-3.5 h-3.5" /> Lock</>
-                    )}
-                  </button>
-                )}
-
-                <a
-                  href={`/agent/phones/${phone.id}/edit`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-colors"
-                >
-                  <Edit2 className="w-3.5 h-3.5" /> Edit
-                </a>
-
-                {!phone.sale && (
-                  <button
-                    onClick={handleDelete}
-                    disabled={actionPending}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-400/10 text-red-400 hover:bg-red-400/20 transition-colors disabled:opacity-50"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" /> Delete
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Phone details */}
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <DetailRow label="IMEI" value={<span className="font-mono">{phone.imei}</span>} />
-              <DetailRow label="Brand" value={phone.brand} />
-              <DetailRow label="Model" value={phone.model} />
-              <DetailRow label="Storage" value={phone.storage ?? '—'} />
-              <DetailRow label="Color" value={phone.color ?? '—'} />
-              <DetailRow label="Cost Price" value={formatCurrency(phone.cost_price)} />
-              <DetailRow label="Selling Price" value={formatCurrency(phone.selling_price)} />
-              <DetailRow label="Down Payment" value={formatCurrency(phone.down_payment)} />
-              <DetailRow label="Payment Duration" value={`${phone.payment_weeks} weeks`} />
-              <DetailRow label="Added" value={formatDate(phone.created_at)} />
-            </div>
+    <div>
+      <div className="page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link href="/agent/phones" className="btn btn-ghost btn-sm"><ArrowLeft size={16} /></Link>
+          <div>
+            <h1>{phone.brand} {phone.model}</h1>
+            <p>IMEI: {phone.imei}</p>
           </div>
-
-          {/* Sale info */}
-          {phone.sale ? (
-            <div className="gold-panel p-6 space-y-5">
-              <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-white">Sale Information</h2>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${SALE_STATUS_STYLES[phone.sale.status]}`}>
-                  {phone.sale.status}
-                </span>
-              </div>
-
-              {/* Buyer */}
-              <div className="flex items-start gap-3 p-4 rounded-lg bg-white/5">
-                <div className="w-9 h-9 rounded-lg bg-[#F59E0B]/15 flex items-center justify-center shrink-0">
-                  <User className="w-5 h-5 text-[#F59E0B]" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{phone.sale.buyer.full_name}</p>
-                  <p className="text-xs text-white/50">{phone.sale.buyer.phone}</p>
-                  {phone.sale.buyer.email && (
-                    <p className="text-xs text-white/50">{phone.sale.buyer.email}</p>
-                  )}
-                  <p className="text-xs text-white/40 mt-1">{phone.sale.buyer.address}</p>
-                </div>
-                <a
-                  href={`/agent/buyers/${phone.sale.buyer.id}`}
-                  className="ml-auto text-xs text-[#2563EB] hover:underline whitespace-nowrap"
-                >
-                  View buyer
-                </a>
-              </div>
-
-              {/* Payment progress */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-white/50">Repayment Progress</span>
-                  <span className="text-xs text-white/70">
-                    {phone.sale.weeks_paid} / {phone.payment_weeks} weeks
-                  </span>
-                </div>
-                <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-[#2563EB] transition-all"
-                    style={{ width: `${Math.min(100, (phone.sale.weeks_paid / phone.payment_weeks) * 100)}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Sale details */}
-              <div>
-                <DetailRow label="Total Amount" value={formatCurrency(phone.sale.total_amount)} />
-                <DetailRow
-                  label="Total Paid"
-                  value={<span className="text-emerald-400">{formatCurrency(phone.sale.total_paid)}</span>}
-                />
-                <DetailRow
-                  label="Outstanding Balance"
-                  value={<span className="text-[#F59E0B]">{formatCurrency(phone.sale.outstanding_balance)}</span>}
-                />
-                <DetailRow
-                  label="Next Due Date"
-                  value={
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-white/40" />
-                      {formatDate(phone.sale.due_date)}
-                    </span>
-                  }
-                />
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <a
-                  href={`/agent/sales/${phone.sale.id}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB]/15 text-[#2563EB] text-sm font-medium hover:bg-[#2563EB]/25 transition-colors"
-                >
-                  <CreditCard className="w-4 h-4" /> View Sale
-                </a>
-              </div>
-            </div>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <Link href={`/agent/phones/${id}/edit`} className="btn btn-secondary btn-sm">Edit</Link>
+          {phone.status !== 'locked' ? (
+            <form action={`/api/phones/${id}/lock`} method="POST">
+              <button type="submit" className="btn btn-danger btn-sm"><Lock size={14} /> Lock</button>
+            </form>
           ) : (
-            <div className="rounded-xl border border-dashed border-white/10 p-8 text-center">
-              <p className="text-sm text-white/40">This phone has not been sold yet.</p>
-              <a
-                href={`/agent/sales/new?phone=${phone.id}`}
-                className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-lg hover:brightness-110 transition-colors"
-              >
-                Sell this Phone
-              </a>
-            </div>
+            <form action={`/api/phones/${id}/unlock`} method="POST">
+              <button type="submit" className="btn btn-success btn-sm"><Unlock size={14} /> Unlock</button>
+            </form>
           )}
-        </>
-      ) : null}
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+        <div className="card">
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>Phone Details</h2>
+          <div className="detail-row"><span className="detail-key">Status</span><span className="detail-value"><StatusBadge status={phone.status ?? 'available'} /></span></div>
+          <div className="detail-row"><span className="detail-key">Brand</span><span className="detail-value">{phone.brand}</span></div>
+          <div className="detail-row"><span className="detail-key">Model</span><span className="detail-value">{phone.model}</span></div>
+          <div className="detail-row"><span className="detail-key">Storage</span><span className="detail-value">{phone.storage ?? '—'}</span></div>
+          <div className="detail-row"><span className="detail-key">Color</span><span className="detail-value">{phone.color ?? '—'}</span></div>
+          <div className="detail-row"><span className="detail-key">IMEI</span><span className="detail-value" style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>{phone.imei}</span></div>
+        </div>
+
+        <div className="card">
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>Pricing</h2>
+          <div className="detail-row"><span className="detail-key">Cost Price</span><span className="detail-value">{formatNaira(phone.cost_price ?? 0)}</span></div>
+          <div className="detail-row"><span className="detail-key">Selling Price</span><span className="detail-value">{formatNaira(phone.selling_price ?? 0)}</span></div>
+          <div className="detail-row"><span className="detail-key">Down Payment</span><span className="detail-value">{formatNaira(phone.down_payment ?? 0)}</span></div>
+          <div className="detail-row"><span className="detail-key">Payment Weeks</span><span className="detail-value">{phone.payment_weeks ?? '—'}</span></div>
+        </div>
+      </div>
+
+      {/* Sales History */}
+      <div className="card" style={{ padding: 0 }}>
+        <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>Sales History</h2>
+        </div>
+        {sales && sales.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Buyer</th>
+                  <th>Status</th>
+                  <th>Selling Price</th>
+                  <th>Total Paid</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sales.map((sale) => {
+                  const buyer = Array.isArray(sale.buyers) ? sale.buyers[0] : sale.buyers
+                  return (
+                    <tr key={sale.id}>
+                      <td style={{ fontWeight: 500 }}>{buyer?.full_name ?? '—'}</td>
+                      <td><SaleStatusBadge status={sale.status} /></td>
+                      <td>{formatNaira(sale.selling_price ?? 0)}</td>
+                      <td>{formatNaira(sale.total_paid ?? 0)}</td>
+                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
+                        {new Date(sale.created_at).toLocaleDateString()}
+                      </td>
+                      <td>
+                        <Link href={`/agent/sales/${sale.id}`} className="btn btn-ghost btn-sm">View</Link>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="empty-state"><p>No sales for this phone yet.</p></div>
+        )}
+      </div>
     </div>
   )
 }

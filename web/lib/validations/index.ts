@@ -35,7 +35,7 @@ export const RegisterBuyerSchema = z.object({
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   address: z.string().min(5, 'Address is required'),
   bvn: z.string().length(11, 'BVN must be 11 digits').optional().or(z.literal('')),
-  nin: z.string().length(11, 'NIN must be 11 digits').optional().or(z.literal('')),
+  nin: z.string().length(11, 'NIN must be exactly 11 digits'),
   phone_id: z.string().uuid('Please select a phone').optional().or(z.literal('')),
 })
 
@@ -63,7 +63,10 @@ export const AgentSettingsSchema = z.object({
 export const CreateSubAgentSchema = z.object({
   full_name: z.string().min(2, 'Full name is required'),
   email: z.string().email('Invalid email address'),
-  phone: z.string().min(10, 'Invalid phone number'),
+  username: z.string().min(3, 'Username must be at least 3 characters').max(30).regex(/^[a-z0-9_]+$/, 'Lowercase letters, numbers, underscores only').optional().or(z.literal('')),
+  phone: z.string().min(10, 'Invalid phone number').optional().or(z.literal('')),
+  address: z.string().optional().or(z.literal('')),
+  password: z.string().min(8, 'Password must be at least 8 characters').optional().or(z.literal('')),
 })
 
 export const FeeTierSchema = z.object({

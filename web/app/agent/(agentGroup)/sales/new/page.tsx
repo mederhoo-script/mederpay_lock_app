@@ -1,261 +1,154 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
+import { formatNaira } from '@/lib/utils'
+import { useToast } from '@/components/Toast'
 
-import { useEffect, useState, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
-import { ArrowLeft, ShoppingBag, CheckCircle2 } from 'lucide-react'
-import { SellPhoneSchema, type SellPhoneInput } from '@/lib/validations'
-
-interface PhoneOption {
+interface Phone {
   id: string
   brand: string
   model: string
-  storage?: string
   selling_price: number
-  down_payment: number
-  payment_weeks: number
+  imei: string
 }
 
-interface BuyerOption {
+interface Buyer {
   id: string
   full_name: string
   phone: string
-  active_sales: number
 }
 
-function formatNaira(amount: number): string {
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
-    minimumFractionDigits: 0,
-  }).format(amount)
+interface VirtualAccount {
+  account_number?: string
+  bank_name?: string
+  account_name?: string
 }
 
-function Field({
-  label,
-  hint,
-  error,
-  children,
-}: {
-  label: string
-  hint?: string
-  error?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-sm text-white/60">{label}</label>
-      {children}
-      {hint && !error && <p className="text-xs text-white/30">{hint}</p>}
-      {error && <p className="text-xs text-red-400">{error}</p>}
-    </div>
-  )
-}
-
-const SELECT_CLASS =
-  'w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#2563EB]'
-
-// Inner component that uses useSearchParams — must be wrapped in Suspense
-function NewSaleForm() {
-  const router           = useRouter()
-  const searchParams     = useSearchParams()
-  const preselectedPhone = searchParams.get('phone') ?? ''
-
-  const [saving, setSaving]                 = useState(false)
-  const [phones, setPhones]                 = useState<PhoneOption[]>([])
-  const [buyers, setBuyers]                 = useState<BuyerOption[]>([])
-  const [loadingOptions, setLoadingOptions] = useState(true)
-  const [selectedPhone, setSelectedPhone]   = useState<PhoneOption | null>(null)
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<SellPhoneInput>({
-    resolver: zodResolver(SellPhoneSchema),
-    defaultValues: { phone_id: preselectedPhone, buyer_id: '' },
-  })
-
-  const watchedPhoneId = watch('phone_id')
+export default function NewSalePage() {
+  const router = useRouter()
+  const toast = useToast()
+  const [phones, setPhones] = useState<Phone[]>([])
+  const [buyers, setBuyers] = useState<Buyer[]>([])
+  const [selectedPhone, setSelectedPhone] = useState('')
+  const [selectedBuyer, setSelectedBuyer] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [virtualAccount, setVirtualAccount] = useState<VirtualAccount | null>(null)
+  const [saleId, setSaleId] = useState('')
 
   useEffect(() => {
-    async function load() {
-      setLoadingOptions(true)
-      try {
-        const [phonesRes, buyersRes] = await Promise.all([
-          fetch('/api/phones?status=available&limit=100'),
-          fetch('/api/buyers?limit=100'),
-        ])
-        if (phonesRes.ok) setPhones((await phonesRes.json()).phones ?? [])
-        if (buyersRes.ok) setBuyers((await buyersRes.json()).buyers ?? [])
-      } finally {
-        setLoadingOptions(false)
-      }
-    }
-    load()
+    Promise.all([
+      fetch('/api/phones?status=available').then((r) => r.json()),
+      fetch('/api/buyers?for_sale=true').then((r) => r.json()),
+    ]).then(([phoneData, buyerData]) => {
+      setPhones(phoneData.phones ?? phoneData ?? [])
+      setBuyers(buyerData.buyers ?? buyerData ?? [])
+    }).catch(console.error)
   }, [])
 
-  useEffect(() => {
-    setSelectedPhone(phones.find((ph) => ph.id === watchedPhoneId) ?? null)
-  }, [watchedPhoneId, phones])
-
-  async function onSubmit(values: SellPhoneInput) {
-    setSaving(true)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedPhone || !selectedBuyer) { toast.error('Please select both a buyer and a phone.', 'Missing selection'); return }
+    setLoading(true)
     try {
       const res = await fetch('/api/sales', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ buyer_id: selectedBuyer, phone_id: selectedPhone }),
       })
-      const data = await res.json()
-      if (!res.ok) { toast.error(data.error ?? 'Failed to record sale'); return }
-      toast.success('Sale recorded and virtual account created')
-      router.push('/agent/sales')
+      const json = await res.json()
+      if (!res.ok) { toast.error(json.error ?? 'Failed to create sale.', 'Error'); return }
+      toast.success('Sale created successfully!', 'Sale created')
+      setSaleId(json.sale?.id ?? json.id ?? '')
+      setVirtualAccount(json.virtual_account ?? json.sale?.virtual_account ?? null)
     } catch {
-      toast.error('An unexpected error occurred')
+      toast.error('Something went wrong.', 'Error')
     } finally {
-      setSaving(false)
+      setLoading(false)
     }
   }
 
-  if (loadingOptions) {
+  if (saleId) {
     return (
-      <div className="space-y-4">
-        <div className="h-16 rounded-xl bg-white/5 animate-pulse" />
-        <div className="h-16 rounded-xl bg-white/5 animate-pulse" />
+      <div>
+        <div className="page-header">
+          <h1>Sale Created!</h1>
+        </div>
+        <div className="card" style={{ maxWidth: '500px' }}>
+          {virtualAccount ? (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontWeight: 600, marginBottom: '1rem', fontSize: '0.9375rem' }}>Virtual Account Details</h3>
+              <div className="detail-row"><span className="detail-key">Bank</span><span className="detail-value">{virtualAccount.bank_name ?? '—'}</span></div>
+              <div className="detail-row"><span className="detail-key">Account Number</span><span className="detail-value" style={{ fontFamily: 'monospace', fontWeight: 700 }}>{virtualAccount.account_number ?? '—'}</span></div>
+              <div className="detail-row"><span className="detail-key">Account Name</span><span className="detail-value">{virtualAccount.account_name ?? '—'}</span></div>
+            </div>
+          ) : (
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+              No payment gateway configured. Go to{' '}
+              <Link href="/agent/settings" style={{ color: 'var(--accent)' }}>Settings</Link>{' '}
+              to set up a gateway so virtual accounts can be created automatically.
+            </p>
+          )}
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <Link href={`/agent/sales/${saleId}`} className="btn btn-primary">View Sale</Link>
+            <Link href="/agent/sales" className="btn btn-secondary">All Sales</Link>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <div className="gold-panel p-6 space-y-5">
-        <h2 className="font-semibold text-white flex items-center gap-2">
-          <ShoppingBag className="w-4 h-4 text-[#2563EB]" />
-          Sale Details
-        </h2>
-
-        <Field label="Select Phone *" error={errors.phone_id?.message}>
-          <select {...register('phone_id')} className={SELECT_CLASS}>
-            <option value="" className="bg-[#121212]">— Choose an available phone —</option>
-            {phones.map((p) => (
-              <option key={p.id} value={p.id} className="bg-[#121212]">
-                {p.brand} {p.model}{p.storage ? ` ${p.storage}` : ''} — {formatNaira(p.selling_price)}
-              </option>
-            ))}
-          </select>
-          {phones.length === 0 && (
-            <p className="text-xs text-[#F59E0B]/70 mt-1">
-              No available phones.{' '}
-              <a href="/agent/phones/new" className="underline hover:text-[#F59E0B]">Add a phone first.</a>
-            </p>
-          )}
-        </Field>
-
-        {selectedPhone && (
-          <div className="rounded-lg border border-[#2563EB]/20 bg-[#2563EB]/5 p-4 space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-white/50">Selling price</span>
-              <span className="text-white font-semibold">{formatNaira(selectedPhone.selling_price)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/50">Down payment</span>
-              <span className="text-white">{formatNaira(selectedPhone.down_payment)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/50">Weekly payment</span>
-              <span className="text-white">
-                {formatNaira(Math.ceil((selectedPhone.selling_price - selectedPhone.down_payment) / selectedPhone.payment_weeks))}
-                {' '}× {selectedPhone.payment_weeks} weeks
-              </span>
-            </div>
+    <div>
+      <div className="page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link href="/agent/sales" className="btn btn-ghost btn-sm"><ArrowLeft size={16} /></Link>
+          <div>
+            <h1>New Sale</h1>
+            <p>Create a new phone sale / installment plan</p>
           </div>
-        )}
-
-        <Field label="Select Buyer *" error={errors.buyer_id?.message}>
-          <select {...register('buyer_id')} className={SELECT_CLASS}>
-            <option value="" className="bg-[#121212]">— Choose a buyer —</option>
-            {buyers.map((b) => (
-              <option key={b.id} value={b.id} className="bg-[#121212]">
-                {b.full_name} — {b.phone}
-                {b.active_sales > 0 ? ` (${b.active_sales} active loan${b.active_sales > 1 ? 's' : ''})` : ''}
-              </option>
-            ))}
-          </select>
-          {buyers.length === 0 && (
-            <p className="text-xs text-[#F59E0B]/70 mt-1">
-              No buyers yet.{' '}
-              <a href="/agent/buyers/new" className="underline hover:text-[#F59E0B]">Add a buyer first.</a>
-            </p>
-          )}
-        </Field>
+        </div>
       </div>
 
-      <div className="rounded-lg border border-[#F59E0B]/20 bg-[#F59E0B]/5 px-4 py-3 flex items-start gap-3">
-        <CheckCircle2 className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" />
-        <p className="text-xs text-[#F59E0B]/80">
-          A virtual account will be created for the buyer using your configured payment gateway.
-          The phone will be marked as sold and the buyer can start making weekly payments.
-        </p>
-      </div>
-
-      <div className="flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="px-4 py-2.5 text-sm font-medium text-white/60 hover:text-white rounded-lg border border-white/10 hover:bg-white/5 transition-colors"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={saving || phones.length === 0 || buyers.length === 0}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:brightness-110 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
-        >
-          <ShoppingBag className="w-4 h-4" />
-          {saving ? 'Recording…' : 'Record Sale'}
-        </button>
-      </div>
-    </form>
-  )
-}
-
-export default function NewSalePage() {
-  const router = useRouter()
-
-  return (
-    <div className="p-6 lg:p-8 max-w-xl space-y-6">
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className="inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Sales
-      </button>
-
-      <div>
-        <h1 className="text-2xl font-bold text-white">Record New Sale</h1>
-        <p className="text-sm text-white/50 mt-1">
-          Assign a phone to a buyer — a virtual account will be created automatically.
-        </p>
-      </div>
-
-      <Suspense
-        fallback={
-          <div className="space-y-4">
-            <div className="h-16 rounded-xl bg-white/5 animate-pulse" />
-            <div className="h-16 rounded-xl bg-white/5 animate-pulse" />
+      <div className="card" style={{ maxWidth: '500px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div className="form-group">
+            <label className="label" htmlFor="buyer-select">Buyer</label>
+            <select id="buyer-select" className="select" value={selectedBuyer} onChange={(e) => setSelectedBuyer(e.target.value)} required>
+              <option value="">Select a buyer…</option>
+              {buyers.map((b) => (
+                <option key={b.id} value={b.id}>{b.full_name} — {b.phone}</option>
+              ))}
+            </select>
           </div>
-        }
-      >
-        <NewSaleForm />
-      </Suspense>
+
+          <div className="form-group">
+            <label className="label" htmlFor="phone-select">Phone (Available)</label>
+            <select id="phone-select" className="select" value={selectedPhone} onChange={(e) => setSelectedPhone(e.target.value)} required>
+              <option value="">Select a phone…</option>
+              {phones.map((p) => (
+                <option key={p.id} value={p.id}>{p.brand} {p.model} — {formatNaira(p.selling_price)}</option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? <><span className="spinner" /> Creating Sale…</> : 'Create Sale'}
+            </button>
+            <Link href="/agent/sales" className="btn btn-secondary">Cancel</Link>
+          </div>
+        </form>
+
+        <div style={{ marginTop: '1.5rem' }}>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+            Buyer not in the list?{' '}
+            <Link href="/agent/buyers/new" style={{ color: 'var(--accent)' }}>Register a new buyer</Link>
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

@@ -19,12 +19,27 @@ export async function GET(request: NextRequest) {
   const page   = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
   const limit  = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)))
   const offset = (page - 1) * limit
+  const forSale = searchParams.get('for_sale') === 'true'
+
+  // When listing buyers for a new sale, exclude buyers with active (non-completed/non-defaulted) sales
+  let excludedBuyerIds: string[] = []
+  if (forSale) {
+    const { data: activeSales } = await supabase
+      .from('phone_sales')
+      .select('buyer_id, status')
+      .not('status', 'in', '("completed","defaulted")')
+    excludedBuyerIds = [...new Set((activeSales ?? []).map((s: { buyer_id: string }) => s.buyer_id))]
+  }
 
   let query = supabase
     .from('buyers')
     .select('id, full_name, phone, email, address, created_at', { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
+
+  if (excludedBuyerIds.length > 0) {
+    query = query.not('id', 'in', `(${excludedBuyerIds.map((id) => `"${id}"`).join(',')})`)
+  }
 
   if (search) {
     query = query.or(
