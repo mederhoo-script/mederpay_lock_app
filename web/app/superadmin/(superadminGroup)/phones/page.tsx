@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { formatNaira } from '@/lib/utils'
 import { Smartphone } from 'lucide-react'
@@ -46,6 +47,7 @@ export default async function SuperadminPhonesPage() {
                   <th>Status</th>
                   <th>Selling Price</th>
                   <th>Added</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -60,6 +62,9 @@ export default async function SuperadminPhonesPage() {
                       <td>{formatNaira(phone.selling_price ?? 0)}</td>
                       <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
                         {new Date(phone.created_at).toLocaleDateString()}
+                      </td>
+                      <td>
+                        <Link href={`/superadmin/phones/${phone.id}`} className="btn btn-ghost btn-sm">View</Link>
                       </td>
                     </tr>
                   )

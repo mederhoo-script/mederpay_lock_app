@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { ScrollText } from 'lucide-react'
 
@@ -59,6 +60,7 @@ export default async function LogsPage() {
                   <th>Old Status</th>
                   <th>New Status</th>
                   <th>Timestamp</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -79,6 +81,11 @@ export default async function LogsPage() {
                     </td>
                     <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
                       {new Date(log.created_at).toLocaleString()}
+                    </td>
+                    <td>
+                      {log.phone_id && (
+                        <Link href={`/agent/phones/${log.phone_id}`} className="btn btn-ghost btn-sm">View Phone</Link>
+                      )}
                     </td>
                   </tr>
                 ))}

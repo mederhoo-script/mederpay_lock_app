@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { formatNaira } from '@/lib/utils'
 import { ShoppingBag } from 'lucide-react'
@@ -46,6 +47,7 @@ export default async function SuperadminSalesPage() {
                   <th>Balance</th>
                   <th>Status</th>
                   <th>Sale Date</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -81,6 +83,9 @@ export default async function SuperadminSalesPage() {
                       </td>
                       <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
                         {sale.sale_date ? new Date(sale.sale_date).toLocaleDateString() : '—'}
+                      </td>
+                      <td>
+                        <Link href={`/superadmin/sales/${sale.id}`} className="btn btn-ghost btn-sm">View</Link>
                       </td>
                     </tr>
                   )
