@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { formatNaira } from '@/lib/utils'
 
 interface Phone {
   id: string
@@ -125,7 +126,7 @@ export default function NewSalePage() {
             <select id="phone-select" className="select" value={selectedPhone} onChange={(e) => setSelectedPhone(e.target.value)} required>
               <option value="">Select a phone…</option>
               {phones.map((p) => (
-                <option key={p.id} value={p.id}>{p.brand} {p.model} — {p.imei}</option>
+                <option key={p.id} value={p.id}>{p.brand} {p.model} — {formatNaira(p.selling_price)}</option>
               ))}
             </select>
           </div>

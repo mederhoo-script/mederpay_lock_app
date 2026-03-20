@@ -134,9 +134,9 @@ export default function AgentSidebar({ user }: SidebarProps) {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — desktop */}
       <aside style={{
-        width: '220px',
+        width: '240px',
         flexShrink: 0,
         background: 'var(--bg-sidebar)',
         borderRight: '1px solid var(--border)',
@@ -148,7 +148,7 @@ export default function AgentSidebar({ user }: SidebarProps) {
         {sidebarContent}
       </aside>
 
-      {/* Mobile drawer */}
+      {/* Sidebar — mobile drawer */}
       {open && (
         <aside style={{
           position: 'fixed',

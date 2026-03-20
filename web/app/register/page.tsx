@@ -38,6 +38,19 @@ export default function RegisterPage() {
       setServerError('Account created but sign-in failed. Please go to Login.')
       return
     }
+    // Check profile status; pending agents are blocked by the proxy middleware
+    const { data: { user: signedInUser } } = await supabase.auth.getUser()
+    if (signedInUser) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('id', signedInUser.id)
+        .single()
+      if (profile?.status === 'pending') {
+        router.push('/login?error=pending')
+        return
+      }
+    }
     router.push('/agent/dashboard')
   }
 

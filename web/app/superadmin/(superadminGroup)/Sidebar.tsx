@@ -70,7 +70,7 @@ export default function SuperadminSidebar({ user }: SidebarProps) {
   return (
     <>
       {open && <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 40 }} />}
-      <aside style={{ width: '220px', flexShrink: 0, background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border)', height: '100vh', position: 'sticky', top: 0, overflow: 'hidden' }}>
+      <aside style={{ width: '240px', flexShrink: 0, background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border)', height: '100vh', position: 'sticky', top: 0, overflow: 'hidden' }}>
         {sidebarContent}
       </aside>
       {open && (

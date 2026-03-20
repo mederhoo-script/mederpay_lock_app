@@ -51,11 +51,12 @@ export default async function SuperadminPaymentsPage() {
                 {payments.map((pmt) => {
                   const sale = Array.isArray(pmt.phone_sales) ? pmt.phone_sales[0] : pmt.phone_sales
                   const buyer = sale ? (Array.isArray(sale.buyers) ? sale.buyers[0] : sale.buyers) : null
-                  const agent = sale ? (Array.isArray(sale.profiles) ? sale.profiles[0] : sale.profiles) : null
+                  const agentRaw = sale ? (Array.isArray(sale.profiles) ? sale.profiles[0] : sale.profiles) : null
+                  const agentInfo = agentRaw as { full_name?: string; email?: string } | null
                   return (
                     <tr key={pmt.id}>
                       <td style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>{pmt.gateway_reference ?? '—'}</td>
-                      <td style={{ color: 'var(--text-secondary)' }}>{(agent as { full_name?: string; email?: string } | null)?.full_name ?? (agent as { full_name?: string; email?: string } | null)?.email ?? '—'}</td>
+                      <td style={{ color: 'var(--text-secondary)' }}>{agentInfo?.full_name ?? agentInfo?.email ?? '—'}</td>
                       <td style={{ fontWeight: 500 }}>{(buyer as { full_name?: string } | null)?.full_name ?? '—'}</td>
                       <td style={{ color: 'var(--success)', fontWeight: 500 }}>{formatNaira(pmt.amount ?? 0)}</td>
                       <td style={{ color: 'var(--text-secondary)' }}>{pmt.gateway ?? '—'}</td>
