@@ -16,7 +16,7 @@ export async function GET() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, phone, status, role')
+    .select('full_name, phone, status, role, bvn, nin')
     .eq('id', user.id)
     .single()
 
@@ -41,10 +41,15 @@ export async function GET() {
   }
   const s = settings as SettingsRow | null
 
+  type ProfileRow = { full_name: string; phone: string; bvn: string | null; nin: string | null }
+  const p = profile as ProfileRow | null
+
   return NextResponse.json({
     email: user.email ?? '',
-    full_name: (profile as { full_name: string } | null)?.full_name ?? '',
-    phone: (profile as { phone: string } | null)?.phone ?? '',
+    full_name: p?.full_name ?? '',
+    phone: p?.phone ?? '',
+    bvn: p?.bvn ?? '',
+    nin: p?.nin ?? '',
     active_gateway: s?.active_gateway ?? 'monnify',
     monnify_api_key: s?.monnify_api_key_encrypted ?? '',
     monnify_secret_key: s?.monnify_secret_key_encrypted ?? '',
@@ -87,6 +92,8 @@ export async function PUT(request: NextRequest) {
   const {
     full_name,
     phone,
+    bvn,
+    nin,
     active_gateway,
     monnify_api_key,
     monnify_secret_key,
@@ -100,7 +107,7 @@ export async function PUT(request: NextRequest) {
 
   const { error: profileError } = await supabase
     .from('profiles')
-    .update({ full_name, phone })
+    .update({ full_name, phone, bvn: bvn || null, nin: nin || null })
     .eq('id', user.id)
 
   if (profileError) {

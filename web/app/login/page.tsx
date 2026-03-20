@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginSchema, type LoginInput } from '@/lib/validations'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast'
+import PasswordInput from '@/components/PasswordInput'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -98,13 +99,10 @@ export default function LoginPage() {
                 <label className="label" htmlFor="password" style={{ margin: 0 }}>Password</label>
                 <Link href="/forgot-password" style={{ fontSize: '0.8125rem', color: 'var(--accent)' }}>Forgot password?</Link>
               </div>
-              <input
+              <PasswordInput
                 id="password"
-                type="password"
-                className="input"
-                placeholder="••••••••"
                 autoComplete="current-password"
-                {...register('password')}
+                registration={register('password')}
               />
               {errors.password && <span className="field-error">{errors.password.message}</span>}
             </div>

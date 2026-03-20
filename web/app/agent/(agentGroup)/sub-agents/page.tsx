@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { Plus, UserCheck } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -10,7 +10,9 @@ export default async function SubAgentsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: subAgents } = await supabase
+  // Use service client to bypass RLS when reading sub-agent profiles
+  const db = createServiceClient()
+  const { data: subAgents } = await db
     .from('profiles')
     .select('id, full_name, email, phone, status, created_at')
     .eq('parent_agent_id', user.id)

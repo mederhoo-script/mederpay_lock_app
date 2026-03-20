@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useToast } from '@/components/Toast'
+import PasswordInput from '@/components/PasswordInput'
 
 export default function SubagentSettingsPage() {
   const toast = useToast()
@@ -55,9 +56,7 @@ export default function SubagentSettingsPage() {
         <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className="form-group">
             <label className="label">New Password <span style={{ color: 'var(--danger)' }}>*</span></label>
-            <input
-              type="password"
-              className="input"
+            <PasswordInput
               placeholder="At least 8 characters"
               autoComplete="new-password"
               value={password}
@@ -67,9 +66,7 @@ export default function SubagentSettingsPage() {
           </div>
           <div className="form-group">
             <label className="label">Confirm New Password <span style={{ color: 'var(--danger)' }}>*</span></label>
-            <input
-              type="password"
-              className="input"
+            <PasswordInput
               placeholder="Repeat your new password"
               autoComplete="new-password"
               value={confirmPassword}

@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RegisterAgentSchema, type RegisterAgentInput } from '@/lib/validations'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast'
+import PasswordInput from '@/components/PasswordInput'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -122,12 +123,12 @@ export default function RegisterPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group">
                 <label className="label">Password</label>
-                <input type="password" className="input" placeholder="••••••••" autoComplete="new-password" {...register('password')} />
+                <PasswordInput autoComplete="new-password" registration={register('password')} />
                 {errors.password && <span className="field-error">{errors.password.message}</span>}
               </div>
               <div className="form-group">
                 <label className="label">Confirm Password</label>
-                <input type="password" className="input" placeholder="••••••••" autoComplete="new-password" {...register('confirm_password')} />
+                <PasswordInput autoComplete="new-password" registration={register('confirm_password')} />
                 {errors.confirm_password && <span className="field-error">{errors.confirm_password.message}</span>}
               </div>
             </div>

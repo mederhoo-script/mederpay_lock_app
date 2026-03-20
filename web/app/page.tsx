@@ -19,13 +19,8 @@ export default function LandingPage() {
         background: 'var(--bg-sidebar)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <div style={{
-            width: '2rem', height: '2rem', borderRadius: '8px',
-            background: 'var(--accent)', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Smartphone size={14} color="white" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="MederBuy logo" width={32} height={32} style={{ borderRadius: '8px' }} />
           <span style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-primary)' }}>MederBuy</span>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
