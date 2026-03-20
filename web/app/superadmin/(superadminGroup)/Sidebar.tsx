@@ -34,9 +34,8 @@ export default function SuperadminSidebar({ user }: SidebarProps) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '1rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.25rem 0.5rem', marginBottom: '1.5rem' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
-          <div style={{ width: '2rem', height: '2rem', borderRadius: '8px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Smartphone size={14} color="white" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="MederBuy logo" width={32} height={32} style={{ borderRadius: '8px', flexShrink: 0 }} />
           <div>
             <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>MederBuy</span>
             <div style={{ fontSize: '0.6875rem', color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Admin</div>
