@@ -70,7 +70,7 @@ export default function SuperadminSidebar({ user }: SidebarProps) {
   return (
     <>
       {open && <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 40 }} />}
-      <aside style={{ width: '240px', flexShrink: 0, background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border)', height: '100vh', position: 'sticky', top: 0, overflow: 'hidden' }}>
+      <aside className="desktop-sidebar" style={{ width: '240px', flexShrink: 0, background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border)', height: '100vh', position: 'sticky', top: 0, overflow: 'hidden' }}>
         {sidebarContent}
       </aside>
       {open && (
@@ -79,7 +79,7 @@ export default function SuperadminSidebar({ user }: SidebarProps) {
           {sidebarContent}
         </aside>
       )}
-      <button onClick={() => setOpen(true)} style={{ display: 'none', position: 'fixed', top: '1rem', left: '1rem', zIndex: 50, padding: '0.5rem', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-primary)' }} aria-label="Open menu">
+      <button onClick={() => setOpen(true)} className="mobile-menu-btn" style={{ position: 'fixed', top: '1rem', left: '1rem', zIndex: 50, padding: '0.5rem', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-primary)' }} aria-label="Open menu">
         <Menu size={20} />
       </button>
     </>

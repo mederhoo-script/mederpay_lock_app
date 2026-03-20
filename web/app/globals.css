@@ -546,4 +546,35 @@
     font-weight: 500;
     text-align: right;
   }
+
+  /* ─── RESPONSIVE SIDEBAR ──────────────────────────────────────────── */
+
+  /* Hidden by default (shown only on small screens via media query) */
+  .mobile-menu-btn {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    /* Hide the permanent desktop sidebar on small screens */
+    .desktop-sidebar {
+      display: none;
+    }
+
+    /* Show the hamburger toggle button */
+    .mobile-menu-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Push main content down so the fixed hamburger button doesn't overlap it */
+    .dashboard-layout-main {
+      padding-top: 4rem !important;
+    }
+
+    /* Allow the page header to wrap on very narrow screens */
+    .page-header {
+      flex-wrap: wrap;
+    }
+  }
 }

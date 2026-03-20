@@ -57,7 +57,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // ── 1. Public / landing paths ────────────────────────────────────────────
-  // `/` has no landing page — it always 404s via the root page component.
+  // `/` redirects to `/login` via the root page component (app/page.tsx).
   // We do NOT add it to public paths so authenticated users also reach the 404.
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
 

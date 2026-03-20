@@ -23,7 +23,7 @@ export default async function AgentLayout({ children }: { children: React.ReactN
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <AgentSidebar user={{ name: profile.full_name ?? '', email: user.email ?? '' }} />
-      <main style={{
+      <main className="dashboard-layout-main" style={{
         flex: 1,
         minWidth: 0,
         padding: '1.5rem',
