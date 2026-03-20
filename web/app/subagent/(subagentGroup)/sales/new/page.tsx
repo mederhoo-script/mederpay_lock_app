@@ -42,7 +42,7 @@ export default function SubagentNewSalePage() {
   useEffect(() => {
     Promise.all([
       fetch('/api/subagent/phones?status=available').then((r) => r.json()),
-      fetch('/api/subagent/buyers').then((r) => r.json()),
+      fetch('/api/subagent/buyers?for_sale=true').then((r) => r.json()),
     ]).then(([phoneData, buyerData]) => {
       setPhones(phoneData.phones ?? [])
       setBuyers(buyerData.buyers ?? [])

@@ -41,7 +41,7 @@ export default function NewSalePage() {
   useEffect(() => {
     Promise.all([
       fetch('/api/phones?status=available').then((r) => r.json()),
-      fetch('/api/buyers').then((r) => r.json()),
+      fetch('/api/buyers?for_sale=true').then((r) => r.json()),
     ]).then(([phoneData, buyerData]) => {
       setPhones(phoneData.phones ?? phoneData ?? [])
       setBuyers(buyerData.buyers ?? buyerData ?? [])

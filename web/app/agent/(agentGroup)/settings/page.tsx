@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AgentSettingsSchema, type AgentSettingsInput } from '@/lib/validations'
 import { useToast } from '@/components/Toast'
+import PasswordInput from '@/components/PasswordInput'
 
 const GATEWAYS = [
   { value: 'monnify', label: 'Monnify' },
@@ -132,7 +133,7 @@ export default function AgentSettingsPage() {
                 </div>
                 <div className="form-group">
                   <label className="label">Monnify Secret Key</label>
-                  <input type="password" className="input" autoComplete="off" {...register('monnify_secret_key')} />
+                  <PasswordInput autoComplete="off" registration={register('monnify_secret_key')} />
                 </div>
                 <div className="form-group">
                   <label className="label">Monnify Contract Code</label>
@@ -144,14 +145,14 @@ export default function AgentSettingsPage() {
             {gateway === 'paystack' && (
               <div className="form-group">
                 <label className="label">Paystack Secret Key</label>
-                <input type="password" className="input" autoComplete="off" {...register('paystack_secret_key')} />
+                <PasswordInput autoComplete="off" registration={register('paystack_secret_key')} />
               </div>
             )}
 
             {gateway === 'flutterwave' && (
               <div className="form-group">
                 <label className="label">Flutterwave Secret Key</label>
-                <input type="password" className="input" autoComplete="off" {...register('flutterwave_secret_key')} />
+                <PasswordInput autoComplete="off" registration={register('flutterwave_secret_key')} />
               </div>
             )}
 
@@ -163,7 +164,7 @@ export default function AgentSettingsPage() {
                 </div>
                 <div className="form-group">
                   <label className="label">Interswitch Client Secret</label>
-                  <input type="password" className="input" autoComplete="off" {...register('interswitch_client_secret')} />
+                  <PasswordInput autoComplete="off" registration={register('interswitch_client_secret')} />
                 </div>
               </>
             )}
