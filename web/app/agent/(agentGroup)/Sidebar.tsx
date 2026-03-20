@@ -43,7 +43,7 @@ export default function AgentSidebar({ user }: SidebarProps) {
       padding: '1rem',
     }}>
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.25rem 0.5rem', marginBottom: '1.5rem' }}>
+      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.25rem 0.5rem', marginBottom: '1.5rem', textDecoration: 'none' }}>
         <div style={{
           width: '2rem',
           height: '2rem',
@@ -57,7 +57,7 @@ export default function AgentSidebar({ user }: SidebarProps) {
           <Smartphone size={14} color="white" />
         </div>
         <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>MederBuy</span>
-      </div>
+      </Link>
 
       {/* Nav links */}
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
