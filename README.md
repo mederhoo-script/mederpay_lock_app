@@ -7,13 +7,18 @@ An agent sells a phone on credit; the Android app enforces repayment by locking 
 
 ```
 mederpay_lock_app/
-├── android/   # Android lock-screen app (Kotlin · Jetpack Compose · Hilt · Room · Retrofit)
-├── web/       # Web platform – Next.js 16 (frontend dashboard + REST API + Supabase)
-├── gradle/    # Gradle wrapper shared by the Android build
+├── app/              # Android Gradle project root
+│   ├── android/      # :android module (Kotlin · Jetpack Compose · Hilt · Room · Retrofit)
+│   ├── gradle/       # Gradle wrapper
+│   ├── gradlew / gradlew.bat
+│   ├── settings.gradle.kts
+│   └── gradle.properties.example
+├── web/              # Web platform – Next.js 16 (frontend dashboard + REST API + Supabase)
+├── supabase/         # Database schema and migrations
 └── README.md
 ```
 
-### `android/`
+### `app/android/`
 
 The Android application installed on the buyer's device.  
 It polls the MederBuy web API to determine whether to show or release the lock screen.
@@ -29,7 +34,8 @@ It polls the MederBuy web API to determine whether to show or release the lock s
 **Build:**
 
 ```bash
-# Debug APK
+# Debug APK  (run from the app/ directory)
+cd app
 ./gradlew :android:assembleDebug
 
 # Release APK (requires signing config)
@@ -61,7 +67,7 @@ npm run start      # serve production build
 ```
 
 Environment variables live in `web/.env.local` (not committed).  
-The database schema is in `web/supabase/migrations/`.
+The database schema is in `supabase/schema.sql`.
 
 ## Environment Setup
 
@@ -92,20 +98,20 @@ cp web/.env.example web/.env.local
 > **Tip:** Get your Supabase keys from  
 > `https://supabase.com/dashboard/project/<ref>/settings/api`
 
-### Android (`gradle.properties`)
+### Android (`app/gradle.properties`)
 
 The Android build injects `ANDROID_DEVICE_API_SECRET` into `BuildConfig` at compile time.  
 It must be the **same value** as in `web/.env.local`.
 
 ```bash
-cp gradle.properties.example gradle.properties
+cp app/gradle.properties.example app/gradle.properties
 # then set ANDROID_DEVICE_API_SECRET to the same value as in web/.env.local
 ```
 
-`gradle.properties` is git-ignored — never commit the real file.
+`app/gradle.properties` is git-ignored — never commit the real file.
 
 ## Contributing
 
-1. Work inside the relevant workspace (`android/` or `web/`).
-2. Keep Android Gradle files at the repo root — this is the standard Gradle multi-project layout.
+1. Work inside the relevant workspace (`app/android/` or `web/`).
+2. Keep Android Gradle files inside `app/` — this is the Gradle project root.
 3. Keep web environment variables in `web/.env.local`; never commit secrets.
