@@ -1,16 +1,16 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RegisterAgentSchema, type RegisterAgentInput } from '@/lib/validations'
 import { createClient } from '@/lib/supabase/client'
+import { useToast } from '@/components/Toast'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [serverError, setServerError] = useState('')
+  const toast = useToast()
   const {
     register,
     handleSubmit,
@@ -18,7 +18,6 @@ export default function RegisterPage() {
   } = useForm<RegisterAgentInput>({ resolver: zodResolver(RegisterAgentSchema) })
 
   const onSubmit = async (data: RegisterAgentInput) => {
-    setServerError('')
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -26,7 +25,7 @@ export default function RegisterPage() {
     })
     if (!res.ok) {
       const json = await res.json().catch(() => ({}))
-      setServerError(json.error ?? 'Registration failed. Please try again.')
+      toast.error(json.error ?? 'Registration failed. Please try again.', 'Registration failed')
       return
     }
     const supabase = createClient()
@@ -35,7 +34,7 @@ export default function RegisterPage() {
       password: data.password,
     })
     if (error) {
-      setServerError('Account created but sign-in failed. Please go to Login.')
+      toast.warning('Account created but sign-in failed. Please go to Login.', 'Sign-in failed')
       return
     }
     // Check profile status; pending agents are blocked by the proxy middleware
@@ -47,10 +46,12 @@ export default function RegisterPage() {
         .eq('id', signedInUser.id)
         .single()
       if (profile?.status === 'pending') {
+        toast.warning('Your account is pending approval.', 'Account pending')
         router.push('/login?error=pending')
         return
       }
     }
+    toast.success('Account created successfully! Welcome.', 'Account created')
     router.push('/agent/dashboard')
   }
 
@@ -91,15 +92,6 @@ export default function RegisterPage() {
           <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
             Register as Agent
           </h2>
-
-          {serverError && (
-            <div className="alert alert-error" style={{ marginBottom: '1.25rem' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              {serverError}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -8,10 +7,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { AddPhoneSchema, type AddPhoneInput } from '@/lib/validations'
 import { nairaToKobo } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
+import { useToast } from '@/components/Toast'
 
 export default function NewPhonePage() {
   const router = useRouter()
-  const [serverError, setServerError] = useState('')
+  const toast = useToast()
   const {
     register,
     handleSubmit,
@@ -22,7 +22,6 @@ export default function NewPhonePage() {
   })
 
   const onSubmit = async (data: AddPhoneInput) => {
-    setServerError('')
     const payload = {
       ...data,
       cost_price: nairaToKobo(data.cost_price),
@@ -36,9 +35,10 @@ export default function NewPhonePage() {
     })
     if (!res.ok) {
       const json = await res.json().catch(() => ({}))
-      setServerError(json.error ?? 'Failed to add phone.')
+      toast.error(json.error ?? 'Failed to add phone.', 'Error')
       return
     }
+    toast.success('Phone added to inventory!', 'Phone added')
     router.push('/agent/phones')
   }
 
@@ -55,9 +55,6 @@ export default function NewPhonePage() {
       </div>
 
       <div className="card" style={{ maxWidth: '640px' }}>
-        {serverError && (
-          <div className="alert alert-error" style={{ marginBottom: '1.25rem' }}>{serverError}</div>
-        )}
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div className="form-group">
             <label className="label">IMEI (15 digits)</label>

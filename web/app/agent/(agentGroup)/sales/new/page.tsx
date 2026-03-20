@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { formatNaira } from '@/lib/utils'
+import { useToast } from '@/components/Toast'
 
 interface Phone {
   id: string
@@ -28,12 +29,12 @@ interface VirtualAccount {
 
 export default function NewSalePage() {
   const router = useRouter()
+  const toast = useToast()
   const [phones, setPhones] = useState<Phone[]>([])
   const [buyers, setBuyers] = useState<Buyer[]>([])
   const [selectedPhone, setSelectedPhone] = useState('')
   const [selectedBuyer, setSelectedBuyer] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const [virtualAccount, setVirtualAccount] = useState<VirtualAccount | null>(null)
   const [saleId, setSaleId] = useState('')
 
@@ -49,8 +50,7 @@ export default function NewSalePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedPhone || !selectedBuyer) { setError('Please select both a buyer and a phone.'); return }
-    setError('')
+    if (!selectedPhone || !selectedBuyer) { toast.error('Please select both a buyer and a phone.', 'Missing selection'); return }
     setLoading(true)
     try {
       const res = await fetch('/api/sales', {
@@ -59,11 +59,12 @@ export default function NewSalePage() {
         body: JSON.stringify({ buyer_id: selectedBuyer, phone_id: selectedPhone }),
       })
       const json = await res.json()
-      if (!res.ok) { setError(json.error ?? 'Failed to create sale.'); return }
+      if (!res.ok) { toast.error(json.error ?? 'Failed to create sale.', 'Error'); return }
+      toast.success('Sale created successfully!', 'Sale created')
       setSaleId(json.sale?.id ?? json.id ?? '')
       setVirtualAccount(json.virtual_account ?? json.sale?.virtual_account ?? null)
     } catch {
-      setError('Something went wrong.')
+      toast.error('Something went wrong.', 'Error')
     } finally {
       setLoading(false)
     }
@@ -76,9 +77,6 @@ export default function NewSalePage() {
           <h1>Sale Created!</h1>
         </div>
         <div className="card" style={{ maxWidth: '500px' }}>
-          <div className="alert alert-success" style={{ marginBottom: '1.25rem' }}>
-            Sale created successfully!
-          </div>
           {virtualAccount && (
             <div style={{ marginBottom: '1.5rem' }}>
               <h3 style={{ fontWeight: 600, marginBottom: '1rem', fontSize: '0.9375rem' }}>Virtual Account Details</h3>
@@ -109,7 +107,6 @@ export default function NewSalePage() {
       </div>
 
       <div className="card" style={{ maxWidth: '500px' }}>
-        {error && <div className="alert alert-error" style={{ marginBottom: '1.25rem' }}>{error}</div>}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div className="form-group">
             <label className="label" htmlFor="buyer-select">Buyer</label>

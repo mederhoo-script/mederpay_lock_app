@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FeeTierSchema, type FeeTierInput } from '@/lib/validations'
 import { formatNaira, nairaToKobo, koboToNaira } from '@/lib/utils'
 import { Plus, Trash2, Layers } from 'lucide-react'
+import { useToast } from '@/components/Toast'
 
 interface FeeTier {
   id: string
@@ -18,9 +19,8 @@ interface FeeTier {
 export default function FeeTiersPage() {
   const [tiers, setTiers] = useState<FeeTier[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const [deleting, setDeleting] = useState<string | null>(null)
+  const toast = useToast()
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FeeTierInput>({
     resolver: zodResolver(FeeTierSchema),
@@ -36,8 +36,6 @@ export default function FeeTiersPage() {
   useEffect(() => { fetchTiers() }, [])
 
   const onSubmit = async (data: FeeTierInput) => {
-    setError('')
-    setSuccess('')
     const payload = {
       label: data.label,
       min_price: nairaToKobo(data.min_price),
@@ -51,20 +49,24 @@ export default function FeeTiersPage() {
     })
     if (!res.ok) {
       const json = await res.json().catch(() => ({}))
-      setError(json.error ?? 'Failed to create tier.')
+      toast.error(json.error ?? 'Failed to create tier.', 'Error')
       return
     }
-    setSuccess('Fee tier created!')
+    toast.success('Fee tier created!', 'Tier added')
     reset()
     fetchTiers()
-    setTimeout(() => setSuccess(''), 3000)
   }
 
   const deleteTier = async (id: string) => {
     if (!confirm('Delete this fee tier?')) return
     setDeleting(id)
-    await fetch(`/api/fees/tiers?id=${id}`, { method: 'DELETE' })
+    const res = await fetch(`/api/fees/tiers?id=${id}`, { method: 'DELETE' })
     setDeleting(null)
+    if (!res.ok) {
+      toast.error('Failed to delete tier.', 'Error')
+    } else {
+      toast.success('Fee tier deleted.', 'Tier removed')
+    }
     fetchTiers()
   }
 
@@ -80,8 +82,6 @@ export default function FeeTiersPage() {
       {/* Add Tier Form */}
       <div className="card" style={{ maxWidth: '600px', marginBottom: '1.5rem' }}>
         <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.25rem' }}>Add New Tier</h2>
-        {error && <div className="alert alert-error" style={{ marginBottom: '1rem' }}>{error}</div>}
-        {success && <div className="alert alert-success" style={{ marginBottom: '1rem' }}>{success}</div>}
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className="form-group">
             <label className="label">Label</label>
