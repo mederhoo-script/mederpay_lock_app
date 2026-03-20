@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { ArrowLeft } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -11,7 +11,8 @@ export default async function SubAgentDetailPage({ params }: { params: Promise<{
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: subAgent } = await supabase
+  const db = createServiceClient()
+  const { data: subAgent } = await db
     .from('profiles')
     .select('*')
     .eq('id', id)
@@ -21,7 +22,7 @@ export default async function SubAgentDetailPage({ params }: { params: Promise<{
 
   if (!subAgent) notFound()
 
-  const { count: salesCount } = await supabase
+  const { count: salesCount } = await db
     .from('phone_sales')
     .select('*', { count: 'exact', head: true })
     .eq('sold_by', id)

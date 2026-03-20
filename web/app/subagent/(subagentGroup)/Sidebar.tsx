@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, ShoppingBag, ScrollText, LogOut, Menu, X, Smartphone, ChevronRight, Settings } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, ScrollText, LogOut, Menu, X, Smartphone, ChevronRight, Settings, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface SidebarProps {
@@ -13,6 +13,7 @@ interface SidebarProps {
 const navItems = [
   { label: 'Dashboard', href: '/subagent/dashboard', icon: LayoutDashboard },
   { label: 'Sales', href: '/subagent/sales', icon: ShoppingBag },
+  { label: 'Buyers', href: '/subagent/buyers', icon: Users },
   { label: 'Logs', href: '/subagent/logs', icon: ScrollText },
   { label: 'Settings', href: '/subagent/settings', icon: Settings },
 ]
@@ -33,7 +34,7 @@ export default function SubagentSidebar({ user }: SidebarProps) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.25rem 0.5rem', marginBottom: '1.5rem' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt="MederBuy logo" width={32} height={32} style={{ borderRadius: '8px', flexShrink: 0 }} />
+          <img src="/logo.png" alt="MederBuy logo" width={32} height={32} style={{ borderRadius: '8px', flexShrink: 0 }} />
           <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>MederBuy</span>
         </Link>
       </div>
@@ -83,9 +84,11 @@ export default function SubagentSidebar({ user }: SidebarProps) {
           {sidebarContent}
         </aside>
       )}
-      <button onClick={() => setOpen(true)} className="mobile-menu-btn" style={{ position: 'fixed', top: '1rem', left: '1rem', zIndex: 50, padding: '0.5rem', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-primary)' }} aria-label="Open menu">
-        <Menu size={20} />
-      </button>
+      {!open && (
+        <button onClick={() => setOpen(true)} className="mobile-menu-btn" style={{ position: 'fixed', top: '1rem', left: '1rem', zIndex: 50, padding: '0.5rem', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-primary)' }} aria-label="Open menu">
+          <Menu size={20} />
+        </button>
+      )}
     </>
   )
 }

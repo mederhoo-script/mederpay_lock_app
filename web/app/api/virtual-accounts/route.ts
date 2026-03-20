@@ -101,6 +101,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Buyer not found' }, { status: 404 })
   }
 
+  // Fetch agent profile for BVN/NIN fallback
+  const { data: agentProfile } = await supabase
+    .from('profiles')
+    .select('bvn, nin')
+    .eq('id', (sale as { agent_id: string }).agent_id)
+    .maybeSingle()
+
   const reference = `SALE-${sale_id}-${Date.now()}`
 
   // Check if a VA already exists for this sale
@@ -125,10 +132,12 @@ export async function POST(request: NextRequest) {
   if (gatewayClient) {
     try {
       const typedBuyer = buyer as { full_name: string; bvn_encrypted: string | null; nin_encrypted: string | null }
+      const agentBvn = (agentProfile as { bvn?: string | null } | null)?.bvn ?? undefined
+      const agentNin = (agentProfile as { nin?: string | null } | null)?.nin ?? undefined
       const result = await gatewayClient.createVirtualAccount({
         accountName: typedBuyer.full_name,
-        bvn: typedBuyer.bvn_encrypted ?? undefined,
-        nin: typedBuyer.nin_encrypted ?? undefined,
+        bvn: typedBuyer.bvn_encrypted ?? agentBvn,
+        nin: typedBuyer.nin_encrypted ?? agentNin,
         reference,
         amount: (sale as { selling_price: number }).selling_price,
       })

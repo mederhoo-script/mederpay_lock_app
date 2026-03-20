@@ -45,7 +45,7 @@ export default function AgentSidebar({ user }: SidebarProps) {
       {/* Logo */}
       <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.25rem 0.5rem', marginBottom: '1.5rem', textDecoration: 'none' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.svg" alt="MederBuy logo" width={32} height={32} style={{ borderRadius: '8px', flexShrink: 0 }} />
+        <img src="/logo.png" alt="MederBuy logo" width={32} height={32} style={{ borderRadius: '8px', flexShrink: 0 }} />
         <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>MederBuy</span>
       </Link>
 
@@ -89,26 +89,28 @@ export default function AgentSidebar({ user }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setOpen(true)}
-        style={{
-          position: 'fixed',
-          top: '1rem',
-          left: '1rem',
-          zIndex: 50,
-          padding: '0.5rem',
-          borderRadius: '8px',
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border)',
-          cursor: 'pointer',
-          color: 'var(--text-primary)',
-        }}
-        className="mobile-menu-btn"
-        aria-label="Open menu"
-      >
-        <Menu size={20} />
-      </button>
+      {/* Mobile toggle — hidden when drawer is open */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          style={{
+            position: 'fixed',
+            top: '1rem',
+            left: '1rem',
+            zIndex: 50,
+            padding: '0.5rem',
+            borderRadius: '8px',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            cursor: 'pointer',
+            color: 'var(--text-primary)',
+          }}
+          className="mobile-menu-btn"
+          aria-label="Open menu"
+        >
+          <Menu size={20} />
+        </button>
+      )}
 
       {/* Mobile overlay */}
       {open && (

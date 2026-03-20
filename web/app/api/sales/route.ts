@@ -241,14 +241,23 @@ export async function POST(request: NextRequest) {
       .eq('agent_id', resolvedAgentId)
       .maybeSingle()
 
+    // Fetch agent profile for BVN/NIN fallback
+    const { data: agentProfile } = await supabase
+      .from('profiles')
+      .select('bvn, nin')
+      .eq('id', resolvedAgentId)
+      .maybeSingle()
+
     const reference = `SALE-${(sale as { id: string }).id}-${Date.now()}`
     const gatewayClient = agentSettings ? buildGatewayFromSettings(agentSettings as AgentSettingsRow) : null
 
     if (gatewayClient) {
+      const agentBvn = (agentProfile as { bvn?: string | null } | null)?.bvn ?? undefined
+      const agentNin = (agentProfile as { nin?: string | null } | null)?.nin ?? undefined
       const vaResult = await gatewayClient.createVirtualAccount({
         accountName: buyer.full_name,
-        bvn: buyer.bvn_encrypted ?? undefined,
-        nin: buyer.nin_encrypted ?? undefined,
+        bvn: buyer.bvn_encrypted ?? agentBvn,
+        nin: buyer.nin_encrypted ?? agentNin,
         reference,
         amount: phone.selling_price,
       })
