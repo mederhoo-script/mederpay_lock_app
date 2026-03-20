@@ -90,7 +90,7 @@ export default function NewBuyerPage() {
               {errors.bvn && <span className="field-error">{errors.bvn.message}</span>}
             </div>
             <div className="form-group">
-              <label className="label">NIN (11 digits)</label>
+              <label className="label">NIN (11 digits) <span style={{ color: 'var(--danger)' }}>*</span></label>
               <input type="text" className="input" placeholder="12345678901" maxLength={11} {...register('nin')} />
               {errors.nin && <span className="field-error">{errors.nin.message}</span>}
             </div>

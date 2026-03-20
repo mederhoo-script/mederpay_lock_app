@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { CreateSubAgentSchema, type CreateSubAgentInput } from '@/lib/validations'
 import { ArrowLeft, Copy, CheckCheck } from 'lucide-react'
 import { useToast } from '@/components/Toast'
+import PasswordInput from '@/components/PasswordInput'
 
 interface CreatedSubAgent {
   full_name: string
@@ -138,7 +139,7 @@ export default function NewSubAgentPage() {
 
           <div className="form-group">
             <label className="label">Password <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>(optional — auto-generated if left blank)</span></label>
-            <input type="password" className="input" placeholder="Min. 8 characters" autoComplete="new-password" {...register('password')} />
+            <PasswordInput placeholder="Min. 8 characters" autoComplete="new-password" registration={register('password')} />
             {errors.password && <span className="field-error">{errors.password.message}</span>}
           </div>
 
