@@ -24,7 +24,7 @@ export default async function SubagentLayout({ children }: { children: React.Rea
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <SubagentSidebar user={{ name: profile.full_name ?? '', email: user.email ?? '' }} />
-      <main style={{ flex: 1, minWidth: 0, padding: '1.5rem', overflowY: 'auto' }}>
+      <main className="dashboard-layout-main" style={{ flex: 1, minWidth: 0, padding: '1.5rem', overflowY: 'auto' }}>
         {children}
       </main>
     </div>

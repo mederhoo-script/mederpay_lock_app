@@ -103,7 +103,6 @@ export default function AgentSidebar({ user }: SidebarProps) {
       <button
         onClick={() => setOpen(true)}
         style={{
-          display: 'none',
           position: 'fixed',
           top: '1rem',
           left: '1rem',
@@ -135,7 +134,9 @@ export default function AgentSidebar({ user }: SidebarProps) {
       )}
 
       {/* Sidebar — desktop */}
-      <aside style={{
+      <aside
+        className="desktop-sidebar"
+        style={{
         width: '240px',
         flexShrink: 0,
         background: 'var(--bg-sidebar)',
