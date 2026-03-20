@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
 import { formatNaira } from '@/lib/utils'
 import { Users, Smartphone, ShoppingBag, DollarSign } from 'lucide-react'
 
@@ -11,6 +12,9 @@ export default async function SuperadminDashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Use service client for data queries so RLS does not filter out other users' records
+  const db = createServiceClient()
+
   const [
     { count: totalAgents },
     { count: totalPhones },
@@ -18,11 +22,11 @@ export default async function SuperadminDashboardPage() {
     { data: revenueRows },
     { data: recentAgents },
   ] = await Promise.all([
-    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'agent'),
-    supabase.from('phones').select('*', { count: 'exact', head: true }),
-    supabase.from('phone_sales').select('*', { count: 'exact', head: true }),
-    supabase.from('phone_sales').select('total_paid'),
-    supabase.from('profiles')
+    db.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'agent'),
+    db.from('phones').select('*', { count: 'exact', head: true }),
+    db.from('phone_sales').select('*', { count: 'exact', head: true }),
+    db.from('phone_sales').select('total_paid'),
+    db.from('profiles')
       .select('id, full_name, email, phone, status, created_at')
       .eq('role', 'agent')
       .order('created_at', { ascending: false })

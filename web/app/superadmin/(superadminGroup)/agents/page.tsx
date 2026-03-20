@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
 import { Users } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -10,7 +11,9 @@ export default async function SuperadminAgentsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: agents } = await supabase
+  // Use service client so RLS does not filter out agents' profiles
+  const db = createServiceClient()
+  const { data: agents } = await db
     .from('profiles')
     .select('id, full_name, email, phone, status, created_at')
     .eq('role', 'agent')

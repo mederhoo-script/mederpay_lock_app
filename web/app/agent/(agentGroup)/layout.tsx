@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import AgentSidebar from './Sidebar'
+import SuperadminSidebar from '@/app/superadmin/(superadminGroup)/Sidebar'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,13 +17,18 @@ export default async function AgentLayout({ children }: { children: React.ReactN
     .single()
 
   if (!profile) redirect('/login')
-  if (profile.role === 'superadmin') redirect('/superadmin/dashboard')
+  // Superadmin may browse agent pages — allow through (no redirect)
   if (profile.status === 'suspended') redirect('/login?error=inactive')
-  if (profile.role !== 'agent' && profile.role !== 'subagent') redirect('/login')
+  if (profile.role !== 'agent' && profile.role !== 'subagent' && profile.role !== 'superadmin') redirect('/login')
+
+  const sidebar =
+    profile.role === 'superadmin'
+      ? <SuperadminSidebar user={{ name: profile.full_name ?? '', email: user.email ?? '' }} />
+      : <AgentSidebar user={{ name: profile.full_name ?? '', email: user.email ?? '' }} />
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      <AgentSidebar user={{ name: profile.full_name ?? '', email: user.email ?? '' }} />
+      {sidebar}
       <main className="dashboard-layout-main" style={{
         flex: 1,
         minWidth: 0,

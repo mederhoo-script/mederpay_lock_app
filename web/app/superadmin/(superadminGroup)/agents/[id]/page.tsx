@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
 import { ArrowLeft, User, Phone, Mail, Calendar, BarChart2, Users, Smartphone, ShoppingCart } from 'lucide-react'
 import AgentStatusActions from './AgentStatusActions'
 
@@ -20,8 +21,11 @@ export default async function SuperadminAgentDetailPage({ params }: { params: Pr
 
   if (!profile || (profile as { role: string }).role !== 'superadmin') redirect('/login')
 
+  // Use service client for agent data so RLS doesn't block cross-user queries
+  const db = createServiceClient()
+
   // Fetch agent profile
-  const { data: agent } = await supabase
+  const { data: agent } = await db
     .from('profiles')
     .select('id, full_name, email, phone, username, status, created_at')
     .eq('id', id)
@@ -42,16 +46,16 @@ export default async function SuperadminAgentDetailPage({ params }: { params: Pr
 
   // Fetch stats in parallel
   const [subAgentRes, phoneRes, salesRes] = await Promise.all([
-    supabase
+    db
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('parent_agent_id', id)
       .eq('role', 'subagent'),
-    supabase
+    db
       .from('phones')
       .select('*', { count: 'exact', head: true })
       .eq('agent_id', id),
-    supabase
+    db
       .from('phone_sales')
       .select('total_paid')
       .eq('agent_id', id),
