@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { full_name, email, phone } = parsed.data
+  const { full_name, email, username, phone, address } = parsed.data
 
   // Check if email already exists in profiles
   const { data: existingProfile } = await supabase
@@ -110,6 +110,19 @@ export async function POST(request: NextRequest) {
 
   if (existingProfile) {
     return NextResponse.json({ error: 'This email is already registered' }, { status: 409 })
+  }
+
+  // Check if username is taken (if provided)
+  if (username) {
+    const { data: existingUsername } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', username)
+      .maybeSingle()
+
+    if (existingUsername) {
+      return NextResponse.json({ error: 'This username is already taken' }, { status: 409 })
+    }
   }
 
   // Generate a temporary password — agent should share this with the sub-agent
@@ -126,7 +139,7 @@ export async function POST(request: NextRequest) {
       email,
       password: tempPassword,
       email_confirm: true,
-      user_metadata: { full_name, role: 'subagent' },
+      user_metadata: { full_name, role: 'subagent', username: username || null, phone: phone || null },
     })
 
   if (signUpError || !authData.user) {
@@ -139,20 +152,20 @@ export async function POST(request: NextRequest) {
 
   const newUserId = authData.user.id
 
+  const profilePayload: Record<string, unknown> = {
+    id: newUserId,
+    full_name,
+    email,
+    phone: phone || null,
+    role: 'subagent',
+    status: 'active',
+    parent_agent_id: user.id,
+  }
+  if (username) profilePayload.username = username
+
   const { error: profileError } = await serviceSupabase
     .from('profiles')
-    .upsert(
-      {
-        id: newUserId,
-        full_name,
-        email,
-        phone,
-        role: 'subagent',
-        status: 'active',
-        parent_agent_id: user.id,
-      },
-      { onConflict: 'id' },
-    )
+    .upsert(profilePayload, { onConflict: 'id' })
 
   if (profileError) {
     console.error('Failed to create sub-agent profile:', profileError)
@@ -160,7 +173,7 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json(
-    { id: newUserId, full_name, email, phone, status: 'active', temp_password: tempPassword },
+    { id: newUserId, full_name, email, username: username || null, phone: phone || null, address: address || null, status: 'active', temp_password: tempPassword },
     { status: 201 },
   )
 }

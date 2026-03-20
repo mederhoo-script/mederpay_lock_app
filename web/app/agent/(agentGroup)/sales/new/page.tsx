@@ -70,23 +70,29 @@ export default function NewSalePage() {
     }
   }
 
-  if (virtualAccount || saleId) {
+  if (saleId) {
     return (
       <div>
         <div className="page-header">
           <h1>Sale Created!</h1>
         </div>
         <div className="card" style={{ maxWidth: '500px' }}>
-          {virtualAccount && (
+          {virtualAccount ? (
             <div style={{ marginBottom: '1.5rem' }}>
               <h3 style={{ fontWeight: 600, marginBottom: '1rem', fontSize: '0.9375rem' }}>Virtual Account Details</h3>
               <div className="detail-row"><span className="detail-key">Bank</span><span className="detail-value">{virtualAccount.bank_name ?? '—'}</span></div>
               <div className="detail-row"><span className="detail-key">Account Number</span><span className="detail-value" style={{ fontFamily: 'monospace', fontWeight: 700 }}>{virtualAccount.account_number ?? '—'}</span></div>
               <div className="detail-row"><span className="detail-key">Account Name</span><span className="detail-value">{virtualAccount.account_name ?? '—'}</span></div>
             </div>
+          ) : (
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+              No payment gateway configured. Go to{' '}
+              <Link href="/agent/settings" style={{ color: 'var(--accent)' }}>Settings</Link>{' '}
+              to set up a gateway so virtual accounts can be created automatically.
+            </p>
           )}
           <div style={{ display: 'flex', gap: '0.75rem' }}>
-            {saleId && <Link href={`/agent/sales/${saleId}`} className="btn btn-primary">View Sale</Link>}
+            <Link href={`/agent/sales/${saleId}`} className="btn btn-primary">View Sale</Link>
             <Link href="/agent/sales" className="btn btn-secondary">All Sales</Link>
           </div>
         </div>
