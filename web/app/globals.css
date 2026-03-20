@@ -23,6 +23,26 @@
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
+  /* ─── LIGHT THEME ─────────────────────────────────────────────────── */
+  html.light {
+    --bg-primary: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-sidebar: #e2e8f0;
+    --bg-hover: #f8fafc;
+    --accent: #6366F1;
+    --accent-hover: #4f51d9;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --info: #2563eb;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border: rgba(0, 0, 0, 0.1);
+    --input-bg: #f8fafc;
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
   * {
     box-sizing: border-box;
     margin: 0;

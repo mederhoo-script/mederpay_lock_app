@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import SubagentSidebar from './Sidebar'
+import AgentSidebar from '@/app/agent/(agentGroup)/Sidebar'
+import SuperadminSidebar from '@/app/superadmin/(superadminGroup)/Sidebar'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,14 +18,21 @@ export default async function SubagentLayout({ children }: { children: React.Rea
     .single()
 
   if (!profile) redirect('/login')
-  if (profile.role === 'agent') redirect('/agent/dashboard')
-  if (profile.role === 'superadmin') redirect('/superadmin/dashboard')
-  if (profile.status === 'suspended') redirect('/login?error=inactive')
-  if (profile.role !== 'subagent') redirect('/login')
+  // Suspended check only for actual subagents
+  if (profile.role === 'subagent' && profile.status === 'suspended') redirect('/login?error=inactive')
+  // Only subagents, agents, and superadmin may access these pages
+  if (profile.role !== 'subagent' && profile.role !== 'agent' && profile.role !== 'superadmin') redirect('/login')
+
+  const sidebar =
+    profile.role === 'superadmin'
+      ? <SuperadminSidebar user={{ name: profile.full_name ?? '', email: user.email ?? '' }} />
+      : profile.role === 'agent'
+        ? <AgentSidebar user={{ name: profile.full_name ?? '', email: user.email ?? '' }} />
+        : <SubagentSidebar user={{ name: profile.full_name ?? '', email: user.email ?? '' }} />
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      <SubagentSidebar user={{ name: profile.full_name ?? '', email: user.email ?? '' }} />
+      {sidebar}
       <main className="dashboard-layout-main" style={{ flex: 1, minWidth: 0, padding: '1.5rem', overflowY: 'auto' }}>
         {children}
       </main>

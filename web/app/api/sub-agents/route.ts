@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { CreateSubAgentSchema } from '@/lib/validations'
 
 export async function GET(request: NextRequest) {
@@ -118,8 +118,11 @@ export async function POST(request: NextRequest) {
     Math.random().toString(36).slice(2, 10).toUpperCase() +
     '!1'
 
+  // Use the service role client so auth.admin.createUser() has the necessary privileges
+  const serviceSupabase = createServiceClient()
+
   const { data: authData, error: signUpError } =
-    await supabase.auth.admin.createUser({
+    await serviceSupabase.auth.admin.createUser({
       email,
       password: tempPassword,
       email_confirm: true,
@@ -136,7 +139,7 @@ export async function POST(request: NextRequest) {
 
   const newUserId = authData.user.id
 
-  const { error: profileError } = await supabase
+  const { error: profileError } = await serviceSupabase
     .from('profiles')
     .upsert(
       {
