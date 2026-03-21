@@ -31,6 +31,8 @@ jobs:
   build:
     name: Assemble & Sign Release APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       # ── 1. Checkout ───────────────────────────────────────────────────────────
