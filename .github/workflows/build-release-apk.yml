@@ -106,6 +106,7 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD=${KS_PASSWORD}
           ANDROID_KEY_ALIAS=${KEY_ALIAS}
           ANDROID_KEY_PASSWORD=${KEY_PASSWORD}
+          org.gradle.jvmargs=-Xmx4g
           EOF
           echo "gradle.properties written"
 
