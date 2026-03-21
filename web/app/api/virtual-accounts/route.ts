@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
   const gatewayClient = (typedSettings ? buildGateway(typedSettings) : null) ?? buildPlatformGateway()
   const activeGateway = typedSettings?.active_gateway ?? (gatewayClient ? 'monnify' : null)
 
-  if (!gatewayClient && !activeGateway) {
+  if (!gatewayClient) {
     return NextResponse.json({ error: 'No payment gateway configured for this agent or platform' }, { status: 422 })
   }
 
