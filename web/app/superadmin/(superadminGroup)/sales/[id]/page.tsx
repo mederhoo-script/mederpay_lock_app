@@ -31,7 +31,8 @@ export default async function SuperadminSaleDetailPage({ params }: { params: Pro
       *,
       buyers(id, full_name, phone, email, address),
       phones(id, brand, model, imei, storage, color),
-      profiles:agent_id(full_name, email)
+      profiles:agent_id(full_name, email),
+      subagent:sold_by(full_name, email)
     `)
     .eq('id', id)
     .single()
@@ -48,6 +49,8 @@ export default async function SuperadminSaleDetailPage({ params }: { params: Pro
   const phone = Array.isArray(sale.phones) ? sale.phones[0] : sale.phones
   const agentRaw = Array.isArray(sale.profiles) ? sale.profiles[0] : sale.profiles
   const agent = agentRaw as { full_name?: string; email?: string } | null
+  const subagentRaw = Array.isArray(sale.subagent) ? sale.subagent[0] : sale.subagent
+  const subagent = subagentRaw as { full_name?: string; email?: string } | null
   const outstanding = (sale.selling_price ?? 0) - (sale.total_paid ?? 0)
 
   return (
@@ -103,6 +106,9 @@ export default async function SuperadminSaleDetailPage({ params }: { params: Pro
         <div className="card">
           <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>Agent Information</h2>
           <div className="detail-row"><span className="detail-key">Agent</span><span className="detail-value">{agent?.full_name ?? agent?.email ?? '—'}</span></div>
+          {subagent && (
+            <div className="detail-row"><span className="detail-key">Sub-Agent</span><span className="detail-value">{subagent.full_name ?? subagent.email ?? '—'}</span></div>
+          )}
           <div className="detail-row"><span className="detail-key">Sale Date</span><span className="detail-value">{sale.sale_date ? new Date(sale.sale_date).toLocaleDateString() : '—'}</span></div>
           {sale.virtual_account_number && (
             <>

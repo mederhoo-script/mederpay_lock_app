@@ -61,6 +61,15 @@ export default async function SuperadminDashboardPage() {
 
   return (
     <div>
+      {/* Logo branding in content area */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.5rem', padding: '0.875rem 1.25rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', maxWidth: '260px' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt="MederBuy" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+        <div>
+          <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>MederBuy</p>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', lineHeight: 1, marginTop: '0.2rem' }}>Admin Portal</p>
+        </div>
+      </div>
       <div className="page-header">
         <div>
           <h1>Superadmin Dashboard</h1>

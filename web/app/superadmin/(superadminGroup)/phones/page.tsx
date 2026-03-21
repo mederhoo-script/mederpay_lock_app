@@ -23,7 +23,7 @@ export default async function SuperadminPhonesPage() {
   const db = createServiceClient()
   const { data: phones } = await db
     .from('phones')
-    .select('id, imei, brand, model, status, selling_price, created_at, profiles(full_name, email)')
+    .select('id, imei, brand, model, status, selling_price, created_at, profiles:agent_id(full_name, email)')
     .order('created_at', { ascending: false })
 
   return (

@@ -39,6 +39,22 @@ function buildGateway(settings: AgentSettingsRow): PaymentGateway | null {
   return null
 }
 
+/** Fall back to platform-level Monnify credentials from environment variables. */
+function buildPlatformGateway(): PaymentGateway | null {
+  const apiKey = process.env.MONNIFY_API_KEY
+  const secretKey = process.env.MONNIFY_SECRET_KEY
+  const contractCode = process.env.MONNIFY_CONTRACT_CODE
+  if (apiKey && secretKey && contractCode) {
+    return new MonnifyGateway({
+      apiKey,
+      secretKey,
+      contractCode,
+      baseUrl: process.env.MONNIFY_BASE_URL || 'https://api.monnify.com',
+    })
+  }
+  return null
+}
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
   const {
@@ -74,20 +90,19 @@ export async function POST(request: NextRequest) {
   }
 
   // Fetch the agent's active gateway settings
-  const { data: agentSettings, error: settingsError } = await supabase
+  const { data: agentSettings } = await supabase
     .from('agent_settings')
     .select('active_gateway, monnify_api_key_encrypted, monnify_secret_key_encrypted, monnify_contract_code, paystack_secret_key_encrypted, flutterwave_secret_key_encrypted')
     .eq('agent_id', (sale as { agent_id: string }).agent_id)
     .maybeSingle()
 
-  if (settingsError || !agentSettings) {
-    return NextResponse.json({ error: 'Agent payment settings not configured' }, { status: 422 })
-  }
+  // Build the gateway client: prefer agent-configured keys, fall back to platform env keys
+  const typedSettings = agentSettings as AgentSettingsRow | null
+  const gatewayClient = (typedSettings ? buildGateway(typedSettings) : null) ?? buildPlatformGateway()
+  const activeGateway = typedSettings?.active_gateway ?? (gatewayClient ? 'monnify' : null)
 
-  const activeGateway = agentSettings.active_gateway as string | null
-
-  if (!activeGateway) {
-    return NextResponse.json({ error: 'Agent has no active payment gateway configured' }, { status: 422 })
+  if (!gatewayClient && !activeGateway) {
+    return NextResponse.json({ error: 'No payment gateway configured for this agent or platform' }, { status: 422 })
   }
 
   // Fetch the buyer to get their name for the virtual account
@@ -120,9 +135,6 @@ export async function POST(request: NextRequest) {
   if (existingVA) {
     return NextResponse.json({ virtual_account: existingVA })
   }
-
-  const typedSettings = agentSettings as AgentSettingsRow
-  const gatewayClient = buildGateway(typedSettings)
 
   let accountNumber = ''
   let accountName = (buyer as { full_name: string }).full_name
@@ -158,7 +170,7 @@ export async function POST(request: NextRequest) {
       account_name: accountName,
       bank_name: bankName,
       bank_code: bankCode,
-      gateway: activeGateway,
+      gateway: activeGateway ?? 'monnify',
       reference,
       is_active: true,
     })

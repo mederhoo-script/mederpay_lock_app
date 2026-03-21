@@ -81,6 +81,11 @@ export default async function SubagentSaleDetailPage({ params }: { params: Promi
           <div className="detail-row"><span className="detail-key">IMEI</span><span className="detail-value" style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>{phone?.imei ?? '—'}</span></div>
           <div className="detail-row"><span className="detail-key">Storage</span><span className="detail-value">{phone?.storage ?? '—'}</span></div>
           <div className="detail-row"><span className="detail-key">Color</span><span className="detail-value">{phone?.color ?? '—'}</span></div>
+          {phone?.id && (
+            <div style={{ marginTop: '1rem' }}>
+              <Link href={`/subagent/phones/${phone.id}`} className="btn btn-ghost btn-sm">View Phone Details</Link>
+            </div>
+          )}
         </div>
       </div>
 

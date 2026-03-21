@@ -19,7 +19,8 @@ export default async function SuperadminSalesPage() {
       weeks_paid, total_weeks, sale_date, next_due_date,
       phones (brand, model, imei),
       buyers (full_name, phone),
-      profiles:agent_id (full_name, email)
+      profiles:agent_id (full_name, email),
+      subagent:sold_by (full_name, email)
     `)
     .order('sale_date', { ascending: false })
     .limit(500)
@@ -42,11 +43,12 @@ export default async function SuperadminSalesPage() {
                   <th>Buyer</th>
                   <th>Phone</th>
                   <th>Agent</th>
+                  <th>Sub-Agent</th>
                   <th>Amount</th>
                   <th>Paid</th>
                   <th>Balance</th>
                   <th>Status</th>
-                  <th>Sale Date</th>
+                  <th>Next Due</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -56,6 +58,8 @@ export default async function SuperadminSalesPage() {
                   const buyer = Array.isArray(sale.buyers) ? sale.buyers[0] : sale.buyers
                   const agentRaw = Array.isArray(sale.profiles) ? sale.profiles[0] : sale.profiles
                   const agent = agentRaw as { full_name?: string; email?: string } | null
+                  const subagentRaw = Array.isArray(sale.subagent) ? sale.subagent[0] : sale.subagent
+                  const subagent = subagentRaw as { full_name?: string; email?: string } | null
                   return (
                     <tr key={sale.id}>
                       <td style={{ fontWeight: 500 }}>
@@ -66,6 +70,9 @@ export default async function SuperadminSalesPage() {
                       </td>
                       <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
                         {agent?.full_name ?? agent?.email ?? '—'}
+                      </td>
+                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
+                        {subagent ? (subagent.full_name ?? subagent.email ?? '—') : <span style={{ opacity: 0.4 }}>—</span>}
                       </td>
                       <td style={{ fontWeight: 500 }}>{formatNaira(sale.selling_price ?? 0)}</td>
                       <td style={{ color: 'var(--success)' }}>{formatNaira(sale.total_paid ?? 0)}</td>
@@ -82,7 +89,7 @@ export default async function SuperadminSalesPage() {
                         </span>
                       </td>
                       <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
-                        {sale.sale_date ? new Date(sale.sale_date).toLocaleDateString() : '—'}
+                        {sale.next_due_date ? new Date(sale.next_due_date).toLocaleDateString() : '—'}
                       </td>
                       <td>
                         <Link href={`/superadmin/sales/${sale.id}`} className="btn btn-ghost btn-sm">View</Link>
