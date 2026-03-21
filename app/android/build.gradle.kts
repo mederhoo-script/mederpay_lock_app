@@ -43,20 +43,20 @@ android {
     // Locally: copy app/gradle.properties.example → app/gradle.properties and fill in values.
     val keystorePath = (project.findProperty("ANDROID_KEYSTORE_PATH") as? String).orEmpty()
     val keystorePassword = (project.findProperty("ANDROID_KEYSTORE_PASSWORD") as? String).orEmpty()
-    val keyAlias = (project.findProperty("ANDROID_KEY_ALIAS") as? String).orEmpty()
-    val keyPassword = (project.findProperty("ANDROID_KEY_PASSWORD") as? String).orEmpty()
+    val keyAliasValue = (project.findProperty("ANDROID_KEY_ALIAS") as? String).orEmpty()
+    val keyPasswordValue = (project.findProperty("ANDROID_KEY_PASSWORD") as? String).orEmpty()
     val hasSigningConfig = keystorePath.isNotBlank() &&
             keystorePassword.isNotBlank() &&
-            keyAlias.isNotBlank() &&
-            keyPassword.isNotBlank()
+            keyAliasValue.isNotBlank() &&
+            keyPasswordValue.isNotBlank()
 
     if (hasSigningConfig) {
         signingConfigs {
             create("release") {
                 storeFile = file(keystorePath)
                 storePassword = keystorePassword
-                keyAlias = keyAlias
-                keyPassword = keyPassword
+                keyAlias = keyAliasValue
+                keyPassword = keyPasswordValue
             }
         }
     }
