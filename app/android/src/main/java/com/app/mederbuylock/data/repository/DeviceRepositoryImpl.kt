@@ -1,7 +1,6 @@
 package com.app.mederbuylock.data.repository
 
 import android.content.Context
-import com.app.mederbuylock.BuildConfig
 import com.app.mederbuylock.core.utils.DeviceUtils
 import com.app.mederbuylock.core.utils.Result
 import com.app.mederbuylock.data.local.SecurePreferences
@@ -23,7 +22,7 @@ class DeviceRepositoryImpl @Inject constructor(
 
     override suspend fun getDeviceInfo(imei: String): Result<DeviceInfo> {
         return try {
-            val response = apiService.getDeviceInfo(imei, BuildConfig.DEVICE_API_SECRET)
+            val response = apiService.getDeviceInfo(imei)
 
             if (response.isSuccessful) {
                 val dto = requireNotNull(response.body()) { "Response body was null" }

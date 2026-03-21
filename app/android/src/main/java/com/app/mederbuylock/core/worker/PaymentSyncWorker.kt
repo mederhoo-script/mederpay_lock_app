@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.app.mederbuylock.BuildConfig
 import com.app.mederbuylock.MainActivity
 import com.app.mederbuylock.core.utils.Result as AppResult
 import com.app.mederbuylock.data.local.SecurePreferences
@@ -73,7 +72,6 @@ class PaymentSyncWorker @AssistedInject constructor(
         try {
             apiService.postDeviceEvent(
                 imei,
-                BuildConfig.DEVICE_API_SECRET,
                 DeviceEventRequest(eventType = eventType, details = details),
             )
         } catch (e: Exception) {

@@ -1,17 +1,22 @@
 package com.app.mederbuylock
 
+import android.Manifest
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import com.app.mederbuylock.core.receiver.DeviceAdminReceiver
 import com.app.mederbuylock.presentation.navigation.AppNavigation
 import com.app.mederbuylock.presentation.navigation.Screen
@@ -29,11 +34,22 @@ class MainActivity : ComponentActivity() {
         ComponentName(this, DeviceAdminReceiver::class.java)
     }
 
+    // Runtime permission launcher for READ_PHONE_STATE (needed for IMEI on Android 8/9).
+    private val phoneStatePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                Timber.d("READ_PHONE_STATE permission granted")
+            } else {
+                Timber.w("READ_PHONE_STATE permission denied — device will use Android ID instead")
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         applyWindowFlags()
         ensureDeviceAdmin()
+        requestPhoneStatePermissionIfNeeded()
 
         val startDestination = when {
             intent.getBooleanExtra(EXTRA_FORCE_LOCK, false) -> Screen.LockScreen.route
@@ -78,6 +94,21 @@ class MainActivity : ComponentActivity() {
         } else {
             Timber.d("Device admin is active")
         }
+    }
+
+    /**
+     * Requests READ_PHONE_STATE at runtime on Android 8/9 so [DeviceUtils.getImei] can
+     * retrieve the real IMEI instead of falling back to Android ID.
+     * On Android 10+ the IMEI is restricted to privileged apps regardless of permission,
+     * so there is no point asking.
+     */
+    private fun requestPhoneStatePermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.READ_PHONE_STATE,
+            ) == PackageManager.PERMISSION_GRANTED
+        ) return
+        phoneStatePermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
     }
 
     companion object {
