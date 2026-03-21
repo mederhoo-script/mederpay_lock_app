@@ -206,6 +206,16 @@ export async function PATCH(
       next_due_date: nextDue.toISOString().split('T')[0],
       status: newStatus,
     }
+
+    // Insert a manual payment record for audit trail
+    await supabase.from('payments').insert({
+      sale_id: id,
+      amount,
+      gateway: 'manual',
+      gateway_reference: `MANUAL-${id}-${Date.now()}`,
+      status: 'successful',
+      paid_at: new Date().toISOString(),
+    })
   } else if ('status' in parsed.data) {
     newStatus = parsed.data.status
     saleUpdates = { status: newStatus }

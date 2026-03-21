@@ -10,14 +10,7 @@ export default function LandingPage() {
       flexDirection: 'column',
     }}>
       {/* Nav */}
-      <nav style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '1rem 2rem',
-        borderBottom: '1px solid var(--border)',
-        background: 'var(--bg-sidebar)',
-      }}>
+      <nav className="landing-nav">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.svg" alt="MederBuy logo" width={32} height={32} style={{ borderRadius: '8px' }} />
@@ -30,7 +23,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 2rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <main className="landing-hero">
         {/* Decorative background */}
         <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
           <div style={{ position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)', width: '900px', height: '600px', background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.18) 0%, rgba(99,102,241,0.06) 45%, transparent 70%)', borderRadius: '50%' }} />
@@ -59,25 +52,22 @@ export default function LandingPage() {
           <Smartphone size={12} /> Phone Finance Platform
         </div>
 
-        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1, marginBottom: '1.25rem', maxWidth: '700px' }}>
+        <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 3.5rem)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1, marginBottom: '1.25rem', maxWidth: '700px', textAlign: 'center' }}>
           Sell Phones on Installments.{' '}
           <span style={{ color: 'var(--accent)' }}>Get Paid Automatically.</span>
         </h1>
 
-        <p style={{ fontSize: '1.125rem', color: 'var(--text-secondary)', maxWidth: '560px', lineHeight: 1.6, marginBottom: '2.5rem' }}>
+        <p style={{ fontSize: 'clamp(0.9375rem, 2vw, 1.125rem)', color: 'var(--text-secondary)', maxWidth: '560px', lineHeight: 1.6, marginBottom: '2.5rem', textAlign: 'center', padding: '0 1rem' }}>
           MederBuy helps agents manage phone inventory, create installment payment plans, and automatically lock devices when payments are missed.
         </p>
 
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div className="landing-cta-buttons">
           <Link href="/register" className="btn btn-primary btn-lg">Start for Free</Link>
           <Link href="/login" className="btn btn-secondary btn-lg">Sign In</Link>
         </div>
 
         {/* Features */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1.25rem', marginTop: '5rem', width: '100%', maxWidth: '900px',
-        }}>
+        <div className="landing-features">
           {[
             { icon: Smartphone, title: 'Inventory Management', desc: 'Track every phone by IMEI with full sale history.', color: 'var(--info)' },
             { icon: TrendingUp, title: 'Installment Plans', desc: 'Flexible weekly payment plans with automatic tracking.', color: 'var(--success)' },
