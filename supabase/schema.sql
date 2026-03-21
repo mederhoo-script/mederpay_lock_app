@@ -468,7 +468,18 @@ create policy "superadmin_buyers_all" on public.buyers
 
 drop policy if exists "agent_buyers_all" on public.buyers;
 create policy "agent_buyers_all" on public.buyers
-  for all using (agent_id = auth.uid())
+  for all using (
+    -- agent's own buyers
+    agent_id = auth.uid()
+    -- buyers registered by the agent's sub-agents
+    or (
+      public.current_user_role() = 'agent'
+      and agent_id in (
+        select id from public.profiles
+        where parent_agent_id = auth.uid() and role = 'subagent'
+      )
+    )
+  )
   with check (agent_id = auth.uid());
 
 -- Subagent: read buyers belonging to their parent agent

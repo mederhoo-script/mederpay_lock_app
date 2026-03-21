@@ -30,8 +30,6 @@ export default async function BuyerDetailPage({ params }: { params: Promise<{ id
 
   // Verify the agent has authority: buyer belongs to agent directly or via a subagent
   if (!buyer) notFound()
-  const { data: agentProfile } = await supabase.from('profiles').select('id').eq('id', buyer.agent_id).maybeSingle()
-  if (!agentProfile) notFound()
   // Allow access if buyer.agent_id is the agent or one of the agent's subagents
   const { data: subCheck } = await supabase
     .from('profiles')
