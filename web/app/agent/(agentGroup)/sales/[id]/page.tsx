@@ -25,6 +25,15 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Fetch subagent IDs so agent can also view sales made by their subagents
+  const { data: subagentProfiles } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('parent_agent_id', user.id)
+    .eq('role', 'subagent')
+  const subagentIds = (subagentProfiles ?? []).map((p) => p.id)
+  const ownerIds = [user.id, ...subagentIds]
+
   const { data: sale } = await supabase
     .from('phone_sales')
     .select(`
@@ -33,7 +42,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
       phones(id, brand, model, imei, storage, color)
     `)
     .eq('id', id)
-    .eq('agent_id', user.id)
+    .in('agent_id', ownerIds)
     .single()
 
   if (!sale) notFound()
