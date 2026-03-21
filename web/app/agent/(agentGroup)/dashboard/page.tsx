@@ -21,6 +21,15 @@ export default async function AgentDashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // include subagents so their phones/sales appear in agent stats
+  const { data: subagentProfiles } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('parent_agent_id', user.id)
+    .eq('role', 'subagent')
+  const subagentIds = (subagentProfiles ?? []).map((p) => p.id)
+  const ownerIds = [user.id, ...subagentIds]
+
   const [
     { count: totalPhones },
     { count: availablePhones },
@@ -30,15 +39,15 @@ export default async function AgentDashboardPage() {
     { data: revenueRows },
     { data: recentSales },
   ] = await Promise.all([
-    supabase.from('phones').select('*', { count: 'exact', head: true }).eq('agent_id', user.id),
-    supabase.from('phones').select('*', { count: 'exact', head: true }).eq('agent_id', user.id).eq('status', 'available'),
-    supabase.from('phone_sales').select('*', { count: 'exact', head: true }).eq('agent_id', user.id),
-    supabase.from('phone_sales').select('*', { count: 'exact', head: true }).eq('agent_id', user.id).eq('status', 'active'),
-    supabase.from('phones').select('*', { count: 'exact', head: true }).eq('agent_id', user.id).eq('status', 'locked'),
-    supabase.from('phone_sales').select('total_paid').eq('agent_id', user.id),
+    supabase.from('phones').select('*', { count: 'exact', head: true }).in('agent_id', ownerIds),
+    supabase.from('phones').select('*', { count: 'exact', head: true }).in('agent_id', ownerIds).eq('status', 'available'),
+    supabase.from('phone_sales').select('*', { count: 'exact', head: true }).in('agent_id', ownerIds),
+    supabase.from('phone_sales').select('*', { count: 'exact', head: true }).in('agent_id', ownerIds).eq('status', 'active'),
+    supabase.from('phones').select('*', { count: 'exact', head: true }).in('agent_id', ownerIds).eq('status', 'locked'),
+    supabase.from('phone_sales').select('total_paid').in('agent_id', ownerIds),
     supabase.from('phone_sales')
       .select('id, status, total_paid, selling_price, created_at, buyers(full_name), phones(brand, model)')
-      .eq('agent_id', user.id)
+      .in('agent_id', ownerIds)
       .order('created_at', { ascending: false })
       .limit(5),
   ])

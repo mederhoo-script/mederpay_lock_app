@@ -35,6 +35,15 @@ export default async function AgentLayout({ children }: { children: React.ReactN
         padding: '1.5rem',
         overflowY: 'auto',
       }}>
+        {/* Centered logo bar — visible on all agent pages */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.625rem', marginBottom: '1.5rem', padding: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="MederBuy" style={{ height: '36px', width: 'auto', borderRadius: '8px' }} />
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>MederBuy</p>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', lineHeight: 1, marginTop: '0.2rem' }}>Agent Portal</p>
+          </div>
+        </div>
         {children}
       </main>
     </div>

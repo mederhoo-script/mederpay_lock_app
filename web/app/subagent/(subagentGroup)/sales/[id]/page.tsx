@@ -3,8 +3,6 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatNaira } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
-import RecordPaymentForm from '@/components/RecordPaymentForm'
-import GenerateVirtualAccountButton from '@/components/GenerateVirtualAccountButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,20 +17,11 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`badge ${cls}`}>{status}</span>
 }
 
-export default async function SaleDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SubagentSaleDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
-
-  // Fetch subagent IDs so agent can also view sales made by their subagents
-  const { data: subagentProfiles } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('parent_agent_id', user.id)
-    .eq('role', 'subagent')
-  const subagentIds = (subagentProfiles ?? []).map((p) => p.id)
-  const ownerIds = [user.id, ...subagentIds]
 
   const { data: sale } = await supabase
     .from('phone_sales')
@@ -42,7 +31,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
       phones(id, brand, model, imei, storage, color)
     `)
     .eq('id', id)
-    .in('agent_id', ownerIds)
+    .eq('sold_by', user.id)
     .single()
 
   if (!sale) notFound()
@@ -61,7 +50,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
     <div>
       <div className="page-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Link href="/agent/sales" className="btn btn-ghost btn-sm"><ArrowLeft size={16} /></Link>
+          <Link href="/subagent/sales" className="btn btn-ghost btn-sm"><ArrowLeft size={16} /></Link>
           <div>
             <h1>Sale Details</h1>
             <p style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{sale.id}</p>
@@ -80,7 +69,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
           <div className="detail-row"><span className="detail-key">Address</span><span className="detail-value">{buyer?.address ?? '—'}</span></div>
           {buyer?.id && (
             <div style={{ marginTop: '1rem' }}>
-              <Link href={`/agent/buyers/${buyer.id}`} className="btn btn-ghost btn-sm">View Buyer Profile</Link>
+              <Link href={`/subagent/buyers/${buyer.id}`} className="btn btn-ghost btn-sm">View Buyer Profile</Link>
             </div>
           )}
         </div>
@@ -94,7 +83,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
           <div className="detail-row"><span className="detail-key">Color</span><span className="detail-value">{phone?.color ?? '—'}</span></div>
           {phone?.id && (
             <div style={{ marginTop: '1rem' }}>
-              <Link href={`/agent/phones/${phone.id}`} className="btn btn-ghost btn-sm">View Phone</Link>
+              <Link href={`/subagent/phones/${phone.id}`} className="btn btn-ghost btn-sm">View Phone Details</Link>
             </div>
           )}
         </div>
@@ -109,17 +98,6 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
           <div className="detail-row"><span className="detail-key">Outstanding</span><span className="detail-value" style={{ color: outstanding > 0 ? 'var(--warning)' : 'var(--success)' }}>{formatNaira(outstanding)}</span></div>
           <div className="detail-row"><span className="detail-key">Next Due Date</span><span className="detail-value">{sale.next_due_date ? new Date(sale.next_due_date).toLocaleDateString() : '—'}</span></div>
           <div className="detail-row"><span className="detail-key">Payment Weeks</span><span className="detail-value">{sale.payment_weeks ?? '—'}</span></div>
-          {/* Record weekly cash payment */}
-          {outstanding > 0 && (
-            <div style={{ marginTop: '1.25rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
-              <RecordPaymentForm
-                saleId={sale.id}
-                weeklyPayment={sale.weekly_payment ?? 0}
-                outstanding={outstanding}
-                saleStatus={sale.status}
-              />
-            </div>
-          )}
         </div>
 
         {/* Virtual Account */}
@@ -132,12 +110,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
               <div className="detail-row"><span className="detail-key">Account Name</span><span className="detail-value">{sale.account_name ?? '—'}</span></div>
             </>
           ) : (
-            <>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No virtual account assigned yet.</p>
-              {buyer?.id && (
-                <GenerateVirtualAccountButton saleId={sale.id} buyerId={buyer.id} />
-              )}
-            </>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No virtual account assigned.</p>
           )}
         </div>
       </div>

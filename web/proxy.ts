@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Public paths — no auth required
-const PUBLIC_PATHS = ['/login', '/register', '/forgot-password', '/auth']
+const PUBLIC_PATHS = ['/', '/login', '/register', '/forgot-password', '/auth']
 
 // Role → home dashboard mapping
 const ROLE_HOME: Record<string, string> = {
@@ -57,8 +57,8 @@ export async function proxy(request: NextRequest) {
   }
 
   // ── 1. Public / landing paths ────────────────────────────────────────────
-  // `/` redirects to `/login` via the root page component (app/page.tsx).
-  // We do NOT add it to public paths so authenticated users also reach the 404.
+  // `/` is the marketing landing page — accessible without auth.
+  // Authenticated users visiting `/login` or `/register` are redirected to their dashboard.
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
 
   if (isPublic) {

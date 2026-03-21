@@ -22,7 +22,7 @@ export default async function SubagentSalesPage() {
 
   const { data: sales } = await supabase
     .from('phone_sales')
-    .select('id, status, selling_price, total_paid, created_at, buyers(full_name, phone), phones(brand, model)')
+    .select('id, status, selling_price, total_paid, outstanding_balance, next_due_date, created_at, buyers(full_name, phone), phones(brand, model, id)')
     .eq('sold_by', user.id)
     .order('created_at', { ascending: false })
 
@@ -44,7 +44,7 @@ export default async function SubagentSalesPage() {
           <div style={{ overflowX: 'auto' }}>
             <table className="data-table">
               <thead>
-                <tr><th>Buyer</th><th>Phone</th><th>Status</th><th>Selling Price</th><th>Total Paid</th><th>Date</th></tr>
+                <tr><th>Buyer</th><th>Phone</th><th>Status</th><th>Selling Price</th><th>Total Paid</th><th>Outstanding</th><th>Next Due</th><th>Actions</th></tr>
               </thead>
               <tbody>
                 {sales.map((sale) => {
@@ -56,12 +56,24 @@ export default async function SubagentSalesPage() {
                         <div style={{ fontWeight: 500 }}>{buyer?.full_name ?? '—'}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{buyer?.phone ?? ''}</div>
                       </td>
-                      <td style={{ color: 'var(--text-secondary)' }}>{phone ? `${phone.brand} ${phone.model}` : '—'}</td>
+                      <td style={{ color: 'var(--text-secondary)' }}>
+                        {phone ? (
+                          <Link href={`/subagent/phones/${(phone as { id?: string }).id}`} style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+                            {(phone as { brand?: string }).brand ?? ''} {(phone as { model?: string }).model ?? ''}
+                          </Link>
+                        ) : '—'}
+                      </td>
                       <td><StatusBadge status={sale.status} /></td>
                       <td>{formatNaira(sale.selling_price ?? 0)}</td>
                       <td style={{ color: 'var(--success)' }}>{formatNaira(sale.total_paid ?? 0)}</td>
+                      <td style={{ color: (sale.outstanding_balance ?? 0) > 0 ? 'var(--warning)' : 'var(--text-secondary)' }}>
+                        {formatNaira(sale.outstanding_balance ?? 0)}
+                      </td>
                       <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
-                        {new Date(sale.created_at).toLocaleDateString()}
+                        {sale.next_due_date ? new Date(sale.next_due_date).toLocaleDateString() : '—'}
+                      </td>
+                      <td>
+                        <Link href={`/subagent/sales/${sale.id}`} className="btn btn-ghost btn-sm">View</Link>
                       </td>
                     </tr>
                   )

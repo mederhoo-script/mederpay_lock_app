@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatNaira } from '@/lib/utils'
 import { CreditCard } from 'lucide-react'
@@ -10,11 +11,20 @@ export default async function PaymentsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // get agent's sale ids
+  // get subagent IDs so payments from subagent sales are also included
+  const { data: subagentProfiles } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('parent_agent_id', user.id)
+    .eq('role', 'subagent')
+  const subagentIds = (subagentProfiles ?? []).map((p) => p.id)
+  const ownerIds = [user.id, ...subagentIds]
+
+  // get agent's (and subagents') sale ids
   const { data: sales } = await supabase
     .from('phone_sales')
     .select('id')
-    .eq('agent_id', user.id)
+    .in('agent_id', ownerIds)
 
   const saleIds = (sales ?? []).map((s) => s.id)
 
@@ -60,6 +70,7 @@ export default async function PaymentsPage() {
                   <th>Gateway</th>
                   <th>Status</th>
                   <th>Paid At</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -79,6 +90,11 @@ export default async function PaymentsPage() {
                       </td>
                       <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
                         {pmt.paid_at ? new Date(pmt.paid_at).toLocaleString() : '—'}
+                      </td>
+                      <td>
+                        {pmt.sale_id && (
+                          <Link href={`/agent/sales/${pmt.sale_id}`} className="btn btn-ghost btn-sm">View Sale</Link>
+                        )}
                       </td>
                     </tr>
                   )

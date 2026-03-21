@@ -16,7 +16,7 @@ function SaleStatusBadge({ status }: { status: string }) {
   return <span className={`badge ${cls}`}>{status}</span>
 }
 
-export default async function BuyerDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SubagentBuyerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -26,30 +26,23 @@ export default async function BuyerDetailPage({ params }: { params: Promise<{ id
     .from('buyers')
     .select('*')
     .eq('id', id)
+    .eq('agent_id', user.id)
     .single()
 
-  // Verify the agent has authority: buyer belongs to agent directly or via a subagent
   if (!buyer) notFound()
-  // Allow access if buyer.agent_id is the agent or one of the agent's subagents
-  const { data: subCheck } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('id', buyer.agent_id)
-    .or(`id.eq.${user.id},parent_agent_id.eq.${user.id}`)
-    .maybeSingle()
-  if (!subCheck) notFound()
 
   const { data: sales } = await supabase
     .from('phone_sales')
     .select('id, status, selling_price, total_paid, created_at, phones(brand, model)')
     .eq('buyer_id', id)
+    .eq('sold_by', user.id)
     .order('created_at', { ascending: false })
 
   return (
     <div>
       <div className="page-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Link href="/agent/buyers" className="btn btn-ghost btn-sm"><ArrowLeft size={16} /></Link>
+          <Link href="/subagent/buyers" className="btn btn-ghost btn-sm"><ArrowLeft size={16} /></Link>
           <div>
             <h1>{buyer.full_name}</h1>
             <p>Buyer Profile</p>
@@ -119,7 +112,7 @@ export default async function BuyerDetailPage({ params }: { params: Promise<{ id
                         {new Date(sale.created_at).toLocaleDateString()}
                       </td>
                       <td>
-                        <Link href={`/agent/sales/${sale.id}`} className="btn btn-ghost btn-sm">View</Link>
+                        <Link href={`/subagent/sales/${sale.id}`} className="btn btn-ghost btn-sm">View</Link>
                       </td>
                     </tr>
                   )

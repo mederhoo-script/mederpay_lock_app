@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Users, Smartphone, CreditCard, Layers, Settings, LogOut, Menu, X, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Users, Smartphone, CreditCard, Layers, Settings, LogOut, Menu, X, ChevronRight, ShoppingBag } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface SidebarProps {
@@ -14,6 +14,7 @@ const navItems = [
   { label: 'Dashboard', href: '/superadmin/dashboard', icon: LayoutDashboard },
   { label: 'Agents', href: '/superadmin/agents', icon: Users },
   { label: 'Phones', href: '/superadmin/phones', icon: Smartphone },
+  { label: 'Sales', href: '/superadmin/sales', icon: ShoppingBag },
   { label: 'Payments', href: '/superadmin/payments', icon: CreditCard },
   { label: 'Fee Tiers', href: '/superadmin/fee-tiers', icon: Layers },
   { label: 'Settings', href: '/superadmin/settings', icon: Settings },
@@ -23,8 +24,10 @@ export default function SuperadminSidebar({ user }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [signingOut, setSigningOut] = useState(false)
 
   const signOut = async () => {
+    setSigningOut(true)
     const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/login')
@@ -35,7 +38,7 @@ export default function SuperadminSidebar({ user }: SidebarProps) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.25rem 0.5rem', marginBottom: '1.5rem' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt="MederBuy logo" width={32} height={32} style={{ borderRadius: '8px', flexShrink: 0 }} />
+          <img src="/logo.png" alt="MederBuy logo" width={32} height={32} style={{ borderRadius: '8px', flexShrink: 0 }} />
           <div>
             <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>MederBuy</span>
             <div style={{ fontSize: '0.6875rem', color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Admin</div>
@@ -61,8 +64,8 @@ export default function SuperadminSidebar({ user }: SidebarProps) {
           <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name || 'Admin'}</p>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
         </div>
-        <button onClick={signOut} className="sidebar-link" style={{ width: '100%', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--danger)' }}>
-          <LogOut size={16} /><span>Sign Out</span>
+        <button onClick={signOut} disabled={signingOut} className="sidebar-link" style={{ width: '100%', border: 'none', background: 'none', cursor: signingOut ? 'not-allowed' : 'pointer', color: 'var(--danger)', opacity: signingOut ? 0.7 : 1 }}>
+          {signingOut ? <span className="spinner" style={{ width: '16px', height: '16px', flexShrink: 0 }} /> : <LogOut size={16} />}<span>{signingOut ? 'Signing out…' : 'Sign Out'}</span>
         </button>
       </div>
     </div>
@@ -80,9 +83,11 @@ export default function SuperadminSidebar({ user }: SidebarProps) {
           {sidebarContent}
         </aside>
       )}
-      <button onClick={() => setOpen(true)} className="mobile-menu-btn" style={{ position: 'fixed', top: '1rem', left: '1rem', zIndex: 50, padding: '0.5rem', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-primary)' }} aria-label="Open menu">
-        <Menu size={20} />
-      </button>
+      {!open && (
+        <button onClick={() => setOpen(true)} className="mobile-menu-btn" style={{ position: 'fixed', top: '1rem', left: '1rem', zIndex: 50, padding: '0.5rem', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text-primary)' }} aria-label="Open menu">
+          <Menu size={20} />
+        </button>
+      )}
     </>
   )
 }

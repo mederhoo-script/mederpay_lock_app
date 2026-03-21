@@ -10,10 +10,21 @@ export default async function BuyersPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Fetch the IDs of all subagents belonging to this agent
+  const { data: subagentProfiles } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('parent_agent_id', user.id)
+    .eq('role', 'subagent')
+
+  const subagentIds = (subagentProfiles ?? []).map((p) => p.id)
+  // All agent_ids whose buyers the agent should see: self + subagents
+  const ownerIds = [user.id, ...subagentIds]
+
   const { data: buyers } = await supabase
     .from('buyers')
-    .select('id, full_name, phone, email, address, created_at')
-    .eq('agent_id', user.id)
+    .select('id, full_name, phone, email, address, created_at, agent_id')
+    .in('agent_id', ownerIds)
     .order('created_at', { ascending: false })
 
   return (
@@ -38,6 +49,7 @@ export default async function BuyersPage() {
                   <th>Phone</th>
                   <th>Email</th>
                   <th>Address</th>
+                  <th>Source</th>
                   <th>Registered</th>
                   <th>Actions</th>
                 </tr>
@@ -49,6 +61,11 @@ export default async function BuyersPage() {
                     <td style={{ color: 'var(--text-secondary)' }}>{buyer.phone}</td>
                     <td style={{ color: 'var(--text-secondary)' }}>{buyer.email ?? '—'}</td>
                     <td style={{ color: 'var(--text-secondary)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{buyer.address}</td>
+                    <td>
+                      {buyer.agent_id === user.id
+                        ? <span className="badge badge-info">Direct</span>
+                        : <span className="badge badge-neutral">Sub-agent</span>}
+                    </td>
                     <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
                       {new Date(buyer.created_at).toLocaleDateString()}
                     </td>

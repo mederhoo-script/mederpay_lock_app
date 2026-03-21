@@ -136,6 +136,36 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // Enforce NIN uniqueness platform-wide
+  if (nin) {
+    const { data: existingNin } = await supabase
+      .from('buyers')
+      .select('id')
+      .eq('nin_encrypted', nin)
+      .maybeSingle()
+    if (existingNin) {
+      return NextResponse.json(
+        { error: 'A buyer with this NIN already exists on the platform' },
+        { status: 409 },
+      )
+    }
+  }
+
+  // Enforce BVN uniqueness platform-wide
+  if (bvn) {
+    const { data: existingBvn } = await supabase
+      .from('buyers')
+      .select('id')
+      .eq('bvn_encrypted', bvn)
+      .maybeSingle()
+    if (existingBvn) {
+      return NextResponse.json(
+        { error: 'A buyer with this BVN already exists on the platform' },
+        { status: 409 },
+      )
+    }
+  }
+
   const { data: buyer, error: insertError } = await supabase
     .from('buyers')
     .insert({

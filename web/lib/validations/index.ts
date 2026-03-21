@@ -47,7 +47,7 @@ export const SellPhoneSchema = z.object({
 export const AgentSettingsSchema = z.object({
   full_name: z.string().min(2, 'Full name is required'),
   phone: z.string().min(10, 'Invalid phone number'),
-  active_gateway: z.enum(['monnify', 'paystack', 'flutterwave', 'interswitch']).optional(),
+  active_gateway: z.enum(['monnify', 'paystack', 'flutterwave', 'interswitch']).optional().or(z.literal('')),
   monnify_api_key: z.string().optional(),
   monnify_secret_key: z.string().optional(),
   monnify_contract_code: z.string().optional(),

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { formatNaira } from '@/lib/utils'
 import { Smartphone } from 'lucide-react'
 
@@ -18,9 +19,11 @@ export default async function SuperadminPhonesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: phones } = await supabase
+  // Use service client so RLS doesn't restrict phones to the requesting user
+  const db = createServiceClient()
+  const { data: phones } = await db
     .from('phones')
-    .select('id, imei, brand, model, status, selling_price, created_at, profiles(full_name, email)')
+    .select('id, imei, brand, model, status, selling_price, created_at, profiles:agent_id(full_name, email)')
     .order('created_at', { ascending: false })
 
   return (
@@ -44,6 +47,7 @@ export default async function SuperadminPhonesPage() {
                   <th>Status</th>
                   <th>Selling Price</th>
                   <th>Added</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -58,6 +62,9 @@ export default async function SuperadminPhonesPage() {
                       <td>{formatNaira(phone.selling_price ?? 0)}</td>
                       <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
                         {new Date(phone.created_at).toLocaleDateString()}
+                      </td>
+                      <td>
+                        <Link href={`/superadmin/phones/${phone.id}`} className="btn btn-ghost btn-sm">View</Link>
                       </td>
                     </tr>
                   )

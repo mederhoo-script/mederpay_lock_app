@@ -68,22 +68,8 @@ export default function RegisterPage() {
       <div style={{ width: '100%', maxWidth: '460px' }}>
         {/* Branding */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '3rem',
-            height: '3rem',
-            borderRadius: '10px',
-            background: 'var(--accent)',
-            marginBottom: '1rem',
-          }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-              <rect x="5" y="2" width="14" height="20" rx="2" />
-              <line x1="12" y1="18" x2="12.01" y2="18" strokeLinecap="round" strokeWidth="3" />
-            </svg>
-          </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>MederBuy</h1>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="MederBuy" style={{ height: '80px', width: 'auto', marginBottom: '0.75rem', borderRadius: '14px' }} />
           <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
             Create your Agent account
           </p>
@@ -95,7 +81,7 @@ export default function RegisterPage() {
           </h2>
 
           <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="register-two-col">
               <div className="form-group">
                 <label className="label">Full Name</label>
                 <input type="text" className="input" placeholder="John Doe" {...register('full_name')} />
@@ -120,7 +106,7 @@ export default function RegisterPage() {
               {errors.phone && <span className="field-error">{errors.phone.message}</span>}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="register-two-col">
               <div className="form-group">
                 <label className="label">Password</label>
                 <PasswordInput autoComplete="new-password" registration={register('password')} />
