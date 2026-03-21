@@ -126,8 +126,9 @@ jobs:
       - name: Rename APK
         id: rename
         run: |
-          # Use grep -oP for a precise, whitespace-independent extraction.
-          VERSION=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/android/build.gradle.kts || echo "1.0.0")
+          # Use sed for portable, whitespace-independent extraction (grep -oP is not available on macOS runners).
+          VERSION=$(sed -n 's/.*versionName *= *"\([^"]*\)".*/\1/p' app/android/build.gradle.kts | head -1)
+          VERSION="${VERSION:-1.0.0}"
           SHA="${GITHUB_SHA::7}"
           APK_NAME="mederbuylock-v${VERSION}-${SHA}-release.apk"
           # Find whichever .apk Gradle produced and rename it.

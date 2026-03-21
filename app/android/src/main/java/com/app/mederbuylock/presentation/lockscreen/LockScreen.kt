@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Lock
@@ -30,6 +31,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -52,6 +54,7 @@ import com.app.mederbuylock.R
 
 @Composable
 fun LockScreen(
+    onNavigateToHome: () -> Unit = {},
     viewModel: LockScreenViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -73,6 +76,7 @@ fun LockScreen(
                         Intent(Intent.ACTION_DIAL, Uri.parse("tel:112"))
                     )
                 }
+                LockScreenEvent.NavigateToHome -> onNavigateToHome()
             }
         }
     }
@@ -254,6 +258,31 @@ fun LockScreen(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Check Payment Status button — re-queries the API to unlock if paid
+            Button(
+                onClick = viewModel::refresh,
+                enabled = !uiState.isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+            ) {
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Checking…", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                } else {
+                    Icon(Icons.Default.CheckCircle, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("I've Paid — Check Status", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+            }
 
             // Contact Support button
             Button(
