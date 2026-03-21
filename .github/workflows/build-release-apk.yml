@@ -97,6 +97,9 @@ jobs:
           KEY_PASSWORD="${ANDROID_KEY_PASSWORD:-${TEMP_KEYSTORE_PASS}}"
 
           cat > app/gradle.properties << EOF
+          android.useAndroidX=true
+          android.enableJetifier=true
+          
           ANDROID_DEVICE_API_SECRET=${ANDROID_DEVICE_API_SECRET}
           ANDROID_API_BASE_URL=${ANDROID_API_BASE_URL:-https://mederbuy.vercel.app/api/}
           ANDROID_KEYSTORE_PATH=release.keystore
