@@ -12,7 +12,7 @@
 # The web server reads this via the x-device-secret header.
 # Must match ANDROID_DEVICE_API_SECRET in web/.env.local exactly.
 # Generate a strong random value: openssl rand -hex 32
-ANDROID_DEVICE_API_SECRET=f9e8d7c6b5a4f9e8d7c6b5a4f9e8d7c6b5a4f9e8d7c6b5a4f9e8d7c6b5a4f9e8
+ANDROID_DEVICE_API_SECRET=e8d7c6b5a4f9e8d7c6b5a4f9e8d7c6b5a4f9e8d7c6b5a4f9e8d7c6b5a4e8
 
 # Base URL of the MederPay web API (must end with a trailing slash).
 # Local emulator : http://10.0.2.2:3000/api/
