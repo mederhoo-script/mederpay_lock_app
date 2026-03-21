@@ -11,11 +11,20 @@ export default async function PaymentsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // get agent's sale ids
+  // get subagent IDs so payments from subagent sales are also included
+  const { data: subagentProfiles } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('parent_agent_id', user.id)
+    .eq('role', 'subagent')
+  const subagentIds = (subagentProfiles ?? []).map((p) => p.id)
+  const ownerIds = [user.id, ...subagentIds]
+
+  // get agent's (and subagents') sale ids
   const { data: sales } = await supabase
     .from('phone_sales')
     .select('id')
-    .eq('agent_id', user.id)
+    .in('agent_id', ownerIds)
 
   const saleIds = (sales ?? []).map((s) => s.id)
 
