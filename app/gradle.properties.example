@@ -1,6 +1,6 @@
 # ─────────────────────────────────────────────────────────────
 #  MederBuy Android Build — Gradle Properties
-#  Copy this file to gradle.properties and fill in your value.
+#  Copy this file to gradle.properties and fill in your values.
 #
 #    cp gradle.properties.example gradle.properties
 #
@@ -9,13 +9,34 @@
 # ─────────────────────────────────────────────────────────────
 
 # Shared secret injected into BuildConfig.DEVICE_API_SECRET at compile time.
-# The web server reads this via the x-device-secret header.
+# The web server reads this via the X-Device-Secret header.
 # Must match ANDROID_DEVICE_API_SECRET in web/.env.local exactly.
 # Generate a strong random value: openssl rand -hex 32
-ANDROID_DEVICE_API_SECRET=e8d7c6b5a4f9e8d7c6b5a4f9e8d7c6b5a4f9e8d7c6b5a4f9e8d7c6b5a4e8
+ANDROID_DEVICE_API_SECRET=change-me-before-release
 
 # Base URL of the MederPay web API (must end with a trailing slash).
 # Local emulator : http://10.0.2.2:3000/api/
-# Staging        : https://mederbuy.vercel.app/api/
-# Production     : https://<your-custom-domain>/api/
+# Production     : https://mederbuy.vercel.app/api/
 ANDROID_API_BASE_URL=https://mederbuy.vercel.app/api/
+
+# ── Release Signing ──────────────────────────────────────────
+# These are required to produce a signed release APK.
+# In CI these are written automatically from GitHub Secrets.
+# Locally:
+#   1. Generate a keystore once:
+#      keytool -genkeypair -v -keystore release.keystore \
+#        -alias mederbuylock -keyalg RSA -keysize 2048 -validity 9125
+#   2. Move release.keystore somewhere outside the repo (it is gitignored here too)
+#   3. Set the path below (absolute path or relative to app/android/)
+
+# Path to the .keystore / .jks file (relative to app/android/ or absolute)
+ANDROID_KEYSTORE_PATH=release.keystore
+
+# Password used when the keystore was created
+ANDROID_KEYSTORE_PASSWORD=your_keystore_password
+
+# Alias of the key entry inside the keystore
+ANDROID_KEY_ALIAS=mederbuylock
+
+# Password for the key entry (often same as keystore password)
+ANDROID_KEY_PASSWORD=your_key_password

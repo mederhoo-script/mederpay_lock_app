@@ -38,6 +38,29 @@ android {
         )
     }
 
+    // Release signing — reads from gradle.properties (never committed to VCS).
+    // In CI the properties are written to app/gradle.properties from GitHub Secrets.
+    // Locally: copy app/gradle.properties.example → app/gradle.properties and fill in values.
+    val keystorePath = (project.findProperty("ANDROID_KEYSTORE_PATH") as? String).orEmpty()
+    val keystorePassword = (project.findProperty("ANDROID_KEYSTORE_PASSWORD") as? String).orEmpty()
+    val keyAlias = (project.findProperty("ANDROID_KEY_ALIAS") as? String).orEmpty()
+    val keyPassword = (project.findProperty("ANDROID_KEY_PASSWORD") as? String).orEmpty()
+    val hasSigningConfig = keystorePath.isNotBlank() &&
+            keystorePassword.isNotBlank() &&
+            keyAlias.isNotBlank() &&
+            keyPassword.isNotBlank()
+
+    if (hasSigningConfig) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = keystorePassword
+                keyAlias = keyAlias
+                keyPassword = keyPassword
+            }
+        }
+    }
+
     buildTypes {
         debug {
             isDebuggable = true
@@ -50,6 +73,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (hasSigningConfig) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
