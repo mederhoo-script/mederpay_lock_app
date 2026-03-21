@@ -20,11 +20,20 @@ export default async function LogsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // get agent's and subagents' phone ids for log visibility
+  const { data: subagentProfiles } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('parent_agent_id', user.id)
+    .eq('role', 'subagent')
+  const subagentIds = (subagentProfiles ?? []).map((p) => p.id)
+  const ownerIds = [user.id, ...subagentIds]
+
   // get agent's phone ids first
   const { data: phones } = await supabase
     .from('phones')
     .select('id, imei')
-    .eq('agent_id', user.id)
+    .in('agent_id', ownerIds)
 
   const phoneIds = (phones ?? []).map((p) => p.id)
   const imeiMap: Record<string, string> = {}
