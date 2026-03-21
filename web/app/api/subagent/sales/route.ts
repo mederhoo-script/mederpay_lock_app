@@ -121,16 +121,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Phone is not available for sale' }, { status: 409 })
   }
 
-  // Fetch buyer — must belong to this subagent (created by subagent)
+  // Fetch buyer — must belong to the parent agent
   const { data: buyerData, error: buyerError } = await db
     .from('buyers')
     .select('id, full_name, bvn_encrypted, nin_encrypted')
     .eq('id', buyer_id)
-    .eq('agent_id', user.id)
+    .eq('agent_id', profile.parent_agent_id)
     .single()
 
   if (buyerError || !buyerData) {
-    return NextResponse.json({ error: 'Buyer not found or not registered by you' }, { status: 404 })
+    return NextResponse.json({ error: 'Buyer not found or does not belong to your agent' }, { status: 404 })
   }
 
   const buyer = buyerData as unknown as BuyerRow
@@ -174,23 +174,14 @@ export async function POST(request: NextRequest) {
       .eq('agent_id', profile.parent_agent_id)
       .maybeSingle()
 
-    // Fetch agent profile for BVN/NIN fallback
-    const { data: agentProfile } = await db
-      .from('profiles')
-      .select('bvn, nin')
-      .eq('id', profile.parent_agent_id)
-      .maybeSingle()
-
     const reference = `SALE-${(sale as { id: string }).id}-${Date.now()}`
     const gatewayClient = agentSettings ? buildGatewayFromSettings(agentSettings as AgentSettingsRow) : null
 
     if (gatewayClient) {
-      const agentBvn = (agentProfile as { bvn?: string | null } | null)?.bvn ?? undefined
-      const agentNin = (agentProfile as { nin?: string | null } | null)?.nin ?? undefined
       const vaResult = await gatewayClient.createVirtualAccount({
         accountName: buyer.full_name,
-        bvn: buyer.bvn_encrypted ?? agentBvn,
-        nin: buyer.nin_encrypted ?? agentNin,
+        bvn: buyer.bvn_encrypted ?? undefined,
+        nin: buyer.nin_encrypted ?? undefined,
         reference,
         amount: phone.selling_price,
       })

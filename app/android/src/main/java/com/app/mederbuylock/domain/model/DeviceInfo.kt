@@ -15,4 +15,5 @@ data class DeviceInfo(
     val accountNumber: String?,
     val balance: Long,
     val paymentUrl: String?,
+    val supportPhone: String?,
 )

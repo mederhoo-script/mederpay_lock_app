@@ -22,20 +22,10 @@ export default async function SalesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Fetch subagent IDs so the agent can see their sales too
-  const { data: subagentProfiles } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('parent_agent_id', user.id)
-    .eq('role', 'subagent')
-
-  const subagentIds = (subagentProfiles ?? []).map((p) => p.id)
-  const ownerIds = [user.id, ...subagentIds]
-
   const { data: sales } = await supabase
     .from('phone_sales')
-    .select('id, status, selling_price, total_paid, outstanding_balance, next_due_date, created_at, agent_id, buyers(full_name, phone), phones(brand, model)')
-    .in('agent_id', ownerIds)
+    .select('id, status, selling_price, total_paid, outstanding_balance, next_due_date, created_at, buyers(full_name, phone), phones(brand, model)')
+    .eq('agent_id', user.id)
     .order('created_at', { ascending: false })
 
   return (

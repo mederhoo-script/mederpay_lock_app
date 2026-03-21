@@ -208,24 +208,3 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
-
--- ── Step 12: Allow agents to see buyers created by their sub-agents ─────────
--- Previously, agents could only see buyers where agent_id = their own UID.
--- Sub-agents create buyers with agent_id = sub-agent.id, so those buyers were
--- invisible to the parent agent.  The updated policy grants SELECT/UPDATE/DELETE
--- to agents for their own buyers AND buyers created by any of their sub-agents.
--- INSERT is still restricted to agent_id = auth.uid() so agents can only
--- directly register buyers under their own account.
-drop policy if exists "agent_buyers_all" on public.buyers;
-create policy "agent_buyers_all" on public.buyers
-  for all using (
-    agent_id = auth.uid()
-    or (
-      public.current_user_role() = 'agent'
-      and agent_id in (
-        select id from public.profiles
-        where parent_agent_id = auth.uid() and role = 'subagent'
-      )
-    )
-  )
-  with check (agent_id = auth.uid());

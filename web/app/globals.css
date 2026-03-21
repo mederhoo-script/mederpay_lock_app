@@ -233,12 +233,6 @@
     border-color: var(--accent-hover);
   }
 
-  .btn-primary:active:not(:disabled) {
-    background-color: var(--accent-hover);
-    filter: brightness(0.88);
-    transform: scale(0.98);
-  }
-
   .btn-secondary {
     background-color: rgba(255, 255, 255, 0.06);
     color: var(--text-primary);
@@ -247,11 +241,6 @@
 
   .btn-secondary:hover:not(:disabled) {
     background-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .btn-secondary:active:not(:disabled) {
-    background-color: rgba(255, 255, 255, 0.15);
-    transform: scale(0.98);
   }
 
   .btn-danger {
@@ -265,12 +254,6 @@
     border-color: #dc2626;
   }
 
-  .btn-danger:active:not(:disabled) {
-    background-color: #b91c1c;
-    border-color: #b91c1c;
-    transform: scale(0.98);
-  }
-
   .btn-ghost {
     background-color: transparent;
     color: var(--text-secondary);
@@ -282,11 +265,6 @@
     color: var(--text-primary);
   }
 
-  .btn-ghost:active:not(:disabled) {
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: scale(0.98);
-  }
-
   .btn-success {
     background-color: var(--success);
     color: #fff;
@@ -295,11 +273,6 @@
 
   .btn-success:hover:not(:disabled) {
     background-color: #059669;
-  }
-
-  .btn-success:active:not(:disabled) {
-    background-color: #047857;
-    transform: scale(0.98);
   }
 
   .btn-sm {
@@ -502,10 +475,6 @@
     background-color: rgba(255, 255, 255, 0.025);
   }
 
-  .data-table tbody tr:active {
-    background-color: rgba(99, 102, 241, 0.08);
-  }
-
   .data-table tbody tr:last-child td {
     border-bottom: none;
   }
@@ -528,12 +497,6 @@
   .sidebar-link:hover {
     background-color: rgba(255, 255, 255, 0.06);
     color: var(--text-primary);
-  }
-
-  .sidebar-link:active {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-    transform: scale(0.99);
   }
 
   .sidebar-link.active {
@@ -744,79 +707,6 @@
     /* Allow the page header to wrap on very narrow screens */
     .page-header {
       flex-wrap: wrap;
-    }
-  }
-}
-
-/* ─── LANDING PAGE RESPONSIVE ─────────────────────────────────────────────── */
-@layer utilities {
-  .landing-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-sidebar);
-  }
-
-  .landing-hero {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .landing-cta-buttons {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .landing-features {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.25rem;
-    margin-top: 5rem;
-    width: 100%;
-    max-width: 900px;
-  }
-
-  /* Register page 2-col grid — stacks on mobile */
-  .register-two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  @media (max-width: 480px) {
-    .landing-nav {
-      padding: 0.875rem 1rem;
-    }
-
-    .landing-hero {
-      padding: 2.5rem 1rem;
-    }
-
-    .landing-cta-buttons {
-      flex-direction: column;
-      align-items: stretch;
-      width: 100%;
-      max-width: 280px;
-    }
-
-    .landing-features {
-      grid-template-columns: 1fr;
-      margin-top: 3rem;
-    }
-
-    .register-two-col {
-      grid-template-columns: 1fr;
     }
   }
 }

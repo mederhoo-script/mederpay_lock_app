@@ -31,6 +31,7 @@ data class LockScreenUiState(
 sealed class LockScreenEvent {
     data object CallSupport : LockScreenEvent()
     data object EmergencyCall : LockScreenEvent()
+    data object NavigateToHome : LockScreenEvent()
 }
 
 @HiltViewModel
@@ -56,11 +57,18 @@ class LockScreenViewModel @Inject constructor(
         lockDeviceUseCase()
     }
 
+    fun refresh() = loadDeviceInfo()
+
     private fun loadDeviceInfo() = viewModelScope.launch {
+        _uiState.update { it.copy(isLoading = true, error = null) }
         val imei = securePreferences.cachedImei ?: DeviceUtils.getImei(context)
         when (val result = getDeviceInfoUseCase(imei)) {
-            is Result.Success ->
+            is Result.Success -> {
                 _uiState.update { it.copy(isLoading = false, deviceInfo = result.data) }
+                if (!result.data.isLocked) {
+                    _events.emit(LockScreenEvent.NavigateToHome)
+                }
+            }
             is Result.Error -> {
                 Timber.e("LockScreen: failed to load device info — ${result.message}")
                 _uiState.update { it.copy(isLoading = false, error = result.message) }

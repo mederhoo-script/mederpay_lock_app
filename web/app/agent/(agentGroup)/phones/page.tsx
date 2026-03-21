@@ -21,19 +21,10 @@ export default async function PhonesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // include phones registered by subagents
-  const { data: subagentProfiles } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('parent_agent_id', user.id)
-    .eq('role', 'subagent')
-  const subagentIds = (subagentProfiles ?? []).map((p) => p.id)
-  const ownerIds = [user.id, ...subagentIds]
-
   const { data: phones } = await supabase
     .from('phones')
     .select('*')
-    .in('agent_id', ownerIds)
+    .eq('agent_id', user.id)
     .order('created_at', { ascending: false })
 
   return (

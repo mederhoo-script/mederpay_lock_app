@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -187,7 +188,19 @@ fun HomeScreen(
 
                     uiState.error?.let { err ->
                         InfoCard(containerColor = Color(0xFF7F1D1D)) {
-                            Text(err, color = Color(0xFFFFCDD2), fontSize = 14.sp)
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(err, color = Color(0xFFFFCDD2), fontSize = 14.sp)
+                                TextButton(onClick = viewModel::refresh) {
+                                    Icon(
+                                        Icons.Default.Refresh,
+                                        contentDescription = null,
+                                        tint = Color(0xFFFFCDD2),
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Retry", color = Color(0xFFFFCDD2), fontSize = 14.sp)
+                                }
+                            }
                         }
                     }
                 }

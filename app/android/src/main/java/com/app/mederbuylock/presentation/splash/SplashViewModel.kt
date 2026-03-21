@@ -3,7 +3,6 @@ package com.app.mederbuylock.presentation.splash
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.app.mederbuylock.BuildConfig
 import com.app.mederbuylock.core.security.RootDetector
 import com.app.mederbuylock.core.utils.DeviceUtils
 import com.app.mederbuylock.core.utils.Result
@@ -63,6 +62,12 @@ class SplashViewModel @Inject constructor(
         _uiState.update { it.copy(isRooted = isRooted) }
 
         // Fire-and-forget telemetry events (non-fatal)
+        if (!securePreferences.isRegistered) {
+            launch {
+                postEvent(imei, "DEVICE_REGISTERED", "model=${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}")
+                securePreferences.isRegistered = true
+            }
+        }
         launch { postEvent(imei, "BOOT", if (isRooted) "rooted=true" else null) }
         if (isRooted) {
             launch { postEvent(imei, "ROOT_DETECTED", "Root detected on boot") }
@@ -96,7 +101,6 @@ class SplashViewModel @Inject constructor(
         try {
             apiService.postDeviceEvent(
                 imei,
-                BuildConfig.DEVICE_API_SECRET,
                 DeviceEventRequest(eventType = eventType, details = details),
             )
         } catch (e: Exception) {

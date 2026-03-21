@@ -21,10 +21,11 @@ class BootReceiver : BroadcastReceiver() {
 
         Timber.d("Boot completed — checking lock state")
 
-        // Read isDeviceLocked from plain SharedPreferences using the same prefs name
-        // (EncryptedSharedPreferences is not available in BroadcastReceiver without Hilt)
+        // Read isDeviceLocked from the dedicated plain-prefs mirror file written by SecurePreferences.
+        // (EncryptedSharedPreferences is not available in BroadcastReceiver without Hilt, and
+        //  reading the encrypted file via plain SharedPreferences would never find the key.)
         val prefs = context.getSharedPreferences(
-            SecurePreferences.PREFS_NAME,
+            SecurePreferences.LOCK_STATE_PREFS_NAME,
             Context.MODE_PRIVATE,
         )
         val isLocked = prefs.getBoolean(SecurePreferences.KEY_IS_LOCKED, false)
