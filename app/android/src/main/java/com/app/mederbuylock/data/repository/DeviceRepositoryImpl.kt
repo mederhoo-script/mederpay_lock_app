@@ -34,11 +34,12 @@ class DeviceRepositoryImpl @Inject constructor(
                     daysOverdue = dto.daysOverdue,
                     paymentDueDate = dto.paymentDueDate ?: "",
                     userName = dto.userName ?: "",
-                    phoneNumber = dto.phoneNumber ?: dto.supportPhone ?: "",
+                    phoneNumber = dto.phoneNumber ?: "",
                     paymentStatus = dto.paymentStatus,
                     accountNumber = dto.accountNumber,
                     balance = dto.balance,
                     paymentUrl = dto.paymentUrl,
+                    supportPhone = dto.supportPhone,
                 )
                 saveDeviceInfo(deviceInfo)
                 Result.Success(deviceInfo)
@@ -78,6 +79,7 @@ class DeviceRepositoryImpl @Inject constructor(
         accountNumber = accountNumber,
         balance = balance,
         paymentUrl = paymentUrl,
+        supportPhone = supportPhone,
     )
 
     private fun DeviceInfo.toEntity() = DeviceInfoEntity(
@@ -92,5 +94,6 @@ class DeviceRepositoryImpl @Inject constructor(
         accountNumber = accountNumber,
         balance = balance,
         paymentUrl = paymentUrl,
+        supportPhone = supportPhone,
     )
 }

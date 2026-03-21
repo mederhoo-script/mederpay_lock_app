@@ -56,14 +56,16 @@ fun LockScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val supportPhone = stringResource(R.string.support_phone)
+    val fallbackSupportPhone = stringResource(R.string.support_phone)
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
                 LockScreenEvent.CallSupport -> {
+                    val phone = uiState.deviceInfo?.supportPhone?.takeIf { it.isNotBlank() }
+                        ?: fallbackSupportPhone
                     context.startActivity(
-                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:$supportPhone"))
+                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
                     )
                 }
                 LockScreenEvent.EmergencyCall -> {

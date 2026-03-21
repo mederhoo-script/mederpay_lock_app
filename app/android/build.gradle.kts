@@ -28,6 +28,14 @@ android {
             "DEVICE_API_SECRET",
             "\"${project.findProperty("ANDROID_DEVICE_API_SECRET") ?: "change-me-before-release"}\"",
         )
+
+        // Base URL for the MederPay REST API consumed by this app.
+        // Override at build time via: -PANDROID_API_BASE_URL=https://your-domain/api/
+        buildConfigField(
+            "String",
+            "API_BASE_URL",
+            "\"${project.findProperty("ANDROID_API_BASE_URL") ?: "https://mederbuy.vercel.app/api/"}\"",
+        )
     }
 
     buildTypes {
