@@ -28,6 +28,8 @@ interface SaleRow {
   weekly_payment: number
   weeks_paid: number
   total_paid: number
+  next_due_date: string | null
+  status: string
 }
 
 function verifySignature(rawBody: string, signature: string, secretKey: string): boolean {
@@ -75,7 +77,7 @@ export async function POST(request: NextRequest) {
 
   const { data: saleData, error: saleError } = await supabase
     .from('phone_sales')
-    .select('id, buyer_id, agent_id, phone_id, outstanding_balance, weekly_payment, weeks_paid, total_paid, phones(imei)')
+    .select('id, buyer_id, agent_id, phone_id, outstanding_balance, weekly_payment, weeks_paid, total_paid, next_due_date, status, phones(imei)')
     .eq('virtual_account_reference', saleReference)
     .maybeSingle()
 

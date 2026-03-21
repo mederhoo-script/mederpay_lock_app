@@ -23,6 +23,8 @@ interface SaleRow {
   outstanding_balance: number
   weeks_paid: number
   total_paid: number
+  next_due_date: string | null
+  status: string
 }
 
 export async function POST(request: NextRequest) {
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
   // Verify HMAC against agent's Paystack secret key
   const { data: saleData } = await supabase
     .from('phone_sales')
-    .select('id, buyer_id, agent_id, phone_id, outstanding_balance, weeks_paid, total_paid, phones(imei)')
+    .select('id, buyer_id, agent_id, phone_id, outstanding_balance, weeks_paid, total_paid, next_due_date, status, phones(imei)')
     .eq('virtual_account_reference', reference)
     .maybeSingle()
 
@@ -117,15 +119,38 @@ export async function POST(request: NextRequest) {
   const newWeeksPaid = sale.weeks_paid + 1
   const isComplete = newOutstandingBalance === 0
 
+  // Advance next_due_date by 7 days on partial payments.
+  // Base from the existing due date if it's still in the future; otherwise from today.
+  let newNextDueDate: string | undefined
+  if (!isComplete) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const base = sale.next_due_date ? new Date(sale.next_due_date) : today
+    const d = base > today ? base : today
+    d.setDate(d.getDate() + 7)
+    newNextDueDate = d.toISOString().split('T')[0]
+  }
+
   await supabase
     .from('phone_sales')
     .update({
       total_paid: newTotalPaid,
       outstanding_balance: newOutstandingBalance,
       weeks_paid: newWeeksPaid,
-      ...(isComplete ? { status: 'completed' } : {}),
+      ...(isComplete
+        ? { status: 'completed' }
+        : {
+            next_due_date: newNextDueDate,
+            ...(sale.status === 'lock' ? { status: 'active' } : {}),
+          }),
     })
     .eq('id', sale.id)
+
+  const phoneImei = !sale.phones
+    ? null
+    : Array.isArray(sale.phones)
+      ? (sale.phones[0]?.imei ?? null)
+      : sale.phones.imei
 
   // Auto-unlock phone when loan is fully repaid
   if (isComplete) {
@@ -133,12 +158,6 @@ export async function POST(request: NextRequest) {
       .from('phones')
       .update({ status: 'unlocked' })
       .eq('id', sale.phone_id)
-
-    const phoneImei = !sale.phones
-      ? null
-      : Array.isArray(sale.phones)
-        ? (sale.phones[0]?.imei ?? null)
-        : sale.phones.imei
 
     if (phoneImei) {
       const { error: logError } = await supabase.from('phone_logs').insert({
@@ -149,6 +168,23 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString(),
       })
       if (logError) console.error('Failed to log Paystack unlock event:', logError)
+    }
+  } else if (sale.status === 'lock') {
+    // Partial payment after device was locked — restore phone and log event
+    await supabase
+      .from('phones')
+      .update({ status: 'sold' })
+      .eq('id', sale.phone_id)
+      .eq('status', 'locked')
+
+    if (phoneImei) {
+      await supabase.from('phone_logs').insert({
+        phone_id: sale.phone_id,
+        imei: phoneImei,
+        event_type: 'PAYMENT_RECEIVED',
+        details: `Payment received via Paystack: device restored, ₦${(newOutstandingBalance / 100).toFixed(2)} remaining`,
+        timestamp: new Date().toISOString(),
+      })
     }
   }
 
