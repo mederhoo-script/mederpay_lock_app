@@ -143,7 +143,12 @@ jobs:
           path: app/android/build/outputs/apk/release/*.apk
           retention-days: 30
 
-      # ── 11. Summary ───────────────────────────────────────────────────────────
+      # ── 11. Remove keystore from workspace ────────────────────────────────────
+      - name: Remove keystore
+        if: always()
+        run: rm -f app/android/release.keystore
+
+      # ── 12. Summary ───────────────────────────────────────────────────────────
       - name: Build summary
         run: |
           echo "## ✅ Release APK built" >> "$GITHUB_STEP_SUMMARY"

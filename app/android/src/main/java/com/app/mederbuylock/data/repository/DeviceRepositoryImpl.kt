@@ -62,6 +62,7 @@ class DeviceRepositoryImpl @Inject constructor(
     override suspend fun saveDeviceInfo(deviceInfo: DeviceInfo) {
         deviceDao.insertDeviceInfo(deviceInfo.toEntity())
         securePreferences.isDeviceLocked = deviceInfo.isLocked
+        securePreferences.cachedPaymentStatus = deviceInfo.paymentStatus
     }
 
     // ─── Mappers ─────────────────────────────────────────────────────────────

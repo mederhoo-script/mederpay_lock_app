@@ -56,26 +56,51 @@ class PaymentSyncWorker @AssistedInject constructor(
     private suspend fun handleStatus(imei: String, status: PaymentStatus) {
         when (status) {
             is PaymentStatus.Locked, is PaymentStatus.Overdue -> {
+                val oldStatusStr = securePreferences.cachedPaymentStatus ?: "ACTIVE"
+                val newStatusStr = if (status is PaymentStatus.Locked) "LOCKED" else "OVERDUE"
                 Timber.w("PaymentSyncWorker: device should be locked ($status)")
                 lockDeviceUseCase()
-                postEvent(imei, "LOCK_ENFORCED", "Automatic lock by PaymentSyncWorker: $status")
+                postEvent(
+                    imei,
+                    DeviceEventRequest(
+                        eventType = "LOCK_ENFORCED",
+                        details = "Automatic lock by PaymentSyncWorker: $status",
+                        oldStatus = oldStatusStr,
+                        newStatus = newStatusStr,
+                    ),
+                )
                 launchLockScreen()
             }
             is PaymentStatus.Active, is PaymentStatus.GracePeriod -> {
+                val wasLocked = securePreferences.isDeviceLocked
+                val oldStatusStr = securePreferences.cachedPaymentStatus ?: "LOCKED"
                 Timber.d("PaymentSyncWorker: payment OK ($status)")
                 unlockDeviceUseCase()
+                if (wasLocked) {
+                    val newStatusStr = if (status is PaymentStatus.GracePeriod) "GRACE_PERIOD" else "ACTIVE"
+                    postEvent(
+                        imei,
+                        DeviceEventRequest(
+                            eventType = "STATUS_CHANGE",
+                            details = "Auto-unlocked by PaymentSyncWorker: $status",
+                            oldStatus = oldStatusStr,
+                            newStatus = newStatusStr,
+                        ),
+                    )
+                }
             }
         }
     }
 
     private suspend fun postEvent(imei: String, eventType: String, details: String?) {
+        postEvent(imei, DeviceEventRequest(eventType = eventType, details = details))
+    }
+
+    private suspend fun postEvent(imei: String, request: DeviceEventRequest) {
         try {
-            apiService.postDeviceEvent(
-                imei,
-                DeviceEventRequest(eventType = eventType, details = details),
-            )
+            apiService.postDeviceEvent(imei, request)
         } catch (e: Exception) {
-            Timber.w(e, "Failed to post $eventType event (non-fatal)")
+            Timber.w(e, "Failed to post ${request.eventType} event (non-fatal)")
         }
     }
 

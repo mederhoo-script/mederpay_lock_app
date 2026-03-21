@@ -51,6 +51,10 @@ class SecurePreferences @Inject constructor(
                 .edit().putBoolean(KEY_IS_LOCKED, value).apply()
         }
 
+    var cachedPaymentStatus: String?
+        get() = prefs.getString(KEY_PAYMENT_STATUS, null)
+        set(value) = prefs.edit().putString(KEY_PAYMENT_STATUS, value).apply()
+
     var isRegistered: Boolean
         get() = prefs.getBoolean(KEY_IS_REGISTERED, false)
         set(value) = prefs.edit().putBoolean(KEY_IS_REGISTERED, value).apply()
@@ -63,5 +67,6 @@ class SecurePreferences @Inject constructor(
         const val KEY_IMEI_CACHE = "imei_cache"
         const val KEY_IS_LOCKED = "is_locked"
         const val KEY_IS_REGISTERED = "is_registered"
+        const val KEY_PAYMENT_STATUS = "payment_status"
     }
 }
