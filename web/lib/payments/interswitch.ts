@@ -19,6 +19,9 @@ export class InterswitchGateway implements PaymentGateway {
       },
       body: 'grant_type=client_credentials',
     })
+    if (!response.ok) {
+      throw new Error(`Interswitch getToken failed: HTTP ${response.status} ${response.statusText}`)
+    }
     const data = await response.json() as { access_token: string }
     return data.access_token
   }
@@ -37,6 +40,9 @@ export class InterswitchGateway implements PaymentGateway {
         reference: params.reference,
       }),
     })
+    if (!response.ok) {
+      throw new Error(`Interswitch createVirtualAccount failed: HTTP ${response.status} ${response.statusText}`)
+    }
     const data = await response.json() as { accountNumber: string; accountName: string; bankName: string; bankCode: string }
     return {
       accountNumber: data.accountNumber,
@@ -52,6 +58,9 @@ export class InterswitchGateway implements PaymentGateway {
     const response = await fetch(`https://sandbox.interswitchng.com/api/v2/quickteller/transactions?reference=${encodeURIComponent(reference)}`, {
       headers: { 'Authorization': `Bearer ${token}` },
     })
+    if (!response.ok) {
+      throw new Error(`Interswitch verifyPayment failed: HTTP ${response.status} ${response.statusText}`)
+    }
     const data = await response.json() as { responseCode: string; amount: number; transactionDate: string }
     return {
       status: data.responseCode === '00' ? 'success' : 'pending',

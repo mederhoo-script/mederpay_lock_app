@@ -4,6 +4,7 @@ import { MonnifyGateway } from '@/lib/payments/monnify'
 import { PaystackGateway } from '@/lib/payments/paystack'
 import { FlutterwaveGateway } from '@/lib/payments/flutterwave'
 import type { PaymentGateway } from '@/lib/payments/index'
+import { decryptPii } from '@/lib/pii-encryption'
 
 interface CreateVirtualAccountBody {
   sale_id: string
@@ -127,8 +128,9 @@ export async function POST(request: NextRequest) {
       const typedBuyer = buyer as { full_name: string; bvn_encrypted: string | null; nin_encrypted: string | null }
       const result = await gatewayClient.createVirtualAccount({
         accountName: typedBuyer.full_name,
-        bvn: typedBuyer.bvn_encrypted ?? undefined,
-        nin: typedBuyer.nin_encrypted ?? undefined,
+        // Decrypt PII before passing to payment gateway (stored encrypted in DB)
+        bvn: decryptPii(typedBuyer.bvn_encrypted) ?? undefined,
+        nin: decryptPii(typedBuyer.nin_encrypted) ?? undefined,
         reference,
         amount: (sale as { selling_price: number }).selling_price,
       })

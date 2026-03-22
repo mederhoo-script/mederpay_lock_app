@@ -23,6 +23,9 @@ export class FlutterwaveGateway implements PaymentGateway {
         narration: params.accountName,
       }),
     })
+    if (!response.ok) {
+      throw new Error(`Flutterwave createVirtualAccount failed: HTTP ${response.status} ${response.statusText}`)
+    }
     const data = await response.json() as { status: string; data: { account_number: string; account_name: string; bank_name: string } }
     if (data.status !== 'success') throw new Error('Failed to create Flutterwave virtual account')
     return {
@@ -38,6 +41,9 @@ export class FlutterwaveGateway implements PaymentGateway {
     const response = await fetch(`https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=${encodeURIComponent(reference)}`, {
       headers: { 'Authorization': `Bearer ${this.secretKey}` },
     })
+    if (!response.ok) {
+      throw new Error(`Flutterwave verifyPayment failed: HTTP ${response.status} ${response.statusText}`)
+    }
     const data = await response.json() as { status: string; data: { status: string; amount: number; created_at: string } }
     if (data.status !== 'success') throw new Error('Failed to verify Flutterwave payment')
     return {

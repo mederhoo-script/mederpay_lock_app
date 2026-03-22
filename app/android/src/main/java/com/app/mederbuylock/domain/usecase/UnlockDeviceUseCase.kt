@@ -4,6 +4,8 @@ import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import com.app.mederbuylock.core.receiver.DeviceAdminReceiver
+import com.app.mederbuylock.data.local.SecurePreferences
+import com.app.mederbuylock.data.repository.DeviceRepositoryImpl
 import com.app.mederbuylock.domain.repository.DeviceRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
@@ -13,6 +15,7 @@ class UnlockDeviceUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
     private val devicePolicyManager: DevicePolicyManager,
     private val deviceRepository: DeviceRepository,
+    private val securePreferences: SecurePreferences,
 ) {
     suspend operator fun invoke() {
         val componentName = ComponentName(context, DeviceAdminReceiver::class.java)
@@ -24,7 +27,12 @@ class UnlockDeviceUseCase @Inject constructor(
             val cached = deviceRepository.getCachedDeviceInfo()
             if (cached != null) {
                 deviceRepository.saveDeviceInfo(cached.copy(isLocked = false))
-                Timber.d("Device unlock state persisted")
+                Timber.d("Device unlock state persisted via cached info")
+            } else {
+                // No cached info available (first boot / fresh install).
+                // Update SecurePreferences directly so BootReceiver reflects the correct state.
+                securePreferences.isDeviceLocked = false
+                Timber.d("Device unlock state persisted via SecurePreferences (no cache)")
             }
         } catch (e: Exception) {
             Timber.e(e, "Failed to persist unlock state")

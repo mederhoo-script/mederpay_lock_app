@@ -29,6 +29,12 @@ object AppModule {
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.DATABASE_NAME)
+            // ⚠️ TODO (production): Replace fallbackToDestructiveMigration() with explicit
+            // Room Migration objects before releasing to production. The current behaviour
+            // wipes all cached device data on every schema change, forcing a full re-sync
+            // from the server. That is acceptable during development but NOT in production
+            // where losing the local cache means the device shows as unregistered until the
+            // next successful network sync.
             .fallbackToDestructiveMigration()
             .build()
 

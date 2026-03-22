@@ -1,6 +1,9 @@
 package com.app.mederbuylock
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.Constraints
@@ -23,12 +26,15 @@ class MederBuyLockApp : Application(), Configuration.Provider {
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
-            .setMinimumLoggingLevel(android.util.Log.DEBUG)
+            .setMinimumLoggingLevel(
+                if (BuildConfig.DEBUG) android.util.Log.DEBUG else android.util.Log.ERROR,
+            )
             .build()
 
     override fun onCreate() {
         super.onCreate()
         initTimber()
+        createNotificationChannels()
         schedulePaymentSync()
     }
 
@@ -47,6 +53,29 @@ class MederBuyLockApp : Application(), Configuration.Provider {
         }
     }
 
+    /**
+     * Creates the notification channels required for Android 8+ (API 26+).
+     * Must be called before any notification is posted; safe to call repeatedly.
+     */
+    private fun createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val nm = getSystemService(NotificationManager::class.java)
+
+            // High-priority channel used by PaymentSyncWorker to show a full-screen
+            // lock notification on Android 10+ where background activity starts are blocked.
+            val lockChannel = NotificationChannel(
+                PaymentSyncWorker.LOCK_CHANNEL_ID,
+                getString(R.string.notif_channel_lock_name),
+                NotificationManager.IMPORTANCE_HIGH,
+            ).apply {
+                description = getString(R.string.notif_channel_lock_description)
+                setShowBadge(false)
+            }
+
+            nm.createNotificationChannel(lockChannel)
+        }
+    }
+
     private fun schedulePaymentSync() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -56,9 +85,10 @@ class MederBuyLockApp : Application(), Configuration.Provider {
             .setConstraints(constraints)
             .build()
 
+        // Use REPLACE so any change to the sync interval takes effect immediately on update.
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             PaymentSyncWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             syncRequest
         )
     }

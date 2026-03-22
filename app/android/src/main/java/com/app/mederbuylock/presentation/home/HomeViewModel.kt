@@ -62,12 +62,16 @@ class HomeViewModel @Inject constructor(
         when (val deviceResult = getDeviceInfoUseCase(imei)) {
             is Result.Success -> {
                 val info = deviceResult.data
-                _uiState.update { it.copy(isLoading = false, deviceInfo = info) }
+                _uiState.update { it.copy(deviceInfo = info) }
                 if (info.isLocked) {
+                    _uiState.update { it.copy(isLoading = false) }
                     _navEvents.emit(HomeNavEvent.ToLockScreen)
                     return@launch
                 }
+                // Check payment status inline (not as a separate coroutine) so isLoading
+                // remains true until both calls complete, avoiding a loading-state flicker.
                 checkStatus(imei)
+                _uiState.update { it.copy(isLoading = false) }
             }
             is Result.Error -> {
                 Timber.e("Home: failed to load device info — ${deviceResult.message}")
@@ -77,7 +81,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun checkStatus(imei: String) = viewModelScope.launch {
+    private suspend fun checkStatus(imei: String) {
         when (val result = checkPaymentStatusUseCase(imei)) {
             is Result.Success -> {
                 _uiState.update { it.copy(paymentStatus = result.data) }

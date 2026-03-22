@@ -23,6 +23,9 @@ export class MonnifyGateway implements PaymentGateway {
         'Content-Type': 'application/json',
       },
     })
+    if (!response.ok) {
+      throw new Error(`Monnify getToken failed: HTTP ${response.status} ${response.statusText}`)
+    }
     const data = await response.json() as { requestSuccessful: boolean; responseBody: { accessToken: string } }
     if (!data.requestSuccessful) throw new Error('Monnify auth failed')
     return data.responseBody.accessToken
@@ -47,6 +50,9 @@ export class MonnifyGateway implements PaymentGateway {
         preferredBanks: ['035'],
       }),
     })
+    if (!response.ok) {
+      throw new Error(`Monnify createVirtualAccount failed: HTTP ${response.status} ${response.statusText}`)
+    }
     const data = await response.json() as { requestSuccessful: boolean; responseBody: { accounts: Array<{ accountNumber: string; bankName: string; bankCode: string }> } }
     if (!data.requestSuccessful) throw new Error('Failed to create Monnify virtual account')
     const account = data.responseBody.accounts[0]
@@ -64,6 +70,9 @@ export class MonnifyGateway implements PaymentGateway {
     const response = await fetch(`${this.config.baseUrl}/api/v2/transactions/${encodeURIComponent(reference)}`, {
       headers: { 'Authorization': `Bearer ${token}` },
     })
+    if (!response.ok) {
+      throw new Error(`Monnify verifyPayment failed: HTTP ${response.status} ${response.statusText}`)
+    }
     const data = await response.json() as { requestSuccessful: boolean; responseBody: { paymentStatus: string; amountPaid: number; createdOn: string } }
     if (!data.requestSuccessful) throw new Error('Failed to verify Monnify payment')
     return {

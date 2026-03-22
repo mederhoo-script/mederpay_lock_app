@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Device admin policy declaration for MederBuyLock.
+
+  Only force-lock is declared here:
+  - The app calls devicePolicyManager.lockNow() to lock the screen when a payment is overdue.
+  - No other device-admin APIs are used.
+
+  Do NOT add reset-password, limit-password, watch-login, or encrypted-storage.
+  They are unnecessary for BNPL locking, make the admin-consent dialog more invasive,
+  and reset-password in particular can trigger a Google Play policy violation review.
+-->
 <device-admin xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-policies>
         <force-lock />
-        <watch-login />
-        <reset-password />
-        <limit-password />
-        <encrypted-storage />
     </uses-policies>
 </device-admin>

@@ -65,10 +65,13 @@ class SplashViewModel @Inject constructor(
         if (!securePreferences.isRegistered) {
             launch {
                 postEvent(imei, "DEVICE_REGISTERED", "model=${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}")
+                // Only mark as registered after the event is posted successfully so that
+                // a network failure does not silently suppress the registration event forever.
                 securePreferences.isRegistered = true
             }
+        } else {
+            launch { postEvent(imei, "BOOT", if (isRooted) "rooted=true" else null) }
         }
-        launch { postEvent(imei, "BOOT", if (isRooted) "rooted=true" else null) }
         if (isRooted) {
             launch { postEvent(imei, "ROOT_DETECTED", "Root detected on boot") }
         }

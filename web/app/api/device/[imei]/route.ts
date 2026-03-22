@@ -44,7 +44,13 @@ function toAndroidPaymentStatus(status: string): string {
 function computeDaysOverdue(nextDueDate: string | null): number {
   if (!nextDueDate) return 0
   const due = new Date(nextDueDate)
+  // Truncate both timestamps to date-only (midnight) before comparing.
+  // When `due` equals `now` (payment due today), the difference is 0 — the device is
+  // not yet overdue. The lock-overdue cron uses `lt('next_due_date', today)` which
+  // only locks devices whose due date is strictly before today, so the thresholds align.
+  due.setHours(0, 0, 0, 0)
   const now = new Date()
+  now.setHours(0, 0, 0, 0)
   const diff = Math.floor((now.getTime() - due.getTime()) / (1000 * 60 * 60 * 24))
   return Math.max(0, diff)
 }

@@ -89,7 +89,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: verification.status, payment: null })
   }
 
-  // Use the service client for writes so RLS does not block the insert
+  // Use the service client for writes so RLS does not block the insert.
+  // The `gateway_reference` column has a UNIQUE constraint in the DB, so a concurrent
+  // duplicate insert will fail with a 23505 conflict — handle it gracefully.
   const serviceClient = createServiceClient()
 
   const { data: payment, error: paymentError } = await serviceClient
@@ -108,6 +110,15 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (paymentError) {
+    // Unique-constraint violation means a concurrent request already inserted this payment
+    if ((paymentError as { code?: string }).code === '23505') {
+      const { data: dup } = await serviceClient
+        .from('payments')
+        .select('id, status, amount')
+        .eq('gateway_reference', gateway_reference)
+        .maybeSingle()
+      return NextResponse.json({ payment: dup, status: 'already_recorded' })
+    }
     console.error('Failed to record payment:', paymentError)
     return NextResponse.json({ error: 'Failed to record payment' }, { status: 500 })
   }
