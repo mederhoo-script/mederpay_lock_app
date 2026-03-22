@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { decryptPii } from '@/lib/pii-encryption'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -100,8 +101,11 @@ export async function GET(
     phone: buyer.phone,
     email: buyer.email,
     address: buyer.address,
-    bvn: buyer.bvn_encrypted,
-    nin: buyer.nin_encrypted,
+    // Return presence indicator and last 4 digits only — never the full PII value
+    has_bvn: !!(buyer.bvn_encrypted),
+    bvn_last4: buyer.bvn_encrypted ? (() => { try { const v = decryptPii(buyer.bvn_encrypted); return v ? `****${v.slice(-4)}` : null } catch { return null } })() : null,
+    has_nin: !!(buyer.nin_encrypted),
+    nin_last4: buyer.nin_encrypted ? (() => { try { const v = decryptPii(buyer.nin_encrypted); return v ? `****${v.slice(-4)}` : null } catch { return null } })() : null,
     agent_id: buyer.agent_id,
     created_at: buyer.created_at,
     sales,

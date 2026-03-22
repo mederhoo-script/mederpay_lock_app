@@ -5,6 +5,7 @@ import { PaystackGateway } from '@/lib/payments/paystack'
 import { FlutterwaveGateway } from '@/lib/payments/flutterwave'
 import type { PaymentGateway } from '@/lib/payments/index'
 import { SellPhoneSchema } from '@/lib/validations'
+import { decryptPii } from '@/lib/pii-encryption'
 
 interface PhoneRow {
   id: string
@@ -247,8 +248,9 @@ export async function POST(request: NextRequest) {
     if (gatewayClient) {
       const vaResult = await gatewayClient.createVirtualAccount({
         accountName: buyer.full_name,
-        bvn: buyer.bvn_encrypted ?? undefined,
-        nin: buyer.nin_encrypted ?? undefined,
+        // Decrypt PII before passing to payment gateway (stored encrypted in DB)
+        bvn: decryptPii(buyer.bvn_encrypted) ?? undefined,
+        nin: decryptPii(buyer.nin_encrypted) ?? undefined,
         reference,
         amount: phone.selling_price,
       })

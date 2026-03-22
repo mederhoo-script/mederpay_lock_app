@@ -19,6 +19,9 @@ export class PaystackGateway implements PaymentGateway {
         preferred_bank: 'wema-bank',
       }),
     })
+    if (!response.ok) {
+      throw new Error(`Paystack createVirtualAccount failed: HTTP ${response.status} ${response.statusText}`)
+    }
     const data = await response.json() as { status: boolean; data: { account_number: string; account_name: string; bank: { name: string; id: string } } }
     if (!data.status) throw new Error('Failed to create Paystack virtual account')
     return {
@@ -34,6 +37,9 @@ export class PaystackGateway implements PaymentGateway {
     const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
       headers: { 'Authorization': `Bearer ${this.secretKey}` },
     })
+    if (!response.ok) {
+      throw new Error(`Paystack verifyPayment failed: HTTP ${response.status} ${response.statusText}`)
+    }
     const data = await response.json() as { status: boolean; data: { status: string; amount: number; paid_at: string } }
     if (!data.status) throw new Error('Failed to verify Paystack payment')
     return {

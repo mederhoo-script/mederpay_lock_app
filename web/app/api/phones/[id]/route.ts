@@ -155,7 +155,7 @@ export async function PATCH(
   // Only available phones can be edited
   const { data: existing, error: fetchError } = await supabase
     .from('phones')
-    .select('id, status')
+    .select('id, status, selling_price, down_payment, payment_weeks')
     .eq('id', id)
     .single()
 
@@ -163,10 +163,22 @@ export async function PATCH(
     return NextResponse.json({ error: 'Phone not found' }, { status: 404 })
   }
 
-  if ((existing as { status: string }).status !== 'available') {
+  const existingPhone = existing as { status: string; selling_price: number; down_payment: number; payment_weeks: number }
+
+  if (existingPhone.status !== 'available') {
     return NextResponse.json(
       { error: 'Only available phones can be edited' },
       { status: 409 },
+    )
+  }
+
+  // Cross-field validation: the effective down_payment must always be less than selling_price
+  const effectiveSellingPrice = parsed.data.selling_price ?? existingPhone.selling_price
+  const effectiveDownPayment = parsed.data.down_payment ?? existingPhone.down_payment
+  if (effectiveDownPayment >= effectiveSellingPrice) {
+    return NextResponse.json(
+      { error: 'Down payment must be less than selling price' },
+      { status: 422 },
     )
   }
 
