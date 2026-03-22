@@ -11,12 +11,20 @@
 -keepclasseswithmembers class * {
     @retrofit2.http.* <methods>;
 }
+# Keep Retrofit response type generics so Gson can deserialize body types.
+-keep,allowobfuscation,allowshrinking interface retrofit2.Call
+-keep,allowobfuscation,allowshrinking class retrofit2.Response
 
 # OkHttp
 -keep class okhttp3.** { *; }
 -keep interface okhttp3.** { *; }
 -dontwarn okhttp3.**
 -dontwarn okio.**
+
+# Kotlin Coroutines — keep continuation classes and their generics intact.
+-keepclassmembers class kotlinx.coroutines.** { volatile <fields>; }
+-keep class kotlin.coroutines.Continuation
+-dontwarn kotlinx.coroutines.**
 
 # Gson
 -keep class com.google.gson.** { *; }
@@ -43,7 +51,7 @@
 # RootBeer
 -keep class com.scottyab.rootbeer.** { *; }
 
-# Timber
+# Timber — strip verbose logging in release builds.
 -assumenosideeffects class timber.log.Timber {
     public static *** v(...);
     public static *** d(...);

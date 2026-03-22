@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Network Security Configuration for MederBuyLock.
+
+  Policy:
+  - All HTTP cleartext traffic is forbidden on every API level (including API 26-27,
+    where Android's default policy still allows cleartext).
+  - Only system-trusted CA certificates are accepted; user-installed CAs are rejected,
+    preventing certificate injection attacks via user-installed roots.
+
+  Certificate Pinning:
+  - Pinning is intentionally deferred here.  To enable it, replace the placeholder
+    <pin-set> entries in CertificatePinner.kt with real SHA-256 leaf/backup pins
+    obtained from the production server, then uncomment the .certificatePinner() call
+    in AppModule.kt.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Accept only system-trusted CAs; reject user-added certificates -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
