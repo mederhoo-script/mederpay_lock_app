@@ -1,5 +1,5 @@
 # MederBuy Lock — Monorepo
-
+ 
 Phone-installment financing platform.  
 An agent sells a phone on credit; the Android app enforces repayment by locking the device until the loan is fully repaid.
 
