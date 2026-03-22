@@ -58,11 +58,13 @@
             </intent-filter>
         </receiver>
 
-        <!-- Boot Receiver — protected so only the system can send BOOT_COMPLETED -->
+        <!-- Boot Receiver — BOOT_COMPLETED is a protected broadcast (system-only); the
+             isBootAction guard in BootReceiver.kt defends against other explicit invocations.
+             Do NOT add android:permission here: RECEIVE_BOOT_COMPLETED is a 'normal' permission
+             that any app can hold, so it would not restrict senders to the system only. -->
         <receiver
             android:name=".core.receiver.BootReceiver"
-            android:exported="true"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />

@@ -60,6 +60,8 @@ class PaymentSyncWorker @AssistedInject constructor(
                 val newStatusStr = if (status is PaymentStatus.Locked) "LOCKED" else "OVERDUE"
                 Timber.w("PaymentSyncWorker: device should be locked ($status)")
                 lockDeviceUseCase()
+                // Persist the new status so the next sync cycle has the correct oldStatus.
+                securePreferences.cachedPaymentStatus = newStatusStr
                 postEvent(
                     imei,
                     DeviceEventRequest(
@@ -74,10 +76,12 @@ class PaymentSyncWorker @AssistedInject constructor(
             is PaymentStatus.Active, is PaymentStatus.GracePeriod -> {
                 val wasLocked = securePreferences.isDeviceLocked
                 val oldStatusStr = securePreferences.cachedPaymentStatus ?: "LOCKED"
+                val newStatusStr = if (status is PaymentStatus.GracePeriod) "GRACE_PERIOD" else "ACTIVE"
                 Timber.d("PaymentSyncWorker: payment OK ($status)")
                 unlockDeviceUseCase()
+                // Persist the new status so the next sync cycle has the correct oldStatus.
+                securePreferences.cachedPaymentStatus = newStatusStr
                 if (wasLocked) {
-                    val newStatusStr = if (status is PaymentStatus.GracePeriod) "GRACE_PERIOD" else "ACTIVE"
                     postEvent(
                         imei,
                         DeviceEventRequest(
