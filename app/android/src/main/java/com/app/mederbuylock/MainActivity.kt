@@ -69,10 +69,22 @@ class MainActivity : ComponentActivity() {
     /**
      * Keeps the screen on and allows the lock/home screen to be shown over the keyguard,
      * which is required for a proper BNPL lock experience.
+     *
+     * Activity.setShowWhenLocked() and Activity.setTurnScreenOn() were added in API 27
+     * (Android 8.1). On API 26 (Android 8.0, minSdk) the equivalent window flags are used
+     * instead — they are deprecated but functional on all API levels.
      */
     private fun applyWindowFlags() {
-        setShowWhenLocked(true)
-        setTurnScreenOn(true)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        } else {
+            @Suppress("DEPRECATION")
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+            )
+        }
         @Suppress("DEPRECATION")
         window.addFlags(
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or

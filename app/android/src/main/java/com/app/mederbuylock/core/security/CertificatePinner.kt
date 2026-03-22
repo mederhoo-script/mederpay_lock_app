@@ -43,6 +43,6 @@ class AppCertificatePinner @Inject constructor() {
         .build()
 
     companion object {
-        const val HOST = "mederbuy.vercel.app"
+        private const val HOST = "mederbuy.vercel.app"
     }
 }
