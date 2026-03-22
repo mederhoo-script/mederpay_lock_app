@@ -66,22 +66,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true })
   }
 
-  // Fetch agent's Paystack secret to verify signature
+  // Fetch agent's Paystack secret to verify signature.
+  // Reject the webhook entirely if no secret is configured — processing an event
+  // without verifying its authenticity would allow fraudulent payment records.
   const { data: agentSettings } = await supabase
     .from('agent_settings')
     .select('paystack_secret_key_encrypted')
     .eq('agent_id', (saleData as SaleRow).agent_id)
     .maybeSingle()
 
-  if (agentSettings?.paystack_secret_key_encrypted) {
-    const secret = agentSettings.paystack_secret_key_encrypted as string
-    const computed = crypto.createHmac('sha512', secret).update(rawBody).digest('hex')
-    const valid =
-      computed.length === signature.length &&
-      crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(signature))
-    if (!valid) {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
-    }
+  if (!agentSettings?.paystack_secret_key_encrypted) {
+    return NextResponse.json({ error: 'Agent payment configuration not found' }, { status: 401 })
+  }
+
+  const secret = agentSettings.paystack_secret_key_encrypted as string
+  const computed = crypto.createHmac('sha512', secret).update(rawBody).digest('hex')
+  const valid =
+    computed.length === signature.length &&
+    crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(signature))
+  if (!valid) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
   }
 
   const sale = saleData as SaleRow & { phones: { imei: string } | Array<{ imei: string }> | null }

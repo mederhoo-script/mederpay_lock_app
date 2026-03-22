@@ -170,9 +170,13 @@ export async function POST(request: NextRequest) {
 
   if (profileError) {
     console.error('Failed to create sub-agent profile:', profileError)
+    // Roll back the auth user so the email can be reused on retry
+    await serviceSupabase.auth.admin.deleteUser(newUserId)
     return NextResponse.json({ error: 'Failed to create sub-agent profile' }, { status: 500 })
   }
 
+  // Return temp_password so the agent can share it with the sub-agent on first login.
+  // This is intentional: the sub-agent is expected to change their password immediately.
   return NextResponse.json(
     { id: newUserId, full_name, email, username: username || null, phone: phone || null, address: address || null, status: 'active', temp_password: tempPassword },
     { status: 201 },

@@ -48,8 +48,9 @@ export async function GET() {
     email: user.email ?? '',
     full_name: p?.full_name ?? '',
     phone: p?.phone ?? '',
-    bvn: p?.bvn ?? '',
-    nin: p?.nin ?? '',
+    // BVN and NIN are sensitive PII: return only a presence indicator, never the raw value
+    has_bvn: !!(p?.bvn),
+    has_nin: !!(p?.nin),
     active_gateway: s?.active_gateway ?? 'monnify',
     monnify_api_key: s?.monnify_api_key_encrypted ?? '',
     monnify_secret_key: s?.monnify_secret_key_encrypted ?? '',

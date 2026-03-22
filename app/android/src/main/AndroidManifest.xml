@@ -16,6 +16,12 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Required for posting notifications on Android 13+ (API 33+); the lock notification
+         channel and full-screen intent still work on API 26-32 without this permission.
+         Runtime permission request is handled in MainActivity for API 33+. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Required on Android 14+ (API 34+) to use setFullScreenIntent() -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <application
         android:name=".MederBuyLockApp"

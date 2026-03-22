@@ -130,13 +130,30 @@ export async function POST(request: NextRequest) {
   const newWeeksPaid = sale.weeks_paid + 1
   const isComplete = newOutstandingBalance === 0
 
+  // Advance next_due_date by 7 days on partial payments.
+  // Base from the existing due date if it's still in the future; otherwise from today.
+  let newNextDueDate: string | undefined
+  if (!isComplete) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const base = sale.next_due_date ? new Date(sale.next_due_date) : today
+    const d = base > today ? base : today
+    d.setDate(d.getDate() + 7)
+    newNextDueDate = d.toISOString().split('T')[0]
+  }
+
   await supabase
     .from('phone_sales')
     .update({
       total_paid: newTotalPaid,
       outstanding_balance: newOutstandingBalance,
       weeks_paid: newWeeksPaid,
-      ...(isComplete ? { status: 'completed' } : {}),
+      ...(isComplete
+        ? { status: 'completed' }
+        : {
+            next_due_date: newNextDueDate,
+            ...(sale.status === 'lock' ? { status: 'active' } : {}),
+          }),
     })
     .eq('id', sale.id)
 
@@ -162,6 +179,29 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString(),
       })
       if (logError) console.error('Failed to log Monnify unlock event:', logError)
+    }
+  } else if (sale.status === 'lock') {
+    // Partial payment while device was locked — restore phone to 'sold' and log it
+    await supabase
+      .from('phones')
+      .update({ status: 'sold' })
+      .eq('id', sale.phone_id)
+      .eq('status', 'locked')
+
+    const phoneImei = !sale.phones
+      ? null
+      : Array.isArray(sale.phones)
+        ? (sale.phones[0]?.imei ?? null)
+        : sale.phones.imei
+
+    if (phoneImei) {
+      await supabase.from('phone_logs').insert({
+        phone_id: sale.phone_id,
+        imei: phoneImei,
+        event_type: 'PAYMENT_RECEIVED',
+        details: `Payment received via Monnify: device restored, ₦${(newOutstandingBalance / 100).toFixed(2)} remaining`,
+        timestamp: new Date().toISOString(),
+      })
     }
   }
 

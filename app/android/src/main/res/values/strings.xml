@@ -3,4 +3,10 @@
     <string name="app_name">MederBuyLock</string>
     <string name="device_admin_description">MederPay needs device admin access to lock your device when a payment is overdue.</string>
     <string name="support_phone">+2348034295030</string>
+
+    <!-- Notification channel for payment lock alerts -->
+    <string name="notif_channel_lock_name">Payment Lock Alerts</string>
+    <string name="notif_channel_lock_description">Alerts shown when your device is locked due to an overdue payment.</string>
+    <string name="notif_lock_title">Device Locked</string>
+    <string name="notif_lock_text">Your device has been locked due to an outstanding payment. Tap to view details.</string>
 </resources>

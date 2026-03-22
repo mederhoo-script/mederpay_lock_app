@@ -20,6 +20,9 @@ class DeviceRepositoryImpl @Inject constructor(
     private val securePreferences: SecurePreferences,
 ) : DeviceRepository {
 
+    // Android ID is constant for the lifetime of the app installation; compute it once.
+    private val androidId: String by lazy { DeviceUtils.getAndroidId(context) }
+
     override suspend fun getDeviceInfo(imei: String): Result<DeviceInfo> {
         return try {
             val response = apiService.getDeviceInfo(imei)
@@ -28,7 +31,7 @@ class DeviceRepositoryImpl @Inject constructor(
                 val dto = requireNotNull(response.body()) { "Response body was null" }
                 val deviceInfo = DeviceInfo(
                     imei = imei,
-                    androidId = DeviceUtils.getAndroidId(context),
+                    androidId = androidId,
                     isLocked = dto.isLocked,
                     daysOverdue = dto.daysOverdue,
                     paymentDueDate = dto.paymentDueDate ?: "",

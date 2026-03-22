@@ -42,8 +42,10 @@ export async function GET(request: NextRequest) {
   }
 
   if (search) {
+    // Escape PostgREST ilike special characters so user input is treated as a literal string
+    const escaped = search.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_')
     query = query.or(
-      `full_name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`,
+      `full_name.ilike.%${escaped}%,phone.ilike.%${escaped}%,email.ilike.%${escaped}%`,
     )
   }
 

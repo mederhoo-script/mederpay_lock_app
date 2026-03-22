@@ -27,7 +27,10 @@ export const AddPhoneSchema = z.object({
   selling_price: z.number().positive('Selling price must be positive'),
   down_payment: z.number().min(0, 'Down payment cannot be negative'),
   payment_weeks: z.number().int().positive('Payment weeks must be a positive integer'),
-})
+}).refine(
+  (data) => data.down_payment < data.selling_price,
+  { message: 'Down payment must be less than selling price', path: ['down_payment'] },
+)
 
 export const RegisterBuyerSchema = z.object({
   full_name: z.string().min(2, 'Full name is required'),
