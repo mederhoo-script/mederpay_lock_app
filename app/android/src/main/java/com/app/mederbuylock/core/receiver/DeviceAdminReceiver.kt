@@ -21,19 +21,4 @@ class DeviceAdminReceiver : DeviceAdminReceiver() {
         super.onDisabled(context, intent)
         Timber.w("Device admin DISABLED")
     }
-
-    override fun onPasswordChanged(context: Context, intent: Intent) {
-        super.onPasswordChanged(context, intent)
-        Timber.d("Device password changed")
-    }
-
-    override fun onPasswordFailed(context: Context, intent: Intent) {
-        super.onPasswordFailed(context, intent)
-        Timber.w("Password attempt failed")
-    }
-
-    override fun onPasswordSucceeded(context: Context, intent: Intent) {
-        super.onPasswordSucceeded(context, intent)
-        Timber.d("Password attempt succeeded")
-    }
 }
