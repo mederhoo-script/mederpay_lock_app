@@ -3,6 +3,9 @@
 # Retrofit
 -keepattributes Signature
 -keepattributes Exceptions
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
 -keep class retrofit2.** { *; }
 -keep interface retrofit2.** { *; }
 -keepclasseswithmembers class * {
