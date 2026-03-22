@@ -44,12 +44,29 @@ class SecurePreferences @Inject constructor(
 
     var isDeviceLocked: Boolean
         get() = prefs.getBoolean(KEY_IS_LOCKED, false)
-        set(value) = prefs.edit().putBoolean(KEY_IS_LOCKED, value).apply()
+        set(value) {
+            prefs.edit().putBoolean(KEY_IS_LOCKED, value).apply()
+            // Mirror to plain prefs so BootReceiver (no Hilt) can read it after reboot.
+            context.getSharedPreferences(LOCK_STATE_PREFS_NAME, Context.MODE_PRIVATE)
+                .edit().putBoolean(KEY_IS_LOCKED, value).apply()
+        }
+
+    var cachedPaymentStatus: String?
+        get() = prefs.getString(KEY_PAYMENT_STATUS, null)
+        set(value) = prefs.edit().putString(KEY_PAYMENT_STATUS, value).apply()
+
+    var isRegistered: Boolean
+        get() = prefs.getBoolean(KEY_IS_REGISTERED, false)
+        set(value) = prefs.edit().putBoolean(KEY_IS_REGISTERED, value).apply()
 
     companion object {
         const val PREFS_NAME = "mederpay_secure_prefs"
+        // Separate plain-prefs file used only by BootReceiver (no Hilt context available there).
+        const val LOCK_STATE_PREFS_NAME = "mederpay_lock_state"
         const val KEY_DEVICE_TOKEN = "device_token"
         const val KEY_IMEI_CACHE = "imei_cache"
         const val KEY_IS_LOCKED = "is_locked"
+        const val KEY_IS_REGISTERED = "is_registered"
+        const val KEY_PAYMENT_STATUS = "payment_status"
     }
 }

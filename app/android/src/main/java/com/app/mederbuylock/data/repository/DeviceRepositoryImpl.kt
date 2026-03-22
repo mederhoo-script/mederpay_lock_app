@@ -1,7 +1,6 @@
 package com.app.mederbuylock.data.repository
 
 import android.content.Context
-import com.app.mederbuylock.BuildConfig
 import com.app.mederbuylock.core.utils.DeviceUtils
 import com.app.mederbuylock.core.utils.Result
 import com.app.mederbuylock.data.local.SecurePreferences
@@ -23,7 +22,7 @@ class DeviceRepositoryImpl @Inject constructor(
 
     override suspend fun getDeviceInfo(imei: String): Result<DeviceInfo> {
         return try {
-            val response = apiService.getDeviceInfo(imei, BuildConfig.DEVICE_API_SECRET)
+            val response = apiService.getDeviceInfo(imei)
 
             if (response.isSuccessful) {
                 val dto = requireNotNull(response.body()) { "Response body was null" }
@@ -34,11 +33,12 @@ class DeviceRepositoryImpl @Inject constructor(
                     daysOverdue = dto.daysOverdue,
                     paymentDueDate = dto.paymentDueDate ?: "",
                     userName = dto.userName ?: "",
-                    phoneNumber = dto.phoneNumber ?: dto.supportPhone ?: "",
+                    phoneNumber = dto.phoneNumber ?: "",
                     paymentStatus = dto.paymentStatus,
                     accountNumber = dto.accountNumber,
                     balance = dto.balance,
                     paymentUrl = dto.paymentUrl,
+                    supportPhone = dto.supportPhone,
                 )
                 saveDeviceInfo(deviceInfo)
                 Result.Success(deviceInfo)
@@ -62,6 +62,7 @@ class DeviceRepositoryImpl @Inject constructor(
     override suspend fun saveDeviceInfo(deviceInfo: DeviceInfo) {
         deviceDao.insertDeviceInfo(deviceInfo.toEntity())
         securePreferences.isDeviceLocked = deviceInfo.isLocked
+        securePreferences.cachedPaymentStatus = deviceInfo.paymentStatus
     }
 
     // ─── Mappers ─────────────────────────────────────────────────────────────
@@ -78,6 +79,7 @@ class DeviceRepositoryImpl @Inject constructor(
         accountNumber = accountNumber,
         balance = balance,
         paymentUrl = paymentUrl,
+        supportPhone = supportPhone,
     )
 
     private fun DeviceInfo.toEntity() = DeviceInfoEntity(
@@ -92,5 +94,6 @@ class DeviceRepositoryImpl @Inject constructor(
         accountNumber = accountNumber,
         balance = balance,
         paymentUrl = paymentUrl,
+        supportPhone = supportPhone,
     )
 }

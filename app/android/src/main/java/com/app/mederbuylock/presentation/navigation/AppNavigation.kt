@@ -48,7 +48,13 @@ fun AppNavigation(
         }
 
         composable(Screen.LockScreen.route) {
-            LockScreen()
+            LockScreen(
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+            )
         }
     }
 }

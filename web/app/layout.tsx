@@ -7,9 +7,9 @@ export const metadata: Metadata = {
   title: 'MederBuy | Phone Finance Platform',
   description: 'Professional phone financing and installment payment platform.',
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-    apple: '/logo.png',
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
   },
 }
 

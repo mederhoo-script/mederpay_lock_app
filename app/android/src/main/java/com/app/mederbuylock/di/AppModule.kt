@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.room.Room
 import com.app.mederbuylock.BuildConfig
 import com.app.mederbuylock.core.security.AppCertificatePinner
+import com.app.mederbuylock.core.security.DeviceSecretInterceptor
 import com.app.mederbuylock.data.local.dao.DeviceDao
 import com.app.mederbuylock.data.local.db.AppDatabase
 import com.app.mederbuylock.data.remote.ApiService
@@ -37,12 +38,16 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(certificatePinner: AppCertificatePinner): OkHttpClient {
+    fun provideOkHttpClient(
+        certificatePinner: AppCertificatePinner,
+        deviceSecretInterceptor: DeviceSecretInterceptor,
+    ): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
                     else HttpLoggingInterceptor.Level.NONE
         }
         return OkHttpClient.Builder()
+            .addInterceptor(deviceSecretInterceptor)
             .addInterceptor(logging)
             // ⚠️ Uncomment the line below once real certificate pins are configured:
             // .certificatePinner(certificatePinner.build())
@@ -56,7 +61,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://api.mederpay.com/v1/")
+            .baseUrl(BuildConfig.API_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

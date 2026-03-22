@@ -59,3 +59,9 @@
 -keep class com.app.mederbuylock.MederBuyLockApp { *; }
 -keep class com.app.mederbuylock.MainActivity { *; }
 -keep class com.app.mederbuylock.core.receiver.** { *; }
+
+# Transitive annotations used by crypto dependencies; safe to ignore for runtime.
+-dontwarn com.google.errorprone.annotations.CanIgnoreReturnValue
+-dontwarn com.google.errorprone.annotations.CheckReturnValue
+-dontwarn com.google.errorprone.annotations.Immutable
+-dontwarn com.google.errorprone.annotations.RestrictedApi

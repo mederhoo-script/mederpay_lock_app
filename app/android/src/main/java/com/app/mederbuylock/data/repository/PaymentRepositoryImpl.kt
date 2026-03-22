@@ -1,6 +1,5 @@
 package com.app.mederbuylock.data.repository
 
-import com.app.mederbuylock.BuildConfig
 import com.app.mederbuylock.core.utils.Result
 import com.app.mederbuylock.data.remote.ApiService
 import com.app.mederbuylock.data.remote.dto.DeviceEventRequest
@@ -16,7 +15,7 @@ class PaymentRepositoryImpl @Inject constructor(
     override suspend fun checkPaymentStatus(imei: String): Result<PaymentStatus> {
         return try {
             // The GET endpoint is the authoritative source for device + payment state.
-            val response = apiService.getDeviceInfo(imei, BuildConfig.DEVICE_API_SECRET)
+            val response = apiService.getDeviceInfo(imei)
             if (response.isSuccessful) {
                 val dto = requireNotNull(response.body()) { "Response body was null" }
 
@@ -24,7 +23,6 @@ class PaymentRepositoryImpl @Inject constructor(
                 try {
                     apiService.postDeviceEvent(
                         imei,
-                        BuildConfig.DEVICE_API_SECRET,
                         DeviceEventRequest(eventType = "STATUS_CHECK"),
                     )
                 } catch (e: Exception) {

@@ -1,5 +1,5 @@
 # MederBuy Lock — Monorepo
-
+ 
 Phone-installment financing platform.  
 An agent sells a phone on credit; the Android app enforces repayment by locking the device until the loan is fully repaid.
 
@@ -31,16 +31,24 @@ It polls the MederBuy web API to determine whether to show or release the lock s
 | Min SDK | 26 (Android 8) |
 | Target SDK | 34 |
 
-**Build:**
+**Build locally:**
 
 ```bash
+# Copy template and fill in values
+cp app/gradle.properties.example app/gradle.properties
+
 # Debug APK  (run from the app/ directory)
 cd app
 ./gradlew :android:assembleDebug
 
-# Release APK (requires signing config)
+# Release APK (requires signing config in gradle.properties)
 ./gradlew :android:assembleRelease
 ```
+
+**Build via CI (recommended for production):**
+
+Push to `main` or go to **Actions → Build Release APK → Run workflow** in GitHub.  
+See the [GitHub Secrets](#required-github-secrets-for-ci) table below for required values.
 
 ### `web/`
 
@@ -100,15 +108,48 @@ cp web/.env.example web/.env.local
 
 ### Android (`app/gradle.properties`)
 
-The Android build injects `ANDROID_DEVICE_API_SECRET` into `BuildConfig` at compile time.  
-It must be the **same value** as in `web/.env.local`.
+The Android build injects secrets into `BuildConfig` at compile time.  
+`ANDROID_DEVICE_API_SECRET` must be the **same value** as in `web/.env.local`.
 
 ```bash
 cp app/gradle.properties.example app/gradle.properties
-# then set ANDROID_DEVICE_API_SECRET to the same value as in web/.env.local
+# Open app/gradle.properties and fill in all values
 ```
 
 `app/gradle.properties` is git-ignored — never commit the real file.
+
+---
+
+## Required GitHub Secrets for CI
+
+Add these in **Settings → Secrets and variables → Actions → New repository secret**  
+before triggering the [Build Release APK](.github/workflows/build-release-apk.yml) workflow.
+
+| Secret | Required | Description |
+|--------|----------|-------------|
+| `ANDROID_DEVICE_API_SECRET` | ✅ | Shared secret — must match `ANDROID_DEVICE_API_SECRET` in `web/.env.local` |
+| `ANDROID_API_BASE_URL` | ✅ | REST API base URL, e.g. `https://mederbuy.vercel.app/api/` (trailing slash required) |
+| `ANDROID_KEYSTORE_BASE64` | ✅ | Base64-encoded `.jks` / `.keystore` file: `base64 -w 0 release.keystore` |
+| `ANDROID_KEYSTORE_PASSWORD` | ✅ | Password used when the keystore was created |
+| `ANDROID_KEY_ALIAS` | ✅ | Key alias inside the keystore (e.g. `mederbuylock`) |
+| `ANDROID_KEY_PASSWORD` | ✅ | Password for the key entry |
+
+> **One-time keystore generation** (run once, keep the file safe):
+> ```bash
+> keytool -genkeypair -v -keystore release.keystore \
+>   -alias mederbuylock -keyalg RSA -keysize 2048 -validity 9125 \
+>   -storepass YOUR_STRONG_PASSWORD -keypass YOUR_STRONG_PASSWORD \
+>   -dname "CN=MederBuyLock, O=MederBuy, C=KG"
+>
+> # Encode for the GitHub Secret:
+> base64 -w 0 release.keystore
+> ```
+>
+> ⚠️ **Keep the keystore and its passwords safe.** If you lose them you cannot
+> update the app on devices where it is already installed.
+
+The signed APK is uploaded as a **workflow artifact** and available for download
+from the Actions run page for 30 days.
 
 ## Contributing
 

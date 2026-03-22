@@ -28,6 +28,37 @@ android {
             "DEVICE_API_SECRET",
             "\"${project.findProperty("ANDROID_DEVICE_API_SECRET") ?: "change-me-before-release"}\"",
         )
+
+        // Base URL for the MederPay REST API consumed by this app.
+        // Override at build time via: -PANDROID_API_BASE_URL=https://your-domain/api/
+        buildConfigField(
+            "String",
+            "API_BASE_URL",
+            "\"${project.findProperty("ANDROID_API_BASE_URL") ?: "https://mederbuy.vercel.app/api/"}\"",
+        )
+    }
+
+    // Release signing — reads from gradle.properties (never committed to VCS).
+    // In CI the properties are written to app/gradle.properties from GitHub Secrets.
+    // Locally: copy app/gradle.properties.example → app/gradle.properties and fill in values.
+    val keystorePath = (project.findProperty("ANDROID_KEYSTORE_PATH") as? String).orEmpty()
+    val keystorePassword = (project.findProperty("ANDROID_KEYSTORE_PASSWORD") as? String).orEmpty()
+    val keyAliasValue = (project.findProperty("ANDROID_KEY_ALIAS") as? String).orEmpty()
+    val keyPasswordValue = (project.findProperty("ANDROID_KEY_PASSWORD") as? String).orEmpty()
+    val hasSigningConfig = keystorePath.isNotBlank() &&
+            keystorePassword.isNotBlank() &&
+            keyAliasValue.isNotBlank() &&
+            keyPasswordValue.isNotBlank()
+
+    if (hasSigningConfig) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = keystorePassword
+                keyAlias = keyAliasValue
+                keyPassword = keyPasswordValue
+            }
+        }
     }
 
     buildTypes {
@@ -42,6 +73,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (hasSigningConfig) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 

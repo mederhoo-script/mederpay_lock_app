@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { ScrollText } from 'lucide-react'
 
@@ -20,20 +19,11 @@ export default async function LogsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // get agent's and subagents' phone ids for log visibility
-  const { data: subagentProfiles } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('parent_agent_id', user.id)
-    .eq('role', 'subagent')
-  const subagentIds = (subagentProfiles ?? []).map((p) => p.id)
-  const ownerIds = [user.id, ...subagentIds]
-
   // get agent's phone ids first
   const { data: phones } = await supabase
     .from('phones')
     .select('id, imei')
-    .in('agent_id', ownerIds)
+    .eq('agent_id', user.id)
 
   const phoneIds = (phones ?? []).map((p) => p.id)
   const imeiMap: Record<string, string> = {}
@@ -69,7 +59,6 @@ export default async function LogsPage() {
                   <th>Old Status</th>
                   <th>New Status</th>
                   <th>Timestamp</th>
-                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -90,11 +79,6 @@ export default async function LogsPage() {
                     </td>
                     <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
                       {new Date(log.created_at).toLocaleString()}
-                    </td>
-                    <td>
-                      {log.phone_id && (
-                        <Link href={`/agent/phones/${log.phone_id}`} className="btn btn-ghost btn-sm">View Phone</Link>
-                      )}
                     </td>
                   </tr>
                 ))}

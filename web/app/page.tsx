@@ -10,7 +10,14 @@ export default function LandingPage() {
       flexDirection: 'column',
     }}>
       {/* Nav */}
-      <nav className="landing-nav">
+      <nav style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '1rem 2rem',
+        borderBottom: '1px solid var(--border)',
+        background: 'var(--bg-sidebar)',
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.svg" alt="MederBuy logo" width={32} height={32} style={{ borderRadius: '8px' }} />
@@ -23,26 +30,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <main className="landing-hero">
-        {/* Decorative background */}
-        <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)', width: '900px', height: '600px', background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.18) 0%, rgba(99,102,241,0.06) 45%, transparent 70%)', borderRadius: '50%' }} />
-          <div style={{ position: 'absolute', top: '10%', left: '-5%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(16,185,129,0.10) 0%, transparent 70%)', borderRadius: '50%' }} />
-          <div style={{ position: 'absolute', bottom: '5%', right: '-5%', width: '350px', height: '350px', background: 'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%)', borderRadius: '50%' }} />
-          {/* Subtle dot grid */}
-          <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.07 }} xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1.5" fill="currentColor" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#dots)" />
-          </svg>
-        </div>
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        {/* Hero logo */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="MederBuy" style={{ height: '72px', width: 'auto', borderRadius: '16px', marginBottom: '1.5rem', boxShadow: '0 8px 32px rgba(99,102,241,0.25)' }} />
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 2rem', textAlign: 'center' }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
           background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.25)',
@@ -52,22 +40,25 @@ export default function LandingPage() {
           <Smartphone size={12} /> Phone Finance Platform
         </div>
 
-        <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 3.5rem)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1, marginBottom: '1.25rem', maxWidth: '700px', textAlign: 'center' }}>
+        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1, marginBottom: '1.25rem', maxWidth: '700px' }}>
           Sell Phones on Installments.{' '}
           <span style={{ color: 'var(--accent)' }}>Get Paid Automatically.</span>
         </h1>
 
-        <p style={{ fontSize: 'clamp(0.9375rem, 2vw, 1.125rem)', color: 'var(--text-secondary)', maxWidth: '560px', lineHeight: 1.6, marginBottom: '2.5rem', textAlign: 'center', padding: '0 1rem' }}>
+        <p style={{ fontSize: '1.125rem', color: 'var(--text-secondary)', maxWidth: '560px', lineHeight: 1.6, marginBottom: '2.5rem' }}>
           MederBuy helps agents manage phone inventory, create installment payment plans, and automatically lock devices when payments are missed.
         </p>
 
-        <div className="landing-cta-buttons">
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           <Link href="/register" className="btn btn-primary btn-lg">Start for Free</Link>
           <Link href="/login" className="btn btn-secondary btn-lg">Sign In</Link>
         </div>
 
         {/* Features */}
-        <div className="landing-features">
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '1.25rem', marginTop: '5rem', width: '100%', maxWidth: '900px',
+        }}>
           {[
             { icon: Smartphone, title: 'Inventory Management', desc: 'Track every phone by IMEI with full sale history.', color: 'var(--info)' },
             { icon: TrendingUp, title: 'Installment Plans', desc: 'Flexible weekly payment plans with automatic tracking.', color: 'var(--success)' },
@@ -82,7 +73,6 @@ export default function LandingPage() {
               <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{desc}</p>
             </div>
           ))}
-        </div>
         </div>
       </main>
 

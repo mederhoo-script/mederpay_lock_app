@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatNaira } from '@/lib/utils'
 import { CreditCard } from 'lucide-react'
@@ -14,7 +13,7 @@ export default async function SuperadminPaymentsPage() {
   const { data: payments } = await supabase
     .from('payments')
     .select(`
-      id, sale_id, gateway_reference, amount, gateway, status, paid_at, created_at,
+      id, gateway_reference, amount, gateway, status, paid_at, created_at,
       phone_sales(
         agent_id,
         buyers(full_name),
@@ -46,7 +45,6 @@ export default async function SuperadminPaymentsPage() {
                   <th>Gateway</th>
                   <th>Status</th>
                   <th>Paid At</th>
-                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -69,11 +67,6 @@ export default async function SuperadminPaymentsPage() {
                       </td>
                       <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
                         {pmt.paid_at ? new Date(pmt.paid_at).toLocaleString() : '—'}
-                      </td>
-                      <td>
-                        {pmt.sale_id && (
-                          <Link href={`/superadmin/sales/${pmt.sale_id}`} className="btn btn-ghost btn-sm">View Sale</Link>
-                        )}
                       </td>
                     </tr>
                   )
